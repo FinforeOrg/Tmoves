@@ -1,0 +1,33 @@
+<% content_for :title, "Twitter Accounts" %>
+<span id="welcome">Twitter Accounts</span>
+<br />
+<div class="block">
+  <div class="block-header">
+    <%= link_to "Create New Twitter", auth_admin_scanner_accounts_path, {:class => 'link-custom'} %>
+  </div>
+  <div id="block-table" class="block-main">
+    <table class="block-main-table">
+      <tbody>
+        <tr>
+          <th width="60%">Username</th>
+	  <th width="5%">Used?</th>
+	  <th width="5%">Oauth?</th>
+          <th>Action</th>
+        </tr>
+        <% @scanner_accounts.each do |scanner_account| %>
+          <tr>
+            <td><%= scanner_account.username %></td>
+	    <td><%= scanner_account.is_used ? "Yes" : "No" %></td>
+	    <td><%= scanner_account.token ? "Yes" : "No" %></td>
+            <td>
+                <%= link_to image_tag("icon-edit.png", {:border => 0}), edit_admin_scanner_account_path(scanner_account) %> <span>Edit</span> | 
+                <%= link_to image_tag("icon-edit.png", {:border => 0}), auth_admin_scanner_accounts_path({:acct_id=>scanner_account.id.to_s}) %> <span>Auth</span> | 
+                <%= link_to image_tag("icon-cancel.png", {:border => 0}), admin_scanner_account_path({:id=>scanner_account.id,:destroy=>true}), :confirm => 'Are you sure?', :method => :delete %>
+                <span>Delete</span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<% content_for :title, "Forgot Password" %>
+
+<div id="login-panel">
+  <span id="title">Admin Finfore-Stream</span><br />
+  <span id="login-subtitle">Please enter your email.</span>
+  <div id="login-form">
+    <%= form_for("admin", :url => admin_password_path) do |f| %>
+      <%= devise_error_messages! %>
+
+      <div id="login-username" class="right">Email</div>
+      <%= f.email_field :email %>
+      <%= f.submit 'Send', {:id => 'login-signin', :class => 'button'} %>
+    <% end %>
+  </div>
+</div>

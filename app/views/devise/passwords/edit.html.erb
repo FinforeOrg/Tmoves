@@ -1,0 +1,20 @@
+<% content_for :title, "Edit Password" %>
+
+<div id="login-panel">
+  <span id="title">Admin Finfore-Stream</span><br />
+  <span id="login-subtitle">Please enter your new password.</span>
+  <div id="login-form">
+    <%= form_for("admin", :url => admin_password_path,:html => { :method=>:put }) do |f| %>
+      <%= devise_error_messages! %>
+      <%= f.hidden_field :reset_password_token %>
+      <div id="login-password" class="right" style="width:100px;">New Password</div>
+      <%= f.password_field :password %>
+      <div class="login-delimiter">&nbsp;</div>
+      <div id="login-password" class="right" style="width:100px;">Confirm New Password</div>
+      <%= f.password_field :password_confirmation,{:id=>"admin_password"} %>
+      <br/><br/>
+      <%= f.submit 'Change', {:id => 'login-signin', :class => 'button'} %>
+    <% end %>
+  </div>
+</div>
+   

@@ -1,0 +1,29 @@
+class DailyTweet
+  include Mongoid::Document
+  include Mongoid::MapReduce
+
+  field :total, :type => Integer
+  field :created_at, :type => Time
+  field :follower, :type => Integer
+
+  index :created_at
+  index [[:created_at, Mongo::DESCENDING]]
+
+  belongs_to :keyword
+
+ # cache
+  
+  def self.total_and_follower(start_date,is_single = true, keyword_id = nil)
+	resources = self.where({:created_at.gte => start_date, :created_at.lt => start_date.tomorrow})
+    resources = resources.where({:keyword_id => keyword_id}) unless keyword_id.blank?
+    resources = resources.map_reduce(:keyword_id, :fields => [:total,:follower])
+	resources = resources.first if is_single
+    return resources
+  end
+  
+  def self.mapreduce_by_range_and_ids(start_date, end_date, ids)
+	self.where({:created_at.gte => start_date, :created_at.lt => end_date, :keyword_id.in => ids}).map_reduce(:keyword_id, :fields => [:total,:follower])
+  end
+
+
+end

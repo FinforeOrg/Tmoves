@@ -1,0 +1,10 @@
+weekly_tweet:
+  cron: 0 0 * * mon
+  class: WeeklyTweet
+  args:
+  description: "Count Total Tweets from Keywords Per Week"
+daily_tweet:
+  cron: 0 0 * * *
+  class: DailyTweet
+  args:
+  description: "Count Total Tweets from Keywords Every Midnight"

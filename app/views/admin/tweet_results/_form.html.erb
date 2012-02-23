@@ -1,0 +1,57 @@
+<%= form_for(@tweet_result) do |f| %>
+  <% if @tweet_result.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@tweet_result.errors.count, "error") %> prohibited this tweet_result from being saved:</h2>
+
+      <ul>
+      <% @tweet_result.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :tweet_id %><br />
+    <%= f.text_field :tweet_id %>
+  </div>
+  <div class="field">
+    <%= f.label :retweet_count %><br />
+    <%= f.text_field :retweet_count %>
+  </div>
+  <div class="field">
+    <%= f.label :coordinates %><br />
+    <%= f.text_area :coordinates %>
+  </div>
+  <div class="field">
+    <%= f.label :geo %><br />
+    <%= f.text_area :geo %>
+  </div>
+  <div class="field">
+    <%= f.label :place %><br />
+    <%= f.text_area :place %>
+  </div>
+  <div class="field">
+    <%= f.label :source %><br />
+    <%= f.text_area :source %>
+  </div>
+  <div class="field">
+    <%= f.label :created_at %><br />
+    <%= f.datetime_select :created_at %>
+  </div>
+  <div class="field">
+    <%= f.label :tweet_text %><br />
+    <%= f.text_area :tweet_text %>
+  </div>
+  <div class="field">
+    <%= f.label :keywords %><br />
+    <%= f.text_area :keywords %>
+  </div>
+  <div class="field">
+    <%= f.label :lang %><br />
+    <%= f.text_field :lang %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

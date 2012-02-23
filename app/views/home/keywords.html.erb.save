@@ -1,0 +1,115 @@
+<div class="content-box-3" style="width:100%; margin:0 auto;">
+  <div class="block" style="float:left;width:850px;position:relative;overflow:hidden;margin-right:10px;">
+    <div class="block-header">
+      Featured Chart : <%= @keyword.title %>
+    </div>
+    <div id="block-table" class="block-main">
+     <div id="tab-history" class="">
+       <% if @chart_type == "average" %>
+         <div class="average_chart" style="height:250px;">
+           <%= image_tag("indicator.gif") %> loading averages chart ...
+         </div>
+      <% else %>
+         <div class="audience_chart" style="height:250px;">
+           <%= image_tag("indicator.gif") %> loading audiences chart ...
+         </div>
+      <% end %>
+     </div>
+    </div>
+  </div>
+
+  <div class="block" style="float:left;width:250px;position:relative;overflow:hidden;margin-right:10px;">
+    <div class="block-header">
+      Site Statistics
+    </div>
+    <div id="block-table" class="block-main">
+      <table class="block-main-table">
+        <tbody>
+          <tr class="header">
+            <th>Keyword Tracked</th>
+            <th>Tweets</th>
+          </tr>
+          <tr class="single_row">
+            <td>1 Month</td>
+            <td class="tweet_month1"><%= number_with_delimiter(@month1) %></td>
+          </tr>
+          <tr class="single_row">         
+            <td>6 Months</td>
+            <td class="tweet_month6"><%= number_with_delimiter(@month6) %></td>
+          </tr>
+          <tr class="single_row">
+            <td>Total Database</td>
+            <td class="total_db" style="font-weight:bold;font-size:16px;"><%= number_with_delimiter(@total) %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div style="clear:both">&nbsp;</div>
+</div>
+
+<h1>Tracked Keywords</h1>
+<p style="font-size:12px;">(*) A Green Arrow indicates that the Tweet volume in the last month is more than 50% greater than the average over the last 6 months. A Red Arrow indicated that Tweet volume was less than 75% of the average. No indicator implies that Tweet volume over the last month was between 75% and 150% of the average over the last 6 months.</p>
+<p>&nbsp;</p>
+
+
+<div class="content-box-3" style="width:95%; margin:0 auto;" id="block-tab">
+ <div class="block-main" id="block-table">
+
+   <%= image_tag("indicator.gif") %>  
+   <p>preparing tabs ...</p>
+ </div>
+</div>
+
+<script type='text/javascript' src='http://www.google.com/jsapi'></script>
+<script type='text/javascript'>
+google.load('visualization', '1', {'packages':['corechart','annotatedtimeline']});
+
+$(document).ready(function(){
+ <% if @chart_type == "average" %>
+  $(".average_chart").lineChart({
+     url: "/average_statistic/<%= @keyword.title.gsub(/\s/,'-') %>/<%= @keyword.id.to_s %>.json",
+     parameters: {},
+     title: "DAILY TWEETS V 7 DAY AVERAGE, LAST 2 MONTHS",
+     api: google,
+     colors: ['blue','red','orange'],
+     series: {0:{targetAxisIndex:0,visibleInLegend: true},1:{targetAxisIndex:0,visibleInLegend: true},2:{targetAxisIndex:1, visibleInLegend: true}},
+     vAxes: {0:{title:'No. of Tweets',textStyle:{color: 'blue'}}, 1:{title:'Price (US$)',textStyle:{color: 'orange'}}},
+     displayLegend: "top"
+  });
+ <% else %>
+  $(".audience_chart").lineChart({
+     url: "/follower_weight/<%= @keyword.title.gsub(/\s/,'-') %>/<%= @keyword.id.to_s %>.json",
+     parameters: {"audience":true},
+     title: "DAILY AUDIENCES & TWEETS, LAST 14 DAYS",
+     api: google,
+     displayLegend: "top",
+     series: [{targetAxisIndex:0,visibleInLegend: true},{targetAxisIndex:1, visibleInLegend: true}],
+     vAxes: {0:{title:'Audience',textStyle:{color: 'orange'}}, 1:{title:'No. of Tweets',textStyle:{color: 'blue'}}},
+     colors: ['orange','blue']
+  });
+
+ <% end %>
+
+    var reload_total_records = function(){
+    clearInterval(refresh_total_page);
+    $.get("/total_records", {},
+          function(response) {
+             if(response && response != ""){
+               var _total_page = $.formatNumber( response, {format:"#,000"} )
+               $("td.total_db").html(_total_page);
+             }
+             refresh_total_page = setInterval(reload_total_records, 5000);
+          });
+  };
+ var refresh_total_page = setInterval(reload_total_records, 5000);
+
+ $.get("/categories_tab",{},function(response){
+   $( "#block-tab" ).html(response);
+   $( "#block-tab" ).tabs(); 
+ })
+ 
+});
+
+</script>
+

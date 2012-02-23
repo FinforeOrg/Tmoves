@@ -1,0 +1,54 @@
+<div id="welcome-container">
+  <span id="title">Admin Interface</span>
+  <br />
+  Hello&nbsp;<span id="username"><%=current_admin.email%></span>
+</div>
+<div id="out">
+  <%= link_to "Sign out ", logout_path %>
+  <%=  image_tag("sign-out.png", {:border => 0}) %>
+</div>
+<ul id="menu-h-items">
+  <li>
+    <% default_tweet_img = controller_name.match(/tweet_result/i) ? "tweet_results_selected.png" : "blue/tweet_results.png" %>
+    <%= image_tag(default_tweet_img, {:border => 0}) %>
+    <%= link_to image_tag("tweet_results_selected.png", {:border => 0, :class => "hover"}),admin_tweet_results_path %>
+  </li>
+  <li>
+    <% default_keyword_img = controller_name.match(/keyword/i) ? "keywords_selected.png" : "blue/keywords.png" %>
+    <%= image_tag(default_keyword_img, {:border => 0}) %>
+    <%= image_tag("keywords_selected.png", {:border => 0, :class => "hover"}) %>
+    <ul id="keywords-submenu" class="submenu">
+      <li><%= link_to "Categories", admin_keyword_categories_path %></li>
+      <li><%= link_to "Keywords", admin_keywords_path %></li>
+    </ul>
+  </li>
+  <li>
+    <% default_account_img = controller_name.match(/scanner_account/i) ? "twitter_accounts_selected.png" : "blue/twitter_accounts.png" %>
+    <%= image_tag(default_account_img, {:border => 0}) %>
+    <%= link_to image_tag("twitter_accounts_selected.png", {:border => 0, :class => "hover"}), admin_scanner_accounts_path %>
+  </li>
+  <li>
+    <% default_track_img = controller_name.match(/scanner_task/i) ? "tracks_board_selected.png" : "blue/tracks_board.png" %>
+    <%= image_tag(default_track_img, {:border => 0}) %>
+    <%= link_to image_tag("tracks_board_selected.png", {:border => 0, :class => "hover"}), admin_scanner_tasks_path %>
+  </li>
+  <li>
+    <% default_export_img = controller_name.match(/export/i) ? "reports_selected.png" : "blue/reports.png" %>
+    <%= image_tag(default_export_img, {:border => 0}) %>
+    <%= link_to image_tag("reports_selected.png", {:border => 0, :class => "hover"}), admin_exports_path %>
+  </li>
+  <li>
+    <% default_statistic_img = controller_name.match(/statistic|chart/i) ? "statistics_selected.png" : "blue/statistics.png" %>
+    <%= image_tag(default_statistic_img, {:border => 0}) %>
+    <%= image_tag("statistics_selected.png", {:border => 0, :class => "hover"}) %>
+    <ul id="keywords-submenu" class="submenu">
+      <li><%= link_to "Statistics", admin_statistics_path %></li>
+      <li><%= link_to "Chart Types", admin_chart_types_path %></li>
+    </ul>
+  </li>
+    <li>
+    <% default_users_img = controller_name.match(/user/i) ? "users_selected.png" : "blue/users.png" %>
+    <%= image_tag(default_users_img, {:border => 0}) %>
+    <%= link_to image_tag("users_selected.png", {:border => 0, :class => "hover"}), admin_users_path %>
+  </li>
+</ul>

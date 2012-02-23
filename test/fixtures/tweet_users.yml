@@ -1,0 +1,39 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  description: MyText
+  followers_count: 1
+  statuses_count: 1
+  url: MyText
+  location: MyString
+  friends_count: 1
+  favourites_count: 1
+  time_zone: MyString
+  is_protected: false
+  profile_image_url: MyText
+  screen_name: MyString
+  lang: MyString
+  name: MyString
+  notifications: MyText
+  twitter_id: MyString
+  joined_at: 2011-06-15 20:42:42
+  listed_count: 1
+
+two:
+  description: MyText
+  followers_count: 1
+  statuses_count: 1
+  url: MyText
+  location: MyString
+  friends_count: 1
+  favourites_count: 1
+  time_zone: MyString
+  is_protected: false
+  profile_image_url: MyText
+  screen_name: MyString
+  lang: MyString
+  name: MyString
+  notifications: MyText
+  twitter_id: MyString
+  joined_at: 2011-06-15 20:42:42
+  listed_count: 1

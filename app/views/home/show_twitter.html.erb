@@ -1,0 +1,81 @@
+<div class="block">
+  <div class="block-header"><%= @tweet_user.name %></div>
+  <div class="block-main" id="block-form">
+   <div style="float:left;padding-right:6px;">
+     <%= image_tag(@tweet_user.profile_image_url) %>
+   </div>
+   <div style="float:right;padding-right:6px;">
+     <p>
+	<b><%= link_to @tweet_user.screen_name, "http://www.twitter.com/#{@tweet_user.screen_name}",{:target=>"_blank"} %></b>
+     </p>
+     <br/>
+     <p>
+	<b>Followers: </b>
+        <%= @tweet_user.followers_count %>
+     </p>
+     <br/>
+     <p>
+	<b>Friends: </b>
+        <%= @tweet_user.friends_count %>
+     </p>
+          <br/>
+  	<p>
+	  <b>Twitter ID#: </b>
+	  <%= @tweet_user.twitter_id %>
+	</p>
+     <br/>
+	<p>
+	  <b>Joined at: </b>
+	  <%= @tweet_user.joined_at %>
+	</p>
+     <br/>
+	<p>
+	  <b>Listed count: </b>
+	  <%= @tweet_user.listed_count %>
+	</p>
+     <br/>
+     <p>
+	<b>Total Favourites: </b>
+        <%= @tweet_user.favourites_count %>
+     </p>
+     <br/>
+     <p>
+	<b>Total Status: </b>
+        <%= @tweet_user.statuses_count %>
+     </p>
+     <br/>
+     <p>
+	<b>Description: </b>
+        <%= @tweet_user.description %>
+     </p>
+     <br/>
+     <p>
+	<b>Location: </b>
+        <%= @tweet_user.location %>
+     </p>
+     <br/>
+     <p>
+	<b>Time zone: </b>
+        <%= @tweet_user.time_zone %>
+     </p>
+     <br/>
+     <p>
+	<b>Notifications: </b>
+        <%= @tweet_user.notifications %>
+     </p>
+     <br/>
+     <p>
+	<b>Language: </b>
+        <%= @tweet_user.lang %>
+     </p>
+     <br/>
+     <p>
+	<b>Protected: </b>
+        <%= @tweet_user.is_protected %>
+     </p>
+
+   </div>
+   <div style="clear:both"></div>
+
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<% content_for :title, "User List" %>
+<span id="welcome">User List</span>
+<br />
+<div class="block">
+  <div class="block-header">
+    <%= link_to "Create New User", new_admin_user_path, {:class => 'link-custom'} %>
+  </div>
+  <div id="block-table" class="block-main">
+    <table class="block-main-table">
+      <tbody>
+        <tr>
+          <th width="80%">Username</th>
+          <th>Action</th>
+        </tr>
+        <% @users.each do |user| %>
+          <tr>
+            <td><%= user.email %></td>
+            <td>
+                <%= link_to image_tag("icon-edit.png", {:border => 0}), edit_admin_user_path(user) %> <span>Edit</span> | 
+                <%= link_to image_tag("icon-cancel.png", {:border => 0}), admin_user_path({:id=>user.id,:destroy=>true}), :confirm => 'Are you sure?', :method => :delete %>
+                <span>Delete</span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

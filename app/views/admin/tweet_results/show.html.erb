@@ -1,0 +1,55 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Tweet:</b>
+  <%= @tweet_result.tweet_id %>
+</p>
+
+<p>
+  <b>Retweet count:</b>
+  <%= @tweet_result.retweet_count %>
+</p>
+
+<p>
+  <b>Coordinates:</b>
+  <%= @tweet_result.coordinates %>
+</p>
+
+<p>
+  <b>Geo:</b>
+  <%= @tweet_result.geo %>
+</p>
+
+<p>
+  <b>Place:</b>
+  <%= @tweet_result.place %>
+</p>
+
+<p>
+  <b>Source:</b>
+  <%= @tweet_result.source %>
+</p>
+
+<p>
+  <b>Created at:</b>
+  <%= @tweet_result.created_at %>
+</p>
+
+<p>
+  <b>Tweet text:</b>
+  <%= @tweet_result.tweet_text %>
+</p>
+
+<p>
+  <b>Keywords:</b>
+  <%= @tweet_result.keywords %>
+</p>
+
+<p>
+  <b>Lang:</b>
+  <%= @tweet_result.lang %>
+</p>
+
+
+<%= link_to 'Edit', edit_tweet_result_path(@tweet_result) %> |
+<%= link_to 'Back', tweet_results_path %>

@@ -1,0 +1,35 @@
+embed_assets: on
+
+javascripts:
+  basic:
+    - public/javascripts/jquery.js
+  workspace:
+    - public/javascripts/jquery-ui-1.8.6.custom.min.js
+    - public/javascripts/jquery.ui.combobox.js
+    - public/javascripts/jquery.custom_radio_checkbox.js
+    - public/javascripts/jquery_ujs.min.js
+    - public/javascripts/startup.js
+    - public/javascripts/jquery.form.js
+    - public/javascripts/jquery-ui-numeric.js
+    - public/javascripts/jquery.ui.tabs.js
+    - public/javascripts/stream.tweets.js
+    - public/javascripts/stream.statistics.js
+    - public/javascripts/jquery.tablednd.js
+  tickbox:
+    - public/javascripts/jquery.mousewheel-3.0.4.pack.js
+    - public/javascripts/jquery.fancybox-1.3.4.pack.js
+    - public/javascripts/jquery.easing-1.3.pack.js
+
+stylesheets:
+  admin:
+    - public/stylesheets/admin.css
+    - public/stylesheets/scaffold.css
+  common:
+    - public/stylesheets/styles-blue.css
+  workspace:
+    - public/stylesheets/jquery.ui.base.css
+    - public/stylesheets/jquery.ui.tabs.css
+    - public/stylesheets/ui.combobox.css
+    - public/stylesheets/ui.checkradio.css
+    - public/stylesheets/ui.checkradio.css
+    - public/stylesheets/jquery.fancybox-1.3.4.css

@@ -1,0 +1,77 @@
+<% if @category %>
+  <style>
+   .myDragClass{
+      background: #CCCFFF;
+   }
+  </style>
+<% end %>
+
+<% content_for :title, "keyword" %>
+<span id="welcome">Listing keywords <%= @category ? @category.title : "" %></span>
+<br />
+<div class="block">
+  <div class="block-header">
+    <%= link_to "Create New Keyword", new_admin_keyword_path({:cat => params[:cat]}), {:class => 'link-custom'} %>
+    <% if @category %>
+      <div id="type-selector">
+         <%= link_to "Save Orders", "#", {:class => 'link-custom save_orders', :onclick=> "javascript:check_orders();"} %>
+      </div>
+    <% end %>
+  </div>
+  <div id="block-table" class="block-main">
+    <table class="block-main-table" id="keyword_table">
+      <tbody>
+        <tr>
+          <th width="40%">Keywords</th>
+          <th width="20%">Tickers</th>
+          <th width="20%">Category</th>
+          <th>Action</th>
+        </tr>
+        <% @keywords.each do |keyword| %>
+          <% categories = keyword.keyword_categories.only(:id,:title) %>
+          <tr id="<%= keyword.id %>">
+            <td><%= keyword.title %></td>
+            <td><%= keyword.ticker %></td>
+            <td><% categories.each do |category| %>
+               <%= link_to(category.title, admin_keywords_path({:cat => category.id})) %> &nbsp; <% end  %></td>
+            <td>
+                <%= link_to image_tag("icon-edit.png", {:border => 0}), edit_admin_keyword_path(keyword) %> <span>Edit</span> | 
+                <%= link_to image_tag("icon-cancel.png", {:border => 0}), admin_keyword_path(keyword), :confirm => 'Are you sure?', :method => :delete %>
+                <span>Delete</span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table> 
+    <% if !@category %>
+      <div class="block-navigation">
+        <%= paginate @keywords %>
+      </div>
+      <div id="apply"><%= clean_tag(page_entries_info @keywords) %></div>
+    <% end %>
+  </div>
+</div>
+
+<% if @category %>
+<script>
+var orders = "";
+
+$(document).ready(function() {
+ $("#keyword_table").tableDnD({
+   onDragClass: "myDragClass",
+   onDrop: function(table, row) {
+             var rows = table.tBodies[0].rows;
+             orders = "";
+
+             for (var i=1; i<rows.length; i++) {
+                orders += rows[i].id+",";
+             }
+           }
+ });
+});
+ function check_orders(){
+   var _parameters = "&orders="+orders;
+   window.location = "<%= url_for(save_orders_admin_keywords_path({:cat=>params[:cat]})) %>" + _parameters;
+ }
+</script>
+<% end %>

@@ -1,0 +1,199 @@
+<style>
+ul, ol {
+    list-style-type: circle;
+    margin: 13px 0 13px 25px;
+    padding: 0;
+}
+
+.content-box-3 p{
+  margin-top:10px;
+  margin-bottom:10px;
+}
+
+.nolist{
+  list-style-type: none;margin-left:20px;margin-top:20px;line-height:2
+}
+
+.colleft{
+  float:left; margin-top:30px;
+}
+
+.colright{
+  float:right;margin-top:30px;
+}
+
+form li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+form label {
+    color: #666666;
+    display: block;
+    float: left;
+    font-size: 11px;
+    font-weight: normal;
+    left: 10px;
+    padding: 8px 0 0;
+    position: absolute;
+    top: 4px;
+    width: 100px;
+}
+
+form input, form textarea {
+    background: none repeat scroll 0 0 #F7F7F7;
+    border: 1px solid #CCCCCC;
+    color: #666666;
+    font-size: 11px;
+    margin: 4px 0 13px;
+    outline: medium none;
+    padding: 10px;
+    width: 100%;
+}
+
+form input.submit {
+    background: none repeat scroll 0 0 #323231;
+    border: medium none;
+    border-radius: 5px 5px 5px 5px;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: block;
+    font-size: 11px;
+    font-weight: bold;
+    height: 33px;
+    margin: 0;
+    outline: medium none;
+    padding: 2px 10px 4px;
+    text-shadow: 0 1px 0 #000000;
+    text-transform: uppercase;
+    width: auto;
+}
+form .errorbox {
+    color: #BB252C;
+    display: none;
+    font-weight: bold;
+    margin: 0;
+}
+</style>
+
+<div style="width:75%; margin:0 auto; min-height:500px" class="content-box-3">
+
+				<h2>Contact Us</h2>
+				<p>We are delighted to hear from you, whether it is to provide feedback or to discuss business. We are available <a href="mailto:info@finfore.net?subject=Contact%20Us">via email</a></p>
+
+				<div class="colleft small">
+				
+					<h3>Location and Phone</h3>
+				
+					<ul class="nolist">
+						<li>
+						    Finfore Limited<br>
+						    4th floor, Albany House<br>
+						    9324/326 Regent Street<br>
+						    London W1B 3HH<br>
+						    United Kingdom<br><br>
+						</li>
+						<li><%= image_tag "http://finfore.net/images/icon-phone.png", :alt=> "Phone" %>&nbsp;&nbsp;(44) 20 3286 0905</li>
+						<li><%= image_tag "http://finfore.net/images/icon-email.png", :alt=> "Email" %>&nbsp;&nbsp;<a href="mailto:info@finfore.net?subject=Contact%20Us">Click Here</a></li>
+					</ul>
+				
+				</div>
+				<div class="colright" style="margin-right:30px; width:40%;">
+
+					<h3>Online Form</h3>
+
+					<form id="contactform" action="/delivery_message" method="post" enctype="multipart/form-data">
+						<div class="errorbox"></div> 
+						<ul>
+							<li>
+								<label for="name">Full Name</label>
+								<input type="text" id="name" name="name">
+							</li>
+							<li>
+								<label for="email">Email</label>
+								<input type="text" id="email" name="email">
+							</li>
+							<li>
+                                                                <label for="email">Your Subject</label>
+                                                                <input type="text" id="subject" name="subject">
+                                                        </li>
+
+							<li>
+								<label for="message">Your Message</label>
+								<textarea id="message" name="message" rows="5" cols="60"></textarea>
+							</li>
+							<li>							
+							 	<input type="submit" class="submit" value="SEND YOUR QUESTION">
+							</li>
+						</ul>
+					</form>
+				
+				</div>
+								
+			</div>
+
+    <script type="text/javascript" src="http://finfore.net/assets/js/jquery.infieldlabel.js"></script>
+        <script type="text/javascript">
+                $(function(){ $("label").inFieldLabels(); });
+           $(document).ready(function(){  
+		$('#contactform').submit(function() {
+                   var $error_message = "";
+                   if(!$('#name').val().match(/\w|\s/i)){
+                      $('#name').css('borderColor',"red");
+                      $error_message = "<li>Please Enter Your Name </li>";
+                   }else{
+                      $("#name").css('borderColor',"#CCCCCC");
+                   }
+
+                   if(!$('#email').val().match(/\w+([.-_]\w+)*@\w+([.-_]\w+)*\.\w{2,4}/i)){
+                      $('#email').css('borderColor',"red");
+                      $error_message = $error_message + "<li>Please Enter Valid Email </li>";
+                   }else{
+                      $("#email").css('borderColor',"#CCCCCC");
+                   }
+
+                   if(!$('#subject').val().match(/\w|\s/i)){
+                      $('#subject').css('borderColor',"red");
+                      $error_message = $error_message + "<li>Please Enter Your Subject </li>";
+                   }else{
+                      $("#subject").css('borderColor',"#CCCCCC");
+                   }
+
+		   if(!$('#message').val().match(/\w|\s/i)){
+                      $('#message').css('borderColor',"red");
+                      $error_message = $error_message + "<li>Please Enter Your Message </li>";
+                   }else{
+                      $("#message").css('borderColor',"#CCCCCC");
+                   }
+
+
+                   if($error_message.match(/\w|\s/i)){
+                     $(".errorbox").html("<ul>" + $error_message + "</ul>").fadeIn();
+                   }else{
+                     $(".errorbox").html("").hide();
+		     $.post(
+			 $(this).attr('action'),
+			 {
+				name:$('#name').val(),
+				email:$('#email').val(),
+				message:$('#message').val(),
+                                subject:$('#subject').val()
+			 },
+			 function(response) {
+					$('#contactform')
+						.hide()
+						.html('<p><h5>Thank you for getting in contact with us. Your message has been sent successfully. We will respond to you as soon as possible.</h5></p>')
+						.show();
+			  });
+
+                   }
+
+                   return false;
+
+                });
+          });
+	
+        </script>
+

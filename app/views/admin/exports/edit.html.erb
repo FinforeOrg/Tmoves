@@ -1,0 +1,13 @@
+<% content_for :title, "Editing export" %>
+<div class="block">
+  <div class="block-header">Editing export</div>
+  <div class="block-main" id="block-form">
+    <%= render 'form' %>
+
+    <p>
+      <br />
+      <%= link_to 'Show', admin_export_path(@export), {:class => "link-blank"} %> |
+      <%= link_to 'Back', admin_exports_path, {:class => "link-blank"} %>
+    </p>
+  </div>
+</div>

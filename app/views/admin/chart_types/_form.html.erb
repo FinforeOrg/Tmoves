@@ -1,0 +1,78 @@
+<style>
+ .checkbox .label{
+   width: 300px;
+ }
+</style>
+<div class="block-main" id="block-form">
+  <%= form_for [:admin,@chart_type] do |f| %>
+   <% if @chart_type.errors.any? %>
+     <div id="error_explanation">
+       <h2><%= pluralize(@chart_type.errors.count, "error") %> prohibited this chart type from being saved:</h2>
+
+       <ul>
+       <% @chart_type.errors.full_messages.each do |msg| %>
+         <li><%= msg %></li>
+       <% end %>
+       </ul>
+     </div>
+   <% end %>
+
+    <p class="header">Title</p>
+    <div class="form-container">
+      <%= f.text_field :title %>
+    </div>
+    <br/>
+    <p class="header">Days</p>
+    <div class="form-container">
+      <%= f.number_field :days %> chart period in days
+    </div>
+    <br/>
+    <p class="header">Weeks</p>
+    <div class="form-container">
+      <%= f.number_field :weeks %> chart period in weeks
+    </div>
+    <br/>
+    <p class="header">Months</p>
+    <div class="form-container">
+      <%= f.number_field :months %> chart period in months
+    </div>
+    <br/>
+    <p class="header">Show Legend</p>
+    <div class="form-container">
+      <%= f.check_box :display_legend, {:rel => "check it if chart will display header or legend"} %> 
+    </div>
+    <br/>
+    <p class="header">Total Average</p>
+    <div class="form-container">
+      <%= f.check_box :total_average, {:rel => "check it if the chart shows total averages"} %> 
+    </div>
+    <br/>
+    <p class="header">Total Tweet</p>
+    <div class="form-container">
+      <%= f.check_box :total_tweet, {:rel => "check it if the chart shows total tweets"} %> 
+    </div>
+    <br/>
+    <p class="header">Total Follower</p>
+    <div class="form-container">
+      <%= f.check_box :total_follower, {:rel => "check it if the chart shows total followers"} %>
+    </div>
+    <br/>
+    <p class="header">Chart Category</p>
+    <div class="form-container">
+      <%= f.select :category, options_for_select(@categories) %>
+    </div>
+    <br/>
+    Examples : <%= link_to "TimeLines", "http://bit.ly/qbLpqz", {:target => "_blank"} %> | <%= link_to "Sticks", "http://bit.ly/o1zaw5", {:target => "_blank"} %> | <%= link_to "Lines", "http://bit.ly/oQCbS0", {:target => "_blank"} %>
+    <br/>
+    <br/>
+    <br/>
+    <p class="header">&nbsp;</p>
+    <div class="form-container">
+      <input type="submit" name="commit" value="Save" class="button" id="submit" style="left:0px"/>
+      <div id="cancel" class="button" style="left:90px">
+        <%= link_to 'Cancel', admin_chart_types_path, {:class => "link-blank",:style=>"text-decoration:none;color:white;"} %>
+      </div>
+    </div>
+
+  <% end %>
+</div>

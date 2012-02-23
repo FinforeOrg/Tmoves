@@ -1,0 +1,48 @@
+<ul>
+<% @categories.each do |category| %>
+<li><%= link_to category.title,"##{slug(category.title)}" %></li>
+<% end %>
+</ul>
+
+<% @categories.each do |category| %>
+ <% if category.keywords.size > 0 %>
+  <% ordered_keywords = category.ordered_keywords %>
+  <% total_ticker = ordered_keywords.inject(0){|total,k| total += 1 if k.title.match(/^\$/) || !k.ticker.blank? } %>
+  <div class="block box-3" id="<%= slug(category.title) %>">
+    <h4><%= link_to "See Comparison across Keywords", tickers_address(category,total_ticker), {:style=>"text-decoration:none;"} %></h4>
+    <div id="block-table" class="block-main" style="overflow:auto;border:none;">
+      <table class="block-main-table">
+        <tbody class="tweet_container">
+          <tr class="header">
+            <th>Keywords</th>
+            <th>Tweets 1 Month</th>
+            <th>v 6 Month</th>
+<th>Daily Tweets</th>
+            <th>v Average</th>
+            <th>Audience</th>
+            <th>v Average</th>
+          </tr>
+          <% ordered_keywords.each do |keyword| %>
+            <% keyword_traffics = keyword.keyword_traffics %>
+            <% tweet_traffic = keyword_traffics.select{|kt| kt if kt.traffic.title.match(/tweet/i) }.first %>
+            <% follower_traffic = (keyword_traffics - [tweet_traffic]).first %>
+            <% current_tweet = DailyTweet.where({:created_at => {"$gte" => @active_date, "$lt" => @active_date.tomorrow}, :keyword_id => keyword.id}).first %>
+            <% tweet_alert = ((current_tweet.total.to_f / (tweet_traffic.day7.to_f / 7))*100) %>
+            <% audience_alert = ((current_tweet.follower.to_f / (follower_traffic.day14.to_f / 14))*100) %>
+            <tr class="single_row" id="<%= current_tweet.id %>">
+              <td><%= link_to keyword["title"], keyword_info_address(keyword) %></td>
+              <td><%= number_with_delimiter(tweet_traffic.month1) %></td>
+              <td style="text-align:center;vertical-align:top;"><%= keyword_indicator(tweet_traffic)[:symbol] %></td>
+              <td><%= number_with_delimiter(current_tweet.total) %></td>
+              <td style="text-align:center;vertical-align:top;"><%= index_symbol({:alert=>tweet_alert})[:symbol] %></td>
+              <td><%= number_with_delimiter(current_tweet.follower) %></td>
+              <td style="text-align:center;vertical-align:top;"><%= index_symbol({:alert=>audience_alert})[:symbol] %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <% end %>
+<% end %>
+<div style="clear:both;">&nbsp;</div>

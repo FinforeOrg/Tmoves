@@ -1,0 +1,2 @@
+module KeywordCategoriesHelper
+end

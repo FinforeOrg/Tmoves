@@ -1,0 +1,2 @@
+module KeywordChartsHelper
+end

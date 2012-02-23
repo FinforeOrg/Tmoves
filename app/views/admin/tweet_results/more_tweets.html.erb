@@ -1,0 +1,4 @@
+<% if @results.length > 0 %>
+  <%= render :partial => "shared/tweet", :collection=>@results, :locals => { :is_hidden => @is_hidden } %>
+  <tr class="more_tweets_info<%= @div_tag %>" style="display:none;" <%= @stamp_status %> ></tr>
+<% end %>

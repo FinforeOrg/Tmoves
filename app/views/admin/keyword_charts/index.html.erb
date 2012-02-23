@@ -1,0 +1,21 @@
+<h1>Listing keyword_charts</h1>
+
+<table>
+  <tr>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @keyword_charts.each do |keyword_chart| %>
+  <tr>
+    <td><%= link_to 'Show', keyword_chart %></td>
+    <td><%= link_to 'Edit', edit_keyword_chart_path(keyword_chart) %></td>
+    <td><%= link_to 'Destroy', keyword_chart, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Keyword chart', new_keyword_chart_path %>

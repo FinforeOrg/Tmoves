@@ -1,0 +1,47 @@
+<div style="cursor:pointer;display:none;" class="notification information"><span></span>&nbsp;new tweets. Please click to display them.</div>
+<div class="block">
+  <div class="block-header">
+    TRACK/TWEET RESULTS
+    <div id="type-selector">
+      <form method="get" action="">
+        <input type="text" value="" name="search" id="search" style="background: url(&quot;'/images/search.png&quot;') no-repeat scroll 95% center white;">  
+        <span id="search-tag" style="display: block;">Search</span>
+      </form>
+    </div>
+    
+  </div>
+  <div id="block-table" class="block-main">
+    <table class="block-main-table">
+      <tbody class="tweet_container">
+        <tr class="header">
+          <th width="106">Twitter</th>
+          <th width="400">Tweets</th>
+          <th width="70">Retweet</th>
+          <th width="75">Language</th>
+          <th width="75">Keywords</th>
+        </tr>
+        <%= render :partial => "shared/tweet", :collection=>@results, :locals => { :is_hidden => "" } %>
+      </tbody>
+    </table>
+
+    <div class="button load_more" style="float:left;font-size:12px;">Load More</div>
+    <div style="float:right">
+      <span class="total_records">&nbsp;</span> 
+    </div>
+    <div style="clear:both;">&nbsp;</div>
+  </div>
+</div>
+
+<script>
+
+$(document).ready(function(){
+  $(".tweet_container").liveTweet({
+     timestamp_new: "<%= @results.first['created_at'] %>",
+     timestamp_old: "<%= @results.last['created_at'] %>",
+     url: "<%= more_tweets_admin_tweet_results_url({:search => params[:search]}) %>",
+     total_record_url: "<%= total_records_admin_tweet_results_url({:search => params[:search]}) %>",
+     button: $('div.button.load_more'),
+     delays: 35000
+  });
+});
+</script>

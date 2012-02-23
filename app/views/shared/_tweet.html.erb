@@ -1,0 +1,23 @@
+  <% new_tweet = "" %>
+  <% member = TweetUser.find(tweet["tweet_user_id"]) %>
+  <% lang = tweet_language(tweet,member) %>
+  <% keyword = tweet['keywords'] %>
+  <% new_tweet = "new_tweet" unless @is_hidden.blank? %>
+  <tr style="<%= is_hidden %>" class="<%= new_tweet %>">
+    <td valign="top">
+        <b><%= link_to member.screen_name, "/show_twitter/"+member.id.to_s,{:style=>"text-decoration:none",:class=>"twtName"} %></b><br/>
+      <%= link_to image_tag(member.profile_image_url, {:height=>48,:width=>48,:border=>0}), "http://www.twitter.com/#{member.screen_name}" %>
+      <br/>Follower<br/><%= member.followers_count %>
+    </td>
+    <td valign="top">
+        <%= clean_tag(auto_link(tweet["tweet_text"],{:html=> { :target => '_blank' }})) %><br/>
+        about <%= time_ago_in_words(tweet["created_at"]) %> ago
+      </td valign="top">
+    <td valign="top" align="center">
+         <%= tweet["retweet_count"] %>
+      </td>
+    <td><%= lang %></td>
+    <% if current_admin %>
+      <td><%= link_to keyword,"?search=#{keyword}" %></td>
+    <% end %>
+  </tr>
