@@ -87,7 +87,11 @@ module Finforenet
 
         def count_keyword_from(keywords,start_date,end_date,limit_at)           
            while start_date < limit_at
-             count_current_day(keywords,start_date,end_date)
+             begin
+               count_current_day(keywords,start_date,end_date)
+             rescue => e
+               on
+             end
              start_date = end_date
              end_date = start_date.tomorrow
            end
@@ -117,21 +121,24 @@ module Finforenet
        end
 
         def create_or_update_daily_data(key,start_at,end_at)
-          keyword = Keyword.find(key)
+          keyword = Keyword.where(:_id => key).first
 
           if keyword
-            daily_tweet = DailyTweet.where({:created_at => start_at, :keyword_id => keyword.id}).first
-            dts = DailyTweet.where({:created_at => {"$gte" => start_at, "$lt" => start_at.tomorrow}, :keyword_id => keyword.id})
-            if dts.count > 1
-              dts.each do |dt|
-                dt.destroy if dt.id != daily_tweet.id
-              end
+            daily_tweets = DailyTweet.where({:created_at => {"$gte" => start_at, "$lt" => start_at.tomorrow}, :keyword_id => keyword.id})
+            dt = daily_tweets.first
+            if daily_tweets.count > 1
+              daily_tweets.each do |daily_tweet|
+                unless daily_tweet.id == dt.id
+                 daily_tweet.destroy
+                end
+              end               
             end
+            daily_tweet = dt
+
             if daily_tweet
-              options = {:tweet_text => to_regex(keyword.title), :created_at => {"$gte" => start_at, "$lt" => end_at}}
-              tweets = Mongoid.database['tweet_results'].find(options).to_a
-              total = tweets.inject(0){|sum, item| sum += item['audience'].to_i }
-              daily_tweet.update_attribute(:follower,total)
+              options = {:keywords => to_regex(keyword.title), :created_at => {"$gte" => start_at, "$lt" => end_at}}
+              total = TweetResult.where(options).sum(:audience)
+              daily_tweet = daily_tweet.update_attribute(:follower,total)
             end
 
           end

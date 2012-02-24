@@ -8,7 +8,6 @@ module Finforenet
         @previous_id = ""
         @log = Logger.new("#{RAILS_ROOT}/log/stream.log")
         @log.debug "INITIALIZED    : #{Time.now}"
-        #@tweet_ids = File.open("#{Rails.root}/log/tweet_ids.log", 'w+')
         start_save
       end
 
@@ -27,22 +26,17 @@ module Finforenet
       end
 
       def prepare_tracking(tracking)
-        #@tweet_ids.rewind        
-        #if @tweet_ids.grep(/#{tracking.id.to_s}/xim).size > 0
-        #if @previous_id == tracking.id.to_s
         unless Finforenet::RedisFilter.push_data("tracking",tracking.id.to_s)
           tracking.destroy
           start_save
         else
-          #@tweet_ids.puts tracking.id.to_s
-          #@previous_id = tracking.id.to_s
           status = YAML::load tracking.tweets
           dictionary = tracking.dictionary
           if @start_count_daily_at.blank?
             @start_count_daily_at = status.created_at.to_time.utc.midnight.tomorrow
           elsif status.created_at.to_time.utc >= @start_count_daily_at
             @start_count_daily_at = tracking.created_at.to_time.utc.midnight.tomorrow
-            h = Net::HTTP.new('stream.finfore.net')
+            h = Net::HTTP.new('tmoves.com')
             h.get("/admin/scanner_tasks/0/restart?category=DailyKeyword")         
           end
           
@@ -68,7 +62,7 @@ module Finforenet
         if @failed_count < 10
           start_save
         else
-          h = Net::HTTP.new('stream.finfore.net')
+          h = Net::HTTP.new('tmoves.com')
           h.get("/admin/scanner_tasks/0/restart?category=Savetweetresult")
         end
       end
@@ -82,10 +76,7 @@ module Finforenet
       end
      
       def prepare_member(status,dictionary)
-        #tweet_result = TweetResult.where(:tweet_id => status.id.to_s).count
-        #if tweet_result < 1
           exist_keywords = status.text.scan(/#{dictionary}/i)
-          #if exist_keywords.size > 0
             user = status.user
             member = TweetUser.where(:twitter_id=>user.id).limit(1).first
             member_data = { :description=> user.description,
@@ -110,8 +101,6 @@ module Finforenet
              member.update_attributes(member_data)
             end
             prepare_result(status,member,user,exist_keywords)
-          #end
-         #end
        end
 
        def to_regex(str)
@@ -149,9 +138,7 @@ module Finforenet
                                              :audience => member.followers_count
                                             })
 
-         #limit_timeline = "12/11/2011".to_time.utc.midnight
          created_at = track_result.created_at
-         #if created_at >= limit_timeline
            keywords = exist_keywords.uniq
            keywords.each do |keyword|
              regex_keyword = to_regex(keyword)
@@ -169,7 +156,6 @@ module Finforenet
                end
              end
            end
-         #end
         end
 
     end

@@ -73,7 +73,7 @@ module Finforenet
             @log.debug "Task ID  : #{@task_id}"
             @log.debug "Error Msg: " + e.to_s
             @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-            h = Net::HTTP.new('stream.finfore.net')
+            h = Net::HTTP.new('tmoves.com')
             h.get("/admin/scanner_tasks/#{@task_id}/restart")
         end
         
