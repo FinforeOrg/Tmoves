@@ -27,15 +27,15 @@
             <% tweet_traffic = keyword_traffics.select{|kt| kt if kt.traffic.title.match(/tweet/i) }.first %>
             <% follower_traffic = (keyword_traffics - [tweet_traffic]).first %>
             <% current_tweet = DailyTweet.where({:created_at => {"$gte" => @active_date, "$lt" => @active_date.tomorrow}, :keyword_id => keyword.id}).first %>
-            <% tweet_alert = ((current_tweet.total.to_f / (tweet_traffic.day7.to_f / 7))*100) %>
-            <% audience_alert = ((current_tweet.follower.to_f / (follower_traffic.day14.to_f / 14))*100) %>
-            <tr class="single_row" id="<%= current_tweet.id %>">
+            <% tweet_alert = current_tweet ? ((current_tweet.total.to_f / (tweet_traffic.day7.to_f / 7))*100) : 0 %>
+            <% audience_alert =current_tweet ?  ((current_tweet.follower.to_f / (follower_traffic.day14.to_f / 14))*100) : 0 %>
+            <tr class="single_row" id="<%= @active_date %>">
               <td><%= link_to keyword["title"], keyword_info_address(keyword) %></td>
               <td><%= number_with_delimiter(tweet_traffic.month1) %></td>
               <td style="text-align:center;vertical-align:top;"><%= keyword_indicator(tweet_traffic)[:symbol] %></td>
-              <td><%= number_with_delimiter(current_tweet.total) %></td>
+              <td><%= current_tweet ? number_with_delimiter(current_tweet.total) : 0 %></td>
               <td style="text-align:center;vertical-align:top;"><%= index_symbol({:alert=>tweet_alert})[:symbol] %></td>
-              <td><%= number_with_delimiter(current_tweet.follower) %></td>
+              <td><%= current_tweet ? number_with_delimiter(current_tweet.follower) : 0 %></td>
               <td style="text-align:center;vertical-align:top;"><%= index_symbol({:alert=>audience_alert})[:symbol] %></td>
             </tr>
           <% end %>

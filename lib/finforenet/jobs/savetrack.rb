@@ -26,23 +26,26 @@ module Finforenet
       end
 
       def prepare_tracking(tracking)
-        unless Finforenet::RedisFilter.push_data("tracking",tracking.id.to_s)
-          tracking.destroy
-          start_save
-        else
-          status = YAML::load tracking.tweets
-          dictionary = tracking.dictionary
-          if @start_count_daily_at.blank?
-            @start_count_daily_at = status.created_at.to_time.utc.midnight.tomorrow
-          elsif status.created_at.to_time.utc >= @start_count_daily_at
-            @start_count_daily_at = tracking.created_at.to_time.utc.midnight.tomorrow
-            h = Net::HTTP.new('tmoves.com')
-            h.get("/admin/scanner_tasks/0/restart?category=DailyKeyword")         
-          end
+        is_found = TweetResult.where(:tweet_id => tracking.id.to_s).count
+        tracking.destroy
+        if is_found < 1
+          #unless Finforenet::RedisFilter.push_data("tracking",tracking.id.to_s)
+          #  tracking.destroy
+          #  start_save
+          #else
+            status = YAML::load tracking.tweets
+            dictionary = tracking.dictionary
+            if @start_count_daily_at.blank?
+              @start_count_daily_at = status.created_at.to_time.utc.midnight.tomorrow
+            elsif status.created_at.to_time.utc >= @start_count_daily_at
+              @start_count_daily_at = tracking.created_at.to_time.utc.midnight.tomorrow
+              h = Net::HTTP.new('tmoves.com')
+              h.get("/admin/scanner_tasks/0/restart?category=DailyKeyword")         
+            end
           
-          tracking.destroy
-          Finforenet::Jobs::TrackingTweet.new(status,dictionary)
-          start_save
+            #tracking.destroy
+            Finforenet::Jobs::TrackingTweet.new(status,dictionary)
+            start_save
         end
       end
 
