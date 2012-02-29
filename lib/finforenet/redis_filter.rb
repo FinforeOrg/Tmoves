@@ -6,7 +6,7 @@ module Finforenet
     end
 
     def self.get_array_ids(category)
-      $redis.lrange get_key(category), 0, 100000
+      $redis.lrange get_key(category), 0, 1000
     end
 
     def self.del_data(category)
@@ -14,13 +14,14 @@ module Finforenet
     end
     
     def self.push_data(category,value)
+      $redis.watch get_key(category)
       tmp_arr = get_array_ids(category)
       if tmp_arr.include?(value)
         return false
       else
         $redis.multi do
-         $redis.rpush get_key(category), value
-         $redis.lpop get_key(category) if (tmp_arr.length > 99999)
+          $redis.lpop get_key(category) if (tmp_arr.length > 1000)
+          $redis.rpush get_key(category), value
         end
         return true
       end

@@ -26,26 +26,24 @@ module Finforenet
       end
 
       def prepare_tracking(tracking)
-        is_found = TweetResult.where(:tweet_id => tracking.id.to_s).count
-        tracking.destroy
-        if is_found < 1
-          #unless Finforenet::RedisFilter.push_data("tracking",tracking.id.to_s)
-          #  tracking.destroy
-          #  start_save
-          #else
-            status = YAML::load tracking.tweets
-            dictionary = tracking.dictionary
-            if @start_count_daily_at.blank?
-              @start_count_daily_at = status.created_at.to_time.utc.midnight.tomorrow
-            elsif status.created_at.to_time.utc >= @start_count_daily_at
-              @start_count_daily_at = tracking.created_at.to_time.utc.midnight.tomorrow
-              h = Net::HTTP.new('tmoves.com')
-              h.get("/admin/scanner_tasks/0/restart?category=DailyKeyword")         
-            end
+        unless Finforenet::RedisFilter.push_data("tracking",tracking.id.to_s)
+          status = YAML::load tracking.tweets
+          dictionary = tracking.dictionary
+          if @start_count_daily_at.blank?
+            @start_count_daily_at = status.created_at.to_time.utc.midnight.tomorrow
+          elsif status.created_at.to_time.utc >= @start_count_daily_at
+            @start_count_daily_at = tracking.created_at.to_time.utc.midnight.tomorrow
+            h = Net::HTTP.new('tmoves.com')
+            h.get("/admin/scanner_tasks/0/restart?category=DailyKeyword")         
+          end
           
-            #tracking.destroy
-            Finforenet::Jobs::TrackingTweet.new(status,dictionary)
-            start_save
+          tracking.destroy
+          Finforenet::Jobs::TrackingTweet.new(status,dictionary)
+          start_save
+        else
+          tracking.destroy
+          sleep(2)
+          start_save
         end
       end
 
@@ -109,12 +107,12 @@ module Finforenet
        def to_regex(str)
          array_keywords = str.split(",")
          str = array_keywords.map{|a|
-		 if !a.include?("$")
-		   "[^$]#{a}|^#{a}|[^$]#{a}$"
-		 else
-		   k = a.gsub("$","[$]")
-                   "#{k}\s|#{k}$"
-		 end
+    		 if !a.include?("$")
+    		   "[^$]#{a}|^#{a}|[^$]#{a}$"
+    		 else
+    		   k = a.gsub("$","[$]")
+           "#{k}\s|#{k}$"
+    		 end
                }.join("|").gsub(/\'|\"/i,"")
          return Regexp.new(str, Regexp::IGNORECASE)
        end
