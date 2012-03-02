@@ -81,14 +81,18 @@ class TweetResult
   
   def self.keyword_regex(str)
     array_keywords = str.split(",")
-    str = array_keywords.map{|a|
-            if !a.include?("$")
-              "[^$]#{a}|^#{a}|[^$]#{a}$"
-            else
-              "(" + a.gsub("$","[$]") + "(\W|$))"
-            end
-          }.join("|").gsub(/\'|\"/i,"")
+    str = array_keywords.map{|a| keyword_to_regex(a)}.join("|").gsub(/\'|\"/i,"")
     return Regexp.new(str, Regexp::IGNORECASE)
+  end
+  
+  def self.keyword_to_regex(a)
+    if !a.include?("$")
+  		_return = "[^$]#{a}|^#{a}|[^$]#{a}$"
+  	else
+  		k = a.gsub("$","[$]")
+      _return = "#{k}\s|#{k}$"
+  	end
+    return _return
   end
 
   def self.sorted_by options

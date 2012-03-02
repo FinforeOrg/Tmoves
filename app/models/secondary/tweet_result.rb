@@ -28,5 +28,9 @@ class Secondary::TweetResult
   def to_indexed_json
     self.to_json(:include => :tweet_user)
   end
+  
+  def self.StartAt
+    "01/01/2012".to_time.utc.midnight
+  end
 
 end

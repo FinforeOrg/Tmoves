@@ -64,7 +64,17 @@ class ApplicationController < ActionController::Base
    def count_total_records
        @total_result = ""
      if params[:search].blank? && params[:kid].blank?
-       @total_result = Mongoid.database['tweet_results'].find(@options).count
+       if @options.present? && @options[:created_at].present?
+         timestamp = @options[:created_at]["$gt"] || @options[:created_at]["$lt"]
+         if Secondary::TweetResult.StartAt < timestamp
+           @total_result = Mongoid.database['tweet_results'].find(@options).count
+         else
+           @total_result = Secondary::TweetResult.where(@options).count
+         end
+       else
+         @total_result = Mongoid.database['tweet_results'].find(@options).count
+         @total_result += Secondary::TweetResult.where(@options).count
+       end
      else
        if params[:kid].blank?
          keyword = Keyword.where(:title => @options[:tweet_text]).includes([:daily_tweets]).first 

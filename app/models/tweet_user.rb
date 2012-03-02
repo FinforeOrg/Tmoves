@@ -25,5 +25,31 @@ class TweetUser
   index :twitter_id
   has_many :tweet_results, :dependent => :destroy
   has_many :twitter_followers, :dependent => :destroy
+  
+  def self.create_or_update(user)
+    member = self.where(:twitter_id => user.id).first
+    member_data = { :description       => user.description,
+                    :followers_count   => user.followers_count,
+                    :statuses_count    => user.statuses_count,
+                    :url               => user.url,
+                    :location          => user.location,
+                    :friends_count     => user.friends_count,
+                    :favourites_count  => user.favourites_count,
+                    :is_protected      => user.protected,
+                    :profile_image_url => user.profile_image_url,
+                    :screen_name       => user.screen_name,
+                    :lang              => user.lang,
+                    :name              => user.name,
+                    :twitter_id        => user.id,
+                    :joined_at         => user.created_at.to_datetime,
+                    :listed_count      => user.listed_count
+                  }
+    if member.blank? 
+      member = self.create(member_data)
+    else
+      member.update_attributes(member_data)
+    end
+    return member
+  end
 
 end

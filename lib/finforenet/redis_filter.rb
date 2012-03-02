@@ -14,13 +14,13 @@ module Finforenet
     end
     
     def self.push_data(category,value)
-      $redis.watch get_key(category)
+      #$redis.watch get_key(category)
       tmp_arr = get_array_ids(category)
       if tmp_arr.include?(value)
         return false
       else
         $redis.multi do
-          $redis.lpop get_key(category) if (tmp_arr.length > 1000)
+          $redis.lpop get_key(category) if (tmp_arr.length > 999)
           $redis.rpush get_key(category), value
         end
         return true
