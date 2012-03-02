@@ -12,8 +12,8 @@ module Finforenet
       end
 
       def start_save
-        tracking = TrackingResult.limit(1).first
-               
+        #tracking = TrackingResult.limit(1).first
+        tracking = Mongoid.database['tracking_results'].find_one({})       
         if tracking
           prepare_tracking(tracking)
         else
@@ -26,22 +26,24 @@ module Finforenet
       end
 
       def prepare_tracking(tracking)
-        unless Finforenet::RedisFilter.push_data("tracking",tracking.id.to_s)
-          status = YAML::load tracking.tweets
-          dictionary = tracking.dictionary
+        status = YAML::load tracking["tweets"]
+        if Finforenet::RedisFilter.push_data("tracking", status.id.to_s)
+          dictionary = tracking["dictionary"]
           if @start_count_daily_at.blank?
             @start_count_daily_at = status.created_at.to_time.utc.midnight.tomorrow
           elsif status.created_at.to_time.utc >= @start_count_daily_at
-            @start_count_daily_at = tracking.created_at.to_time.utc.midnight.tomorrow
+            @start_count_daily_at = tracking["created_at"].to_time.utc.midnight.tomorrow
             h = Net::HTTP.new('tmoves.com')
             h.get("/admin/scanner_tasks/0/restart?category=DailyKeyword")         
           end
           
-          tracking.destroy
+          Mongoid.database['tracking_results'].remove({"_id" => tracking["_id"]})
+          #tracking.destroy
           Finforenet::Jobs::TrackingTweet.new(status,dictionary)
           start_save
         else
-          tracking.destroy
+          tweet = TweetResult.where(:tweet_id => status.id.to_s).first
+          Mongoid.database['tracking_results'].remove({"_id" => tracking["_id"]}) if tweet
           sleep(2)
           start_save
         end
@@ -55,8 +57,9 @@ module Finforenet
         @failed_count += 1
         if e.to_s.match(/syntax error/i)
           if tracking
-            tracking = TrackingResult.find(tracking.id)
-            tracking.destroy if tracking
+            tracking = Mongoid.database['tracking_results'].find_one({"_id" => tracking["_id"]})
+            #tracking = TrackingResult.find(tracking.id)
+            Mongoid.database['tracking_results'].remove({"_id" => tracking["_id"]}) if tracking
           end
         end
         sleep(20)

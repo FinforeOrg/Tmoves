@@ -193,6 +193,8 @@ class Admin::ScannerTasksController < ApplicationController
        Resque.enqueue(Finforenet::Jobs::Bg::ImportElastic)
      elsif queue_name == 'MonthlyKeyword'
         Resque.enqueue(Finforenet::Jobs::Bg::MonthlyKeyword)
+     elsif queue_name == 'SecondaryDb'
+        Resque.enqueue(Finforenet::Jobs::Bg::SecondaryDb)
      end
 	 #Resque.redis.del "queue:Savetweetresult"
    end

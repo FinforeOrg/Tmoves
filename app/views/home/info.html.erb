@@ -93,7 +93,7 @@
 
     <ul>
       <li><a href="#tab-history">Statistics</a></li>
-      <li style="display:none"><a href="#tab-tweet">Tweets</a></li> 
+      <!-- <li style="display:none"><a href="#tab-tweet">Tweets</a></li> --> 
     </ul>
 
    <div id="tab-history" >
@@ -119,7 +119,7 @@
 	     </div>
      <% end %>
    </div>
-
+<!--
     <div id="tab-tweet">
      <div style="cursor:pointer;display:none;" class="notification information">
        You have <span></span>&nbsp;new tweets. Please click here to display.
@@ -143,7 +143,7 @@
      <div style="float:right">&nbsp;</div>
      <div style="clear:both;">&nbsp;</div>
    </div>
-
+-->
 </div>
 
 <script type='text/javascript' src='http://www.google.com/jsapi'></script>
@@ -229,12 +229,12 @@ $(document).ready(function(){
                $(".month6").html(_total_page);
              }
           });*/
-     $(".tweet_container").liveTweet({
+/*     $(".tweet_container").liveTweet({
 	      timestamp_old: "<%= Time.now.utc.ago(5.minutes) %>",
 	      url: "/more_tweets/<%= @keyword.title.gsub(/\s/,'-') %>/<%= @keyword.id.to_s %>",
 	      button: $('div.button.load_more'),
 	      delays: 10000
-      });
+      }); */
   };
 
   var refresh_total_tweets = setInterval(reload_total_tweets, 5000);

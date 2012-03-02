@@ -22,6 +22,7 @@ class TweetResult
   index :tweet_id
   index :tweet_text
   index [[:created_at, Mongo::DESCENDING]]
+  shard_key :keywords, :created_at
 
   #index_name 'tweet_results'
   belongs_to :tweet_user
