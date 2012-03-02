@@ -14,7 +14,7 @@ module Finforenet
     end
     
     def self.push_data(category,value)
-      #$redis.watch get_key(category)
+      $redis.watch get_key(category)
       tmp_arr = get_array_ids(category)
       if tmp_arr.include?(value)
         return false

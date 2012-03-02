@@ -143,7 +143,8 @@ class ApplicationController < ActionController::Base
       @results = []
     
       if !params[:before_at].blank? || !params[:after_at].blank?
-        @results = Mongoid.database['tweet_results'].find(@options,{:sort=>[[:created_at,-1]],:limit=>25}).to_a
+        #@results = Mongoid.database['tweet_results'].find(@options,{:sort=>[[:created_at,-1]],:limit=>25}).to_a
+        @results = Mongoid.databases["secondary"]["secondary_tweet_results"].find(@options,{:sort=>[[:created_at,-1]],:limit=>25}).to_a
         @results = @results.uniq{ |r| r["tweet_id"] }
       end
 

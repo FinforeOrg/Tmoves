@@ -6,7 +6,7 @@ class Admin::TweetResultsController < ApplicationController
   # HACK INJECTION : Read FootNotes at the bottom.
 
   def index
-    @results = Mongoid.database['tweet_results'].find(@options).limit(25).sort([:created_at,-1]).to_a
+    @results = Mongoid.databases["secondary"]["secondary_tweet_results"].find(@options).limit(25).sort([:created_at,-1]).to_a
     respond_to do |format|
       format.html 
       format.xml  { render :xml => @results }
