@@ -85,31 +85,20 @@ module Finforenet
         exist_keywords = status.text.scan(/#{dictionary}/i)
         user = status.user
         member = TweetUser.create_or_update(user)
-            prepare_result(status,member,user,exist_keywords)
-       end
+        prepare_result(status,member,user.lang,exist_keywords)
+      end
 
-       def prepare_result(status,member,user,exist_keywords)  
-         track_result = Secondary::TweetResult.find_or_create(member,status)
-
-         created_at = track_result.created_at
-           keywords = exist_keywords.uniq
-           keywords.each do |keyword|
-             regex_keyword = TweetResult.keyword_regex(keyword)
-             keyword = Keyword.where({:title => regex_keyword}).first
-             if keyword
-               daily_tweet = keyword.daily_tweets.where({:created_at => {"$gte" => created_at.utc.midnight, "$lt" => created_at.utc.midnight.tomorrow}}).first
-               if daily_tweet
-                 daily_tweet.inc(:total, 1)
-                 daily_tweet.inc(:follower, member.followers_count.to_i)
-               else
-                 DailyTweet.create({:keyword_id => keyword.id, 
-                                    :total => 1, 
-                                    :follower => member.followers_count.to_i, 
-                                    :created_at => created_at.utc.midnight})
-               end
-             end
-           end
+      def prepare_result(status,member,user_lang,exist_keywords)  
+        tweet_result = Secondary::TweetResult.find_or_create(member,status, user_lang, exist_keywords)
+        created_at = tweet_result.created_at
+        
+        keywords = exist_keywords.uniq
+        keywords.each do |keyword|
+          regex_keyword = TweetResult.keyword_regex(keyword)
+          keyword = Keyword.where({:title => regex_keyword}).first
+          keyword.update_total_tweet_and_follower(created_at, member.followers_count.to_i) if keyword
         end
+      end
 
     end
 

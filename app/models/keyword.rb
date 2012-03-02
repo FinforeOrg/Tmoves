@@ -76,5 +76,19 @@ class Keyword
             :versus14 => versus14
            }
   end
+  
+  def update_total_tweet_and_follower(created_at, total_follower)
+    midnight = created_at.utc.midnight
+    daily_tweet = self.daily_tweets.where({:created_at => {"$gte" => midnight, "$lt" => midnight.tomorrow}}).first
+    if daily_tweet
+      daily_tweet.inc(:total, 1)
+      daily_tweet.inc(:follower, total_follower)
+    else
+      DailyTweet.create({:keyword_id => self.id, 
+                         :total      => 1, 
+                         :follower   => total_follower, 
+                         :created_at => midnight})
+    end
+  end
 
 end

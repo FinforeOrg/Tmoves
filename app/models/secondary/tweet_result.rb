@@ -33,7 +33,7 @@ class Secondary::TweetResult
     "01/01/2012".to_time.utc.midnight
   end
   
-  def self.find_or_create(member,status)
+  def self.find_or_create(member, status = {}, user_lang = "", exist_keywords = "")
     twt = self.where(:tweet_id => status.id.to_s).first
     return twt if twt
     
@@ -53,7 +53,7 @@ class Secondary::TweetResult
                 :created_at    => status.created_at.to_datetime,
                 :tweet_id      => status.id.to_s,
                 :tweet_text    => status.text,
-                :lang          => "#{user.lang}, #{lang}",
+                :lang          => "#{user_lang}, #{lang}",
                 :keywords      => exist_keywords.uniq.join(','),
                 :audience      => member.followers_count
               }
