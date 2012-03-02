@@ -88,27 +88,8 @@ module Finforenet
             prepare_result(status,member,user,exist_keywords)
        end
 
-       def prepare_result(status,member,user,exist_keywords)
-          place = status.place.blank? ? "" : status.place.full_name+", "+status.place.country_code
-          geo = status.geo.blank? ? "" : status.geo.coordinates.join(',')
-          begin
-           lang = TRANSLATOR_GRAM.detect(status.text.gsub(/((https?|ftp)\:\/\/([\w-]+\.)?([\w-])+\.(\w)+\/?[\w\?\.\=\&\-\#\+\-\#\+\/]+)/i,''))
-          rescue
-           lang = TRANSLATOR.language(status.text.gsub(/((https?|ftp)\:\/\/([\w-]+\.)?([\w-])+\.(\w)+\/?[\w\?\.\=\&\-\#\+\-\#\+\/]+)/i,''))
-          end
-          track_result = Secondary::TweetResult.create({:tweet_user_id => member.id,
-                                                        :retweet_count => status.retweet_count,
-                                                        :coordinates   => status.coordinates,
-                                                        :geo           => geo,
-                                                        :source        => status.source,
-                                                        :place         => place,
-                                                        :created_at    => status.created_at.to_datetime,
-                                                        :tweet_id      => status.id,
-                                                        :tweet_text    => status.text,
-                                                        :lang          => "#{user.lang}, #{lang}",
-                                                        :keywords      => exist_keywords.uniq.join(','),
-                                                        :audience      => member.followers_count
-                                                      })
+       def prepare_result(status,member,user,exist_keywords)  
+         track_result = Secondary::TweetResult.find_or_create(member,status)
 
          created_at = track_result.created_at
            keywords = exist_keywords.uniq
