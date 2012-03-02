@@ -1,18 +1,19 @@
 module Finforenet
   module Jobs
     class Savetrack
-      attr_accessor :task_id, :dictionaries,:log, :failed_count, :start_count_daily_at, :previous_id, :tweet_ids
+      attr_accessor :task_id, :rejected_ids, :dictionaries,:log, :failed_count, :start_count_daily_at, :previous_id, :tweet_ids
 
       def initialize
         @failed_count = 0
         @previous_id = ""
         @log = Logger.new("#{RAILS_ROOT}/log/stream.log")
         @log.debug "INITIALIZED    : #{Time.now}"
+        @rejected_ids = []
         start_save
       end
 
       def start_save
-        tracking = Mongoid.database['tracking_results'].find_one({})
+        tracking = Mongoid.database['tracking_results'].find_one({"_id" => {"$nin" => @rejected_ids}})
         if tracking
           prepare_tracking(tracking)
         else
@@ -31,7 +32,7 @@ module Finforenet
           if @start_count_daily_at.blank?
             @start_count_daily_at = status.created_at.to_time.utc.midnight.tomorrow
           elsif status.created_at.to_time.utc >= @start_count_daily_at
-            @start_count_daily_at = tracking["created_at"].to_time.utc.midnight.tomorrow
+            @start_count_daily_at = status.created_at.to_time.utc.midnight.tomorrow
             Resque.enqueue(Finforenet::Jobs::Bg::DailyKeyword)
           end
           
@@ -40,7 +41,13 @@ module Finforenet
           start_save
         else
           tweet = Secondary::TweetResult.where(:tweet_id => status.id.to_s).first
-          Mongoid.database['tracking_results'].remove({"_id" => tracking["_id"]}) if tweet
+          
+          if tweet
+            Mongoid.database['tracking_results'].remove({"_id" => tracking["_id"]}) 
+            @rejected.delete(tracking["_id"])
+          else
+            @rejected_ids.push(tracking["_id"])
+          end
           sleep(2)
           start_save
         end
