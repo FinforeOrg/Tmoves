@@ -44,7 +44,7 @@ module Finforenet
           
           if tweet
             Mongoid.database['tracking_results'].remove({"_id" => tracking["_id"]}) 
-            @rejected.delete(tracking["_id"])
+            @rejected_ids.delete(tracking["_id"]) if tracking["_id"].present?
           else
             @rejected_ids.push(tracking["_id"])
           end
