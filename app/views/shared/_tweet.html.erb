@@ -1,13 +1,15 @@
   <% new_tweet = "" %>
-  <% member = TweetUser.find(tweet["tweet_user_id"]) %>
+  <% member = TweetUser.where(:_id => tweet["tweet_user_id"]).first %>
   <% lang = tweet_language(tweet,member) %>
   <% keyword = tweet['keywords'] %>
   <% new_tweet = "new_tweet" unless @is_hidden.blank? %>
   <tr style="<%= is_hidden %>" class="<%= new_tweet %>">
     <td valign="top">
+      <% if member.present? %>
         <b><%= link_to member.screen_name, "/show_twitter/"+member.id.to_s,{:style=>"text-decoration:none",:class=>"twtName"} %></b><br/>
       <%= link_to image_tag(member.profile_image_url, {:height=>48,:width=>48,:border=>0}), "http://www.twitter.com/#{member.screen_name}" %>
       <br/>Follower<br/><%= member.followers_count %>
+     <% end %>
     </td>
     <td valign="top">
         <%= clean_tag(auto_link(tweet["tweet_text"],{:html=> { :target => '_blank' }})) %><br/>

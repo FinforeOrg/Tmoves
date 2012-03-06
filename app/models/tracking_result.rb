@@ -1,5 +1,6 @@
 class TrackingResult
   include Mongoid::Document
+  set_database :rawdb
   field :tweets, :type => String
   field :dictionary, :type => String
 

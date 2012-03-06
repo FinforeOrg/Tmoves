@@ -13,7 +13,7 @@ module Finforenet
       end
 
       def start_save
-        tracking = Mongoid.database['tracking_results'].find_one({"_id" => {"$nin" => @rejected_ids}})
+        tracking = Mongoid.databases['rawdb']['tracking_results'].find_one({"_id" => {"$nin" => @rejected_ids}})
         if tracking
           prepare_tracking(tracking)
         else
@@ -36,14 +36,14 @@ module Finforenet
             Resque.enqueue(Finforenet::Jobs::Bg::DailyKeyword)
           end
           
-          Mongoid.database['tracking_results'].remove({"_id" => tracking["_id"]})
+          Mongoid.databases['rawdb']['tracking_results'].remove({"_id" => tracking["_id"]})
           Finforenet::Jobs::TrackingTweet.new(status,dictionary)
           start_save
         else
           tweet = Secondary::TweetResult.where(:tweet_id => status.id.to_s).first
           
           if tweet
-            Mongoid.database['tracking_results'].remove({"_id" => tracking["_id"]}) 
+            Mongoid.databases['rawdb']['tracking_results'].remove({"_id" => tracking["_id"]}) 
             @rejected_ids.delete(tracking["_id"]) if tracking["_id"].present?
           else
             @rejected_ids.push(tracking["_id"])
@@ -61,8 +61,8 @@ module Finforenet
         @failed_count += 1
         if e.to_s.match(/syntax error/i)
           if tracking
-            tracking = Mongoid.database['tracking_results'].find_one({"_id" => tracking["_id"]})
-            Mongoid.database['tracking_results'].remove({"_id" => tracking["_id"]}) if tracking
+            tracking = Mongoid.databases['rawdb']['tracking_results'].find_one({"_id" => tracking["_id"]})
+            Mongoid.databases['rawdb']['tracking_results'].remove({"_id" => tracking["_id"]}) if tracking
           end
         end
         sleep(20)

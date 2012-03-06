@@ -8,7 +8,7 @@ module ApplicationHelper
     # translator = WhatLanguage.new(:all)
     # lang_text = translator.language(text_without_url(tweet.tweet_text))
     # return (!tweet.lang.blank?) ? tweet.lang : "#{member.lang}, #{lang_text}"
-    tweet["lang"] || member.lang
+    tweet["lang"] || (member ? member.lang : "")
   end
 
   def text_without_url(text)

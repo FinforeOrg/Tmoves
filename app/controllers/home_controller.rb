@@ -11,7 +11,7 @@ class HomeController < ApplicationController
     @chart_type = charts[random_chart]
     keywords = Keyword.all.cache
     @keyword = keywords[rand(keywords.size-1)]
-    @total = TweetResult.count
+    @total = DailyTweet.sum(:total).to_i #TweetResult.count
 	
     tweets = Traffic.tweets.cache
     @month1 = tweets.inject(0){|sum,tr| sum += tr.month1.to_i}

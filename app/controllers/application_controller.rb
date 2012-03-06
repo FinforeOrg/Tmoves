@@ -75,6 +75,7 @@ class ApplicationController < ActionController::Base
          @total_result = Mongoid.database['tweet_results'].find(@options).count
          @total_result += Secondary::TweetResult.where(@options).count
        end
+       @total_result = DailyTweet.sum(:total)
      else
        if params[:kid].blank?
          keyword = Keyword.where(:title => @options[:tweet_text]).includes([:daily_tweets]).first 
