@@ -195,6 +195,8 @@ class Admin::ScannerTasksController < ApplicationController
         Resque.enqueue(Finforenet::Jobs::Bg::MonthlyKeyword)
      elsif queue_name == 'SecondaryDb'
         Resque.enqueue(Finforenet::Jobs::Bg::SecondaryDb)
+     elsif queue_name == 'Bsondumping'
+        Resque.enqueue(Finforenet::Jobs::Bg::Bsondumping)
      end
 	 #Resque.redis.del "queue:Savetweetresult"
    end
