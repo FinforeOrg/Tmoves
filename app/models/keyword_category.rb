@@ -7,7 +7,7 @@ class KeywordCategory
   index :title
   index :index_at
 
-  has_and_belongs_to_many :keywords
+  has_and_belongs_to_many :keywords, :index => true
   cache
 
   def ordered_keywords

@@ -4,8 +4,8 @@ module Finforenet
       class DailyKeyword
         @queue = "DailyKeyword"
 
-        def self.perform
-          Finforenet::Jobs::CountDaily.new
+        def self.perform(datetime = nil)
+          Finforenet::Jobs::CountDaily.new(datetime)
         end
 
       end

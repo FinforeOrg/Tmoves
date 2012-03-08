@@ -3,15 +3,19 @@ module Finforenet
     class CountDaily
       attr_accessor :failed_tasks, :log, :keywords, :limit_at, :start_at
 
-      def initialize
+      def initialize(datetime = nil)
        @failed_tasks = []
-       start_count_keywords
+       start_count_keywords(datetime)
       end
 	  
-      def start_count_keywords
+      def start_count_keywords(datetime)
         @keywords = Keyword.all.map{|keyword| {:id => keyword.id, :title => keyword.title} }
-        @limit_at = TweetResult.last.created_at.utc.midnight
-        @start_at = @limit_at.ago(21.days)
+        @limit_at = Secondary::TweetResult.newest_time
+        if datetime.present?
+          @start_at = datetime.to_time.utc
+        else
+          @start_at = @limit_at.ago(21.days)
+        end
         start_analyst(@start_at, @start_at.tomorrow)
       end
       

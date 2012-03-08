@@ -13,8 +13,7 @@ module Finforenet
       end
 
       def start_save
-        tracking = Mongoid.databases['rawdb']['tracking_results'].find_one({"_id" => {"$nin" => @rejected_ids}})
-        if tracking
+        if tracking = TrackingResult.where({:_id => {"$nin" => @rejected_ids}}).first
           prepare_tracking(tracking)
         else
           sleep(10)
@@ -22,29 +21,33 @@ module Finforenet
         end
         
         rescue => e
-        problem_occured(e,tracking)
+          problem_occured(e,tracking)
+      end
+      
+      def check_daily_keyword(status)
+        if status.created_at.to_time.utc >= @start_count_daily_at
+          Resque.enqueue(Finforenet::Jobs::Bg::DailyKeyword)
+        end
+      end
+      
+      def remove_tracking(tracking)
+        TrackingResult.destroy_by_id(tracking["_id"])
       end
 
       def prepare_tracking(tracking)
-        status = YAML::load tracking["tweets"]
+        status = YAML::load(tracking["tweets"])
         if Finforenet::RedisFilter.push_data("tracking", status.id.to_s)
           dictionary = tracking["dictionary"]
-          if @start_count_daily_at.blank?
-            @start_count_daily_at = status.created_at.to_time.utc.midnight.tomorrow
-          elsif status.created_at.to_time.utc >= @start_count_daily_at
-            @start_count_daily_at = status.created_at.to_time.utc.midnight.tomorrow
-            Resque.enqueue(Finforenet::Jobs::Bg::DailyKeyword)
-          end
-          
-          Mongoid.databases['rawdb']['tracking_results'].remove({"_id" => tracking["_id"]})
+          @start_count_daily_at = Finforenet::Utils::Time.tomorrow(status.created_at)
+          check_daily_keyword(status)
+          remove_tracking(tracking)
           Finforenet::Jobs::TrackingTweet.new(status,dictionary)
           start_save
         else
           tweet = Secondary::TweetResult.where(:tweet_id => status.id.to_s).first
-          
           if tweet
-            Mongoid.databases['rawdb']['tracking_results'].remove({"_id" => tracking["_id"]}) 
             @rejected_ids.delete(tracking["_id"]) if tracking["_id"].present?
+            remove_tracking(tracking)
           else
             @rejected_ids.push(tracking["_id"])
           end
@@ -61,11 +64,15 @@ module Finforenet
         @failed_count += 1
         if e.to_s.match(/syntax error/i)
           if tracking
-            tracking = Mongoid.databases['rawdb']['tracking_results'].find_one({"_id" => tracking["_id"]})
-            Mongoid.databases['rawdb']['tracking_results'].remove({"_id" => tracking["_id"]}) if tracking
+            tracking = TrackingResult.where({"_id" => tracking["_id"]}).first
+            remove_tracking(tracking) if tracking
           end
         end
         sleep(20)
+        after_failed
+      end
+      
+      def after_failed
         if @failed_count < 10
           start_save
         else
@@ -73,33 +80,6 @@ module Finforenet
         end
       end
       
-    end
-
-    class TrackingTweet
-
-      def initialize(status,dictionary)
-        prepare_member(status,dictionary)
-      end
-     
-      def prepare_member(status,dictionary)
-        exist_keywords = status.text.scan(/#{dictionary}/i)
-        user = status.user
-        member = TweetUser.create_or_update(user)
-        prepare_result(status,member,user.lang,exist_keywords)
-      end
-
-      def prepare_result(status,member,user_lang,exist_keywords)  
-        tweet_result = Secondary::TweetResult.find_or_create(member,status, user_lang, exist_keywords)
-        created_at = tweet_result.created_at
-        
-        keywords = exist_keywords.uniq
-        keywords.each do |keyword|
-          regex_keyword = TweetResult.keyword_regex(keyword)
-          keyword = Keyword.where({:title => regex_keyword}).first
-          keyword.update_total_tweet_and_follower(created_at, member.followers_count.to_i) if keyword
-        end
-      end
-
     end
 
   end

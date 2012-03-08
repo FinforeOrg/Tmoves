@@ -1,25 +1,17 @@
 class Keyword
   include Mongoid::Document
-  field :title, :type => String
+  field :title,  :type => String
   field :ticker, :type => String
   index :title
   index :ticker
   validates :title, :presence => true, :uniqueness => true
   
-  has_many :daily_tweets, :dependent => :destroy
-  has_many :weekly_tweets, :dependent => :destroy
-  has_many :twitter_followers, :dependent => :destroy
-  has_many :keyword_charts, :dependent => :destroy
-  has_many  :keyword_traffics, :dependent => :destroy
-  has_and_belongs_to_many :keyword_categories
+  has_many :daily_tweets,      :dependent => :destroy, :index => true
+  has_many :keyword_charts,    :dependent => :destroy, :index => true
+  has_many :keyword_traffics,  :dependent => :destroy, :index => true
+  has_and_belongs_to_many :keyword_categories, :index => true
 
   cache
-
-  def filter_weekly_by options
-    return self unless options
-    resources = self.weekly_tweets.where(:start_at.gte => options[:start_date]).and(:end_at.lte => options[:end_date])
-    return resources
-  end
 
   def filter_daily_by options
     return self unless options
@@ -75,20 +67,6 @@ class Keyword
             :versus7 => versus7,
             :versus14 => versus14
            }
-  end
-  
-  def update_total_tweet_and_follower(created_at, total_follower)
-    midnight = created_at.utc.midnight
-    daily_tweet = self.daily_tweets.where({:created_at => {"$gte" => midnight, "$lt" => midnight.tomorrow}}).first
-    if daily_tweet
-      daily_tweet.inc(:total, 1)
-      daily_tweet.inc(:follower, total_follower)
-    else
-      DailyTweet.create({:keyword_id => self.id, 
-                         :total      => 1, 
-                         :follower   => total_follower, 
-                         :created_at => midnight})
-    end
   end
 
 end

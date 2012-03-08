@@ -1,9 +1,5 @@
 class TweetResult
   include Mongoid::Document
-#  include Mongoid::MapReduce
-#  include Tire::Model::Search
-#  include Tire::Model::Callbacks
-#  include Tire::Model::Persistence
 
   field :tweet_id, :type => String
   field :retweet_count, :type => Integer
@@ -22,23 +18,9 @@ class TweetResult
   index :tweet_id
   index :tweet_text
   index [[:created_at, Mongo::DESCENDING]]
-  shard_key :keywords, :created_at
+  #shard_key :keywords, :created_at
 
-  #index_name 'tweet_results'
-  belongs_to :tweet_user
-
- # tire do
- #   mapping do
- #    indexes :id, :type => 'string', :index => :not_analyzed
- #    indexes :created_at, :type => 'time'
- #    indexes :tweet_text, :type => 'string'
- #    indexes :tweet_id, :type => 'string'
- #    indexes :keywords, :type => 'string'
- #   end
- # end
-
-
-  #cache
+  belongs_to :tweet_user, :index => true
 
   def to_indexed_json
     self.to_json(:include => :tweet_user)

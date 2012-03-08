@@ -20,17 +20,9 @@ class ApplicationController < ActionController::Base
       labels.push("Price")
     end
 
-    @columns = [{
-            :id    => 'string',
-            :label => "Date",
-            :type  => "string"
-        }] + labels.map do |key|
-          {
-            :id    => key,
-            :label => key,
-            :type  => "number"
-          }
-        end
+    @columns = [{ :id => 'string', :label => "Date", :type  => "string" }] + labels.map do |key|
+                { :id => key, :label => key, :type  => "number" }
+               end
     filter_options = {:created_at => {"$gte" => start_date,"$lt" => end_date}, :keyword_id => @keyword.id}
     @daily_tweets = Mongoid.database['daily_tweets'].find(filter_options).sort([:created_at,1]).to_a
     @rows = []

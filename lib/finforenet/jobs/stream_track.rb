@@ -24,25 +24,25 @@ module Finforenet
         end
 
         def oauth_login
-            twitter_api = TwitterApi.first
-            TweetStream.configure do |config|
-	      config.consumer_key = twitter_api.consumer_key
-	      config.consumer_secret = twitter_api.consumer_secret
-	      config.oauth_token = @stream_account[:token]
-	      config.oauth_token_secret = @stream_account[:secret]
-              config.auth_method = :oauth
-              config.parser = :yajl
-              config.user_agent = "Mozilla/5.0 (X11; Linux i686; rv:7.0) Gecko/20100101 Firefox/7.0"
-	    end
+          twitter_api = TwitterApi.first
+          TweetStream.configure do |config|
+    	      config.consumer_key = twitter_api.consumer_key
+    	      config.consumer_secret = twitter_api.consumer_secret
+    	      config.oauth_token = @stream_account[:token]
+    	      config.oauth_token_secret = @stream_account[:secret]
+            config.auth_method = :oauth
+            config.parser = :yajl
+            config.user_agent = "Mozilla/5.0 (X11; Linux i686; rv:7.0) Gecko/20100101 Firefox/7.0"
+	        end
         end
 
         def basic_login
-	  TweetStream.configure do |config|
-	    config.username = @stream_account[:username]
-	    config.password = @stream_account[:password]
-	    config.auth_method = :basic
-	    config.parser   = :yajl
-	  end
+      	  TweetStream.configure do |config|
+      	    config.username = @stream_account[:username]
+      	    config.password = @stream_account[:password]
+      	    config.auth_method = :basic
+      	    config.parser   = :yajl
+      	  end
         end
         
         def start_scan
