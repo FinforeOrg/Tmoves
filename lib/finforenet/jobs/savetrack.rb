@@ -31,11 +31,11 @@ module Finforenet
       end
       
       def remove_tracking(tracking)
-        TrackingResult.destroy_by_id(tracking["_id"])
+        tracking.destroy
       end
 
       def prepare_tracking(tracking)
-        status = YAML::load(tracking["tweets"])
+        status = YAML::load(tracking.tweets)
         if Finforenet::RedisFilter.push_data("tracking", status.id.to_s)
           dictionary = tracking["dictionary"]
           @start_count_daily_at = Finforenet::Utils::Time.tomorrow(status.created_at)
@@ -46,10 +46,10 @@ module Finforenet
         else
           tweet = Secondary::TweetResult.where(:tweet_id => status.id.to_s).first
           if tweet
-            @rejected_ids.delete(tracking["_id"]) if tracking["_id"].present?
+            @rejected_ids.delete(tracking.id) if tracking.present?
             remove_tracking(tracking)
           else
-            @rejected_ids.push(tracking["_id"])
+            @rejected_ids.push(tracking.id.to_s)
           end
           sleep(2)
           start_save
@@ -64,7 +64,7 @@ module Finforenet
         @failed_count += 1
         if e.to_s.match(/syntax error/i)
           if tracking
-            tracking = TrackingResult.where({"_id" => tracking["_id"]}).first
+            tracking = TrackingResult.where({"_id" => tracking.id}).first
             remove_tracking(tracking) if tracking
           end
         end
