@@ -8,12 +8,13 @@ module Finforenet
      
       def prepare_member(status,dictionary)
         member = TweetUser.create_or_update(status.user)
-        prepare_result(status, member, exist_keywords(status))
+        prepare_result(status, member, exist_keywords(status, dictionary))
       end
 
       def prepare_result(status, member, keywords)  
         tweet_result = Secondary::TweetResult.find_or_create(member, status, keywords)
-        created_at   = tweet_result.created_at        followers    = member.followers_count
+        created_at   = tweet_result.created_at
+        followers    = member.followers_count
         
         keywords.each do |keyword|
           regex_keyword = Finforenet::Utils::String.keyword_regex(keyword)
@@ -22,7 +23,7 @@ module Finforenet
         end
       end
       
-      def exist_keywords(status)
+      def exist_keywords(status, dictionary)
         status.text.scan(/#{dictionary}/i).uniq
       end
       

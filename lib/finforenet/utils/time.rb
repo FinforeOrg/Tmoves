@@ -7,7 +7,7 @@ module Finforenet
       end
       
       def self.tomorrow(time)
-        self.to_midnight(time).tomorrow
+        self.midnight(time).tomorrow
       end
     
     end

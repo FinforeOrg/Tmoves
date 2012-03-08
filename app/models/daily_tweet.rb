@@ -8,8 +8,9 @@ class DailyTweet
 
   index :created_at
   index [[:created_at, Mongo::DESCENDING]]
+  index :keyword_id
 
-  belongs_to :keyword, :index => true
+  belongs_to :keyword
 
   #cache
   

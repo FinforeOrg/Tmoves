@@ -6,9 +6,9 @@ class Keyword
   index :ticker
   validates :title, :presence => true, :uniqueness => true
   
-  has_many :daily_tweets,      :dependent => :destroy, :index => true
-  has_many :keyword_charts,    :dependent => :destroy, :index => true
-  has_many :keyword_traffics,  :dependent => :destroy, :index => true
+  has_many :daily_tweets,      :dependent => :destroy
+  has_many :keyword_charts,    :dependent => :destroy
+  has_many :keyword_traffics,  :dependent => :destroy
   has_and_belongs_to_many :keyword_categories, :index => true
 
   cache

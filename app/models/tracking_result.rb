@@ -17,8 +17,8 @@ class TrackingResult
     self.where(options)
   end
   
-  def self.destroy_by_id(_id)
-    _tracking = self.where("_id" => tracking["_id"]).first
+  def self.destroy_by_id(tracking_id)
+    _tracking = self.where("_id" => tracking_id).first
     _tracking.destroy if _tracking
   end
   
