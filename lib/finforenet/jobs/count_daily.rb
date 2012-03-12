@@ -1,51 +1,82 @@
 module Finforenet
   module Jobs
     class CountDaily
-      attr_accessor :failed_tasks, :log, :keywords, :limit_at, :start_at
+      attr_accessor :failed_tasks, :log, :keywords, :limit_at, :start_at, :conter
 
       def initialize(datetime = nil)
        @failed_tasks = []
+       @counter = 0
        start_count_keywords(datetime)
       end
 	  
       def start_count_keywords(datetime)
         @keywords = Keyword.all.map{|keyword| {:id => keyword.id, :title => keyword.title} }
         @limit_at = Secondary::TweetResult.newest_time
-        if datetime.present?
-          @start_at = datetime.to_time.utc
-        else
-          @start_at = @limit_at.ago(21.days)
-        end
-        start_analyst(@start_at, @start_at.tomorrow)
+        start_analyst
       end
       
-      def start_analyst(start_at,end_at)
-        if start_at < @limit_at
-          @keywords.each do |keyword|
-            check_daily_tweet(keyword, start_at, end_at)
+      def start_analyst
+        if @counter < @keywords.size
+          keyword = @keywords[@counter]
+          daily_tweet = DailyTweet.where(:keyword_id => keyword[:id]).desc(:created_at).first
+          start_at = daily_tweet.created_at.utc.midnight
+          while start_at < @limit_at
+            create_daily_tweet(keyword, start_at, start_at.tomorrow)
+            start_at = start_at.tomorrow
           end
+          @counter += 1
+          start_analyst
+        else
           check_failed_tasks
         end
       end
-      
-      def check_daily_tweet(keyword, start_at, end_at)
-        daily_tweets = DailyTweet.where({:created_at => start_at, :keyword_id => keyword[:id]})
-        is_exist = false
         
-        if daily_tweets.count > 1
-          daily_tweets.map{|dt| dt.delete}
-        elsif daily_tweets.count == 1
-          is_exist = true
+      def check_daily_tweet(keyword, start_at, end_at)
+        daily_tweets = DailyTweet.find_keyword_periode(keyword[:id],start_at,end_at)
+        is_exist = false
+        total_dt = daily_tweets.count
+        
+        if total_dt > 1
+          daily_tweet = daily_tweets.first
+          daily_tweets.map{|dt| dt.delete unless daily_tweet.id == dt.id}
+        elsif total_dt > 0 && total_dt < 2
+          daily_tweet = daily_tweets.first
         end
         
-        unless is_exist
+        if daily_tweet.blank?
           begin
             create_daily_tweet(keyword, start_at, end_at)
           rescue => e
             @failed_tasks.push({:keyword => keyword, :start_at => start_at, :end_at => end_at})
             on_failed(e)
           end
+        elsif daily_tweet.total < 1 || daily_tweet.follower < 1
+          begin
+            dt_info = populate_daily_tweet(keyword,start_at,end_at)
+            daily_tweet.update_attributes(dt_info)
+          rescue => e
+            @failed_tasks.push({:keyword => keyword, :start_at => start_at, :end_at => end_at})
+            on_failed(e)
+          end
         end
+      end
+      
+      def create_daily_tweet(keyword,start_at,end_at)
+        dt_info = populate_daily_tweet(keyword,start_at,end_at)
+        dt_opts = {:keyword_id => keyword[:id], 
+                   :total      => dt_info[:total], 
+                   :follower   => dt_info[:follower], 
+                   :created_at => start_at}
+        daily_tweet = DailyTweet.create(dt_opts)
+      end
+      
+      def populate_daily_tweet(keyword, start_at, end_at)
+        keyword_regex = Finforenet::Utils::String.keyword_regex(keyword[:title])
+        options = {:tweet_text => keyword_regex, :created_at => {"$gte" => start_at, "$lt" => end_at}}
+			  tweets = Secondary::TweetResult.where(options).to_a
+        total = tweets.count
+        follower = tweets.sum(&:audience)
+        return {:total => total, :follower => follower}
       end
       
       def check_failed_tasks
@@ -60,17 +91,9 @@ module Finforenet
 		      else
 			      check_failed_tasks
 		      end
+        else
+          update_traffic_data(@limit_at.yesterday, @limit_at)
         end
-        update_traffic_data(@start_at, @start_at.tomorrow)
-      end
-      
-      def create_daily_tweet(keyword,start_at,end_at)
-        keyword_regex = TweetResult.keyword_regex(keyword[:title])
-        options = {:keywords => keyword_regex, :created_at => {"$gte" => start_at, "$lt" => end_at}}
-			  tweets = Mongoid.database['tweet_results'].find(options,{})
-        total = tweets.count
-        follower = tweets.inject(0){|sum,item| sum += item["audience"].to_i}
-        daily_tweet = DailyTweet.create({:keyword_id => keyword[:id], :total=> total, :follower => follower, :created_at => start_at})
       end
 
       def on_failed(e)
@@ -109,11 +132,10 @@ module Finforenet
 	    end	
       
       def email_daily_report
-        Member.all.each do |user|
+        #Member.all.each do |user|
+          user = Member.first
           UserMailer.news_letter(user).deliver  
-        end
-        @start_at = @start_at.tomorrow
-        start_analyst(@start_at, @start_at.tomorrow)
+        #end
         #Resque.redis.del "queue:Savetweetresult"
         #Resque.enqueue_in(1.days, Finforenet::Jobs::Bg::DailyKeyword)
         #expire_action :controller => :home, :action => :categories_tab

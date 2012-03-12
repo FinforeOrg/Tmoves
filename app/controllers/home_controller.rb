@@ -11,7 +11,7 @@ class HomeController < ApplicationController
     @chart_type = charts[random_chart]
     keywords = Keyword.all.cache
     @keyword = keywords[rand(keywords.size-1)]
-    @total = DailyTweet.sum(:total).to_i #TweetResult.count
+    @total = DailyTweet.sum(:total).to_i
 	
     tweets = Traffic.tweets.cache
     @month1 = tweets.inject(0){|sum,tr| sum += tr.month1.to_i}
@@ -20,7 +20,7 @@ class HomeController < ApplicationController
   
   def categories_tab      
     now = Time.now.utc.midnight
-    @active_date = DailyTweet.last.created_at.utc.midnight
+    @active_date = DailyTweet.asc(:created_at).last.created_at.utc.midnight
     @active_date = now.yesterday if now == @active_date
     @cache_name = "categories_tab_" + Time.now.strftime("%b_%m_%Y")
     @categories = KeywordCategory.all.asc(:index_at)

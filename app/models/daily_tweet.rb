@@ -29,5 +29,9 @@ class DailyTweet
                          :created_at => midnight})
     end
   end
+  
+  def self.find_keyword_periode(keyword_id, start_at, end_at)
+    self.where({:created_at => {"$gte" => start_at, "$lt" => end_at}, :keyword_id => keyword_id})
+  end
 
 end
