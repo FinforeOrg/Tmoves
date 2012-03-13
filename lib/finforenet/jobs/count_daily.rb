@@ -119,11 +119,7 @@ module Finforenet
     	 ranges_option.each do |range|
            if range.present?
              @log = Logger.new("#{RAILS_ROOT}/log/daily_tweet.log")
-             @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-             @log.debug range
-             @log.debug keyword
-             @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-      	     tweets = Mongoid.database['daily_tweets'].find({:created_at => range[:options], :keyword_id => keyword[:id]}).to_a
+      	     tweets = Mongoid.database['daily_tweets'].find({:created_at => range[:option], :keyword_id => keyword[:id]}).to_a
       	     _keyword = Keyword.where(:_id => keyword[:id]).first
              if _keyword.present?
                _keyword.keyword_traffics.each do |kt|
@@ -134,8 +130,6 @@ module Finforenet
                  end
                  kt.update_attribute(range[:attribute], total)
       	       end
-             else
-               @log.debug "Not Found At #{keyword[:id]}"
              end
            end
          end if keyword.present?
