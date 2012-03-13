@@ -81,16 +81,16 @@ module Finforenet
       
       def check_failed_tasks
         task = @failed_tasks.shift
-		    if task
+        if task
           begin
             check_daily_tweet(task[:keyword], task[:start_at], task[:end_at])
           rescue => e
             @failed_tasks.push(task)
             on_failed(e)
             check_failed_tasks
-		      else
-			      check_failed_tasks
-		      end
+          else
+	    check_failed_tasks
+          end
         else
           update_traffic_data(@limit_at.yesterday, @limit_at)
         end
@@ -114,27 +114,29 @@ module Finforenet
 		                     {:option => {"$gte" => start_at.ago(14.days),  "$lt" => @limit_at}, :attribute => :day14  },
 		                     {:option => {"$gte" => start_at.ago(10.weeks), "$lt" => this_week}, :attribute => :week10 }]
 		
-    		@keywords.each do |keyword|
-    		  ranges_option.each do |range|
-      		  tweets = Mongoid.database['daily_tweets'].find({:created_at => range[:options], :keyword_id => keyword[:id]}).to_a
-      			keyword = Keyword.where(:_id => keyword[:id]).first
-            keyword.keyword_traffics.each do |kt|
+    	@keywords.each do |keyword|
+    	  ranges_option.each do |range|
+      	  tweets = Mongoid.database['daily_tweets'].find({:created_at => range[:options], :keyword_id => keyword[:id]}).to_a
+      	  keyword = Keyword.where(:_id => keyword[:id]).first
+          keyword.keyword_traffics.each do |kt|
               if kt.traffic.title.match(/tweet/i)
                 total = tweets.inject(0){|sum, item| sum =+ item[:total].to_i}
               else
                 total = tweets.inject(0){|sum, item| sum =+ item[:follower].to_i}
               end
                 kt.update_attribute(range[:attribute], total)
-      			end
-  		    end
-		    end
+      	      end
+  	  end
+        end
         email_daily_report
-	    end	
+      end	
       
       def email_daily_report
         #Member.all.each do |user|
           user = Member.first
           UserMailer.news_letter(user).deliver  
+          rescue => e
+            on_failed(e)
         #end
         #Resque.redis.del "queue:Savetweetresult"
         #Resque.enqueue_in(1.days, Finforenet::Jobs::Bg::DailyKeyword)
