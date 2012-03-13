@@ -27,6 +27,7 @@ module Finforenet
           @counter += 1
           start_analyst
         else
+          @counter = 0
           check_failed_tasks
         end
       end
@@ -116,26 +117,28 @@ module Finforenet
 		
     	@keywords.each do |keyword|
     	 ranges_option.each do |range|
-      	   tweets = Mongoid.database['daily_tweets'].find({:created_at => range[:options], :keyword_id => keyword[:id]}).to_a
-      	   keyword = Keyword.where(:_id => keyword[:id]).first
-           if keyword.present?
-             keyword.keyword_traffics.each do |kt|
-               if kt.traffic.title.match(/tweet/i)
-                 total = tweets.inject(0){|sum, item| sum =+ item[:total].to_i}
-               else
-                 total = tweets.inject(0){|sum, item| sum =+ item[:follower].to_i}
-               end
-               kt.update_attribute(range[:attribute], total)
-      	     end
-          else
-            @log = Logger.new("#{RAILS_ROOT}/log/daily_tweet.log")
-            @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-            @log.debug " Keyword Not Found"
-            @log.debug "Date     : #{Time.now}"
-            @log.debug "Error Msg: #{keyword[:id]}"
-            @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-          end
-         end
+           if range.present?
+             @log = Logger.new("#{RAILS_ROOT}/log/daily_tweet.log")
+             @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+             @log.debug range
+             @log.debug keyword
+             @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+      	     tweets = Mongoid.database['daily_tweets'].find({:created_at => range[:options], :keyword_id => keyword[:id]}).to_a
+      	     _keyword = Keyword.where(:_id => keyword[:id]).first
+             if _keyword.present?
+               _keyword.keyword_traffics.each do |kt|
+                 if kt.traffic.title.match(/tweet/i)
+                   total = tweets.inject(0){|sum, item| sum =+ item[:total].to_i}
+                 else
+                   total = tweets.inject(0){|sum, item| sum =+ item[:follower].to_i}
+                 end
+                 kt.update_attribute(range[:attribute], total)
+      	       end
+             else
+               @log.debug "Not Found At #{keyword[:id]}"
+             end
+           end
+         end if keyword.present?
         end
         email_daily_report
       end	
