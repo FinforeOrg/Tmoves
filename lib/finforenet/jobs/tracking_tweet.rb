@@ -13,13 +13,15 @@ module Finforenet
 
       def prepare_result(status, member, keywords)  
         tweet_result = Secondary::TweetResult.find_or_create(member, status, keywords)
-        created_at   = tweet_result.created_at
-        followers    = member.followers_count
+        if tweet_result.present?
+          created_at   = tweet_result.created_at
+          followers    = member.followers_count
         
-        keywords.each do |keyword|
-          regex_keyword = Finforenet::Utils::String.keyword_regex(keyword)
-          saved_keyword = Keyword.where({:title => /#{regex_keyword}/i}).first
-          DailyTweet.save_total_and_follower(created_at, followers, saved_keyword.id) if saved_keyword
+          keywords.each do |keyword|
+            regex_keyword = Finforenet::Utils::String.keyword_regex(keyword)
+            saved_keyword = Keyword.where({:title => /#{regex_keyword}/i}).first
+            DailyTweet.save_total_and_follower(created_at, followers, saved_keyword.id) if saved_keyword
+          end
         end
       end
       

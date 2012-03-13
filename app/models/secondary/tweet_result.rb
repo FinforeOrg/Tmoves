@@ -66,6 +66,7 @@ class Secondary::TweetResult
                 }
       twt = self.create(obj_data)
     end
+    return twt
   end
 
 end
