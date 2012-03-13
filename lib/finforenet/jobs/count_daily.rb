@@ -115,18 +115,27 @@ module Finforenet
 		                     {:option => {"$gte" => start_at.ago(10.weeks), "$lt" => this_week}, :attribute => :week10 }]
 		
     	@keywords.each do |keyword|
-    	  ranges_option.each do |range|
-      	  tweets = Mongoid.database['daily_tweets'].find({:created_at => range[:options], :keyword_id => keyword[:id]}).to_a
-      	  keyword = Keyword.where(:_id => keyword[:id]).first
-          keyword.keyword_traffics.each do |kt|
-              if kt.traffic.title.match(/tweet/i)
-                total = tweets.inject(0){|sum, item| sum =+ item[:total].to_i}
-              else
-                total = tweets.inject(0){|sum, item| sum =+ item[:follower].to_i}
-              end
-                kt.update_attribute(range[:attribute], total)
-      	      end
-  	  end if keyword
+    	 ranges_option.each do |range|
+      	   tweets = Mongoid.database['daily_tweets'].find({:created_at => range[:options], :keyword_id => keyword[:id]}).to_a
+      	   keyword = Keyword.where(:_id => keyword[:id]).first
+           if keyword.present?
+             keyword.keyword_traffics.each do |kt|
+               if kt.traffic.title.match(/tweet/i)
+                 total = tweets.inject(0){|sum, item| sum =+ item[:total].to_i}
+               else
+                 total = tweets.inject(0){|sum, item| sum =+ item[:follower].to_i}
+               end
+               kt.update_attribute(range[:attribute], total)
+      	     end
+          else
+            @log = Logger.new("#{RAILS_ROOT}/log/daily_tweet.log")
+            @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+            @log.debug " Keyword Not Found"
+            @log.debug "Date     : #{Time.now}"
+            @log.debug "Error Msg: #{keyword[:id]}"
+            @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+          end
+         end
         end
         email_daily_report
       end	
