@@ -126,7 +126,7 @@ module Finforenet
               end
                 kt.update_attribute(range[:attribute], total)
       	      end
-  	  end
+  	  end if keyword
         end
         email_daily_report
       end	
