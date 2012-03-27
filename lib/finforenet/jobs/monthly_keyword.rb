@@ -5,7 +5,7 @@ module Finforenet
         @queue = "MonthlyKeyword"
 
         def self.perform
-          Finforenet::Jobs::CountMonthly.new
+          Finforenet::Workers::CountMonthly.new
         end
 
       end

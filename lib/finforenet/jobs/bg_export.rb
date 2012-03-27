@@ -5,7 +5,7 @@ module Finforenet
         @queue = "ExportTrackToCSV"
 
         def self.perform(keywords)
-          Finforenet::Jobs::Export::Track.new(keywords)
+          Finforenet::Workers::ExportTrack.new(keywords)
         end
       end
     end

@@ -5,7 +5,7 @@ module Finforenet
         @queue = "DailyFollower"
 
         def self.perform(daily_tweet_id="", start_at="", end_at="", keyword_regex="")
-          Finforenet::Jobs::CountFollower.new(daily_tweet_id, start_at, end_at, keyword_regex)
+          Finforenet::Workers::CountFollower.new(daily_tweet_id, start_at, end_at, keyword_regex)
         end
 
       end

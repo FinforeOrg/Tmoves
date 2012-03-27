@@ -4,7 +4,7 @@ module Finforenet
       @queue = "StreamTrack"
       
       def self.perform(stream_task_id)
-        Finforenet::Jobs::Stream::Track.new(stream_task_id)
+        Finforenet::Workers::StreamTrack.new(stream_task_id)
       end      
     end
   end

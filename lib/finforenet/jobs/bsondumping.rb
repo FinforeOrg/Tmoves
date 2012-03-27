@@ -5,7 +5,7 @@ module Finforenet
         @queue = "Bsondumping"
       
         def self.perform
-          Finforenet::Jobs::Bsoning.new
+          Finforenet::Workers::Bsoning.new
         end
       end
 

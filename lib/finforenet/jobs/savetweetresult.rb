@@ -7,7 +7,7 @@ module Finforenet
       @queue = "Savetweetresult"
 
       def self.perform
-        Finforenet::Jobs::Savetrack.new
+        Finforenet::Workers::Savetrack.new
       end
 
     end
