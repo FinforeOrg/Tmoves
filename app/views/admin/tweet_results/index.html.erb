@@ -39,7 +39,6 @@ $(document).ready(function(){
      timestamp_new: "<%= @results.first['created_at'] %>",
      timestamp_old: "<%= @results.last['created_at'] %>",
      url: "<%= more_tweets_admin_tweet_results_url({:search => params[:search]}) %>",
-     total_record_url: "<%= total_records_admin_tweet_results_url({:search => params[:search]}) %>",
      button: $('div.button.load_more'),
      delays: 35000
   });

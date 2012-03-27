@@ -1,19 +1,18 @@
 module Finforenet
   module Jobs
     class Savetrack
-      attr_accessor :task_id, :rejected_ids, :dictionaries,:log, :failed_count, :start_count_daily_at, :previous_id, :tweet_ids
+      attr_accessor :task_id, :dictionaries,:log, :failed_count, :start_count_daily_at, :previous_id, :tweet_ids
 
       def initialize
         @failed_count = 0
         @previous_id = ""
-        @log = Logger.new("#{RAILS_ROOT}/log/stream.log")
+        @log = Logger.new("#{RAILS_ROOT}/log/savetrack.log")
         @log.debug "INITIALIZED    : #{Time.now}"
-        @rejected_ids = []
         start_save
       end
 
       def start_save
-        if tracking = TrackingResult.where({:_id => {"$nin" => @rejected_ids}}).first
+        if tracking = TrackingResult.where({:_id => {"$nin" => Finforenet::RedisFilter.get_array_ids("rejected_tracks")}}).first
           prepare_tracking(tracking)
         else
           sleep(10)
@@ -36,7 +35,7 @@ module Finforenet
 
       def prepare_tracking(tracking)
         status = YAML::load(tracking.tweets)
-        if Finforenet::RedisFilter.push_data("tracking", status.id.to_s)
+        if Finforenet::RedisFilter.push_data("savetrack", status.id.to_s)
           dictionary = tracking["dictionary"]
           @start_count_daily_at = Finforenet::Utils::Time.tomorrow(status.created_at)
           check_daily_keyword(status)
@@ -46,10 +45,9 @@ module Finforenet
         else
           tweet = Secondary::TweetResult.where(:tweet_id => status.id.to_s).first
           if tweet
-            @rejected_ids.delete(tracking.id) if tracking.present?
             remove_tracking(tracking)
           else
-            @rejected_ids.push(tracking.id.to_s)
+            Finforenet::RedisFilter.push_data("rejected_tracks",tracking.id.to_s)
           end
           sleep(2)
           start_save
@@ -84,4 +82,3 @@ module Finforenet
 
   end
 end
-
