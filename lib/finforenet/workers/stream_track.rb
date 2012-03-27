@@ -1,6 +1,5 @@
 require 'open-uri'
 require 'net/http'
-require 'finforenet/jobs/savetrack'
 
 module Finforenet
 	module Workers

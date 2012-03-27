@@ -12,7 +12,7 @@ module Finforenet
 			end
 
 			def start_save
-				rejected_ids = Maining::MigrationTrack.all.map{|mt| mt.tweet_id.to_s}
+				rejected_ids = Mining::MigrationTrack.all.map{|mt| mt.tweet_id.to_s}
 				if tracking = TrackingResult.where(:_id => {"$nin" => rejected_ids}).first
 					prepare_tracking(tracking)
 				else

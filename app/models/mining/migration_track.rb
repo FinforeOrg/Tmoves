@@ -7,8 +7,9 @@ class Mining::MigrationTrack
 	after_save :check_total
 	
 	def check_total
-		if self.total > 50
-			self.first.delete
+		if self.class.count > 50
+                  _first = self.class.first
+	          _first.delete if _first.present?
 		end
 	end
 	

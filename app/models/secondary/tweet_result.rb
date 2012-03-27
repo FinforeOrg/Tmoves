@@ -38,9 +38,6 @@ class Secondary::TweetResult
   end
   
   def self.find_or_create(member, status = {}, exist_keywords = "")
-    mining, twt = Mining::MigrationTrack.where(:tweet_id => status.id.to_s).first, nil
-     
-    if mining.blank?
     
       place = status.place.blank? ? "" : status.place.full_name+", "+status.place.country_code
       geo   = status.geo.blank? ? "" : status.geo.coordinates.join(',')
@@ -65,7 +62,6 @@ class Secondary::TweetResult
                   :audience      => member.followers_count
                 }
       twt = self.create(obj_data)
-    end
     return twt
   end
 

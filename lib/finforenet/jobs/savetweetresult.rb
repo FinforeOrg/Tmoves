@@ -1,4 +1,3 @@
-require 'finforenet/jobs/savetrack'
 module Finforenet
   module Jobs
    module Bg
