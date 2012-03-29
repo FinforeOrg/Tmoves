@@ -44,6 +44,10 @@ module Finforenet
 				@limit_at.to_i == midnight.at_beginning_of_month.to_i
 			end
 			
+			def is_monday?
+				@limit_at.to_i == midnight.monday.to_i
+			end
+			
 			def start_analyst
 			  audience_id = Traffic.audience_id
 			  tweet_id = Traffic.tweet_id
@@ -52,6 +56,11 @@ module Finforenet
 				    count_6_months(audience_id, tweet_id, keyword[:id])
 				    count_1_month(audience_id, tweet_id, keyword[:id])
 				  end
+				  if is_monday?
+					  count_10_weeks(audience_id, tweet_id, keyword[:id])
+					end
+					count_14_days(audience_id, tweet_id, keyword[:id])
+					count_7_days(audience_id, tweet_id, keyword[:id])
 				end
 			end
 			
@@ -65,6 +74,12 @@ module Finforenet
 				end_at = @limit_at.at_beginning_of_month
 				start_at = end_at.ago(1.month)
 				count_data(:month1, start_at, end_at, audience_id, tweet_id, keyword_id)
+			end
+			
+			def count_10_weeks(audience_id, tweet_id, keyword_id)
+				end_at = @limit_at.monday
+				start_at = end_at.ago(10.weeks)
+				count_data(:week10, start_at, end_at, audience_id, tweet_id, keyword_id)
 			end
 			
 			def count_data(attribute, start_at, end_at, audience_id, tweet_id, keyword_id)
