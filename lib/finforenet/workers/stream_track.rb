@@ -4,11 +4,13 @@ require 'net/http'
 module Finforenet
 	module Workers
 		class StreamTrack
-			attr_accessor :task_id, :stream_account, :log, :keywords, :dictionary
+			attr_accessor :task_id, :stream_account, :log
+			attr_accessor :keywords, :dictionary, :tomorrow
 
 			def initialize(stream_task_id)
 				@task_id = stream_task_id          
 				@log = Logger.new("#{RAILS_ROOT}/log/stream.log")
+				@tomorrow = Time.now.utc.midnight.tomorrow
 				prepare_cache_data
 				start_scan
 				rescue => e
@@ -57,7 +59,7 @@ module Finforenet
 				end.on_delete do |status_id, user_id|
 					delete_status(status_id, user_id)
 				end.track(*@keywords) do |status,client|
-					TrackingResult.create({:tweets => status.to_yaml, :dictionary => @dictionary})
+					save_tracking(status)
 				end
 			end
 
@@ -69,6 +71,28 @@ module Finforenet
 					@log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
 					h = Net::HTTP.new('tmoves.com')
 					h.get("/admin/scanner_tasks/#{@task_id}/restart")
+			end
+			
+			def delete_status(status_id, user_id)
+				TrackingResult.delete_status(status_id, user_id)
+			end
+			
+			def save_tracking(status)
+				begin
+					new_status = TrackingResult.create_status(status, @dictionary)
+				rescue => e
+					log_tweet_error(e.to_s)
+				else
+					if new_status.valid?
+						Resque.enqueue(Finforenet::Jobs::AnalyzeKeywords, 
+													 new_status.keywords_str, 
+													 status.created_at, 
+													 status.user.followers_count)
+						if status.created_at.to_datetime.utc > @tomorrow
+							Resque.enqueue(Finforenet::Jobs::Bg::DailyKeyword, @tomorrow.yesterday.to_i)
+						end
+					end
+				end
 			end
 
 			def log_tweet_error(message)

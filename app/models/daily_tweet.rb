@@ -15,12 +15,13 @@ class DailyTweet
   #cache
   
   def self.save_total_and_follower(created_at, total_follower, keyword_id)
-    midnight = created_at.utc.midnight
+    midnight = created_at.to_datetime.utc.midnight
     search_options = {:created_at => {"$gte" => midnight, "$lt" => midnight.tomorrow}, 
                       :keyword_id => keyword_id}
     daily_tweet = self.where(search_options).first
     if daily_tweet
-      daily_tweet.inc(:total, 1)
+      _total = total_follower.to_i > 0 ? 1 : -1
+      daily_tweet.inc(:total, _total)
       daily_tweet.inc(:follower, total_follower)
     else
       DailyTweet.create({:keyword_id => self.id, 

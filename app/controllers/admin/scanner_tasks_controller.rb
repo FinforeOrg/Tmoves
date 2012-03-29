@@ -163,14 +163,7 @@ class Admin::ScannerTasksController < ApplicationController
      @account = @scanner_task.scanner_account
      CACHE.set("account_#{@scanner_task.id.to_s}",{:username=>@account.username,:password=>@account.password, :token => @account.token, :secret=> @account.secret}) 
      CACHE.set("keyword_#{@scanner_task.id.to_s}",@scanner_task.keywords) 
-     all_keywords = @scanner_task.keywords.split(',').map{|k|
-     		          if k.include?("$")
-			     k = k.gsub("$","[$]")
-                             "#{k}\s|#{k}$"
-            		  else
-		             k
-               		  end
-	              }.join("|")
+     all_keywords = @scanner_task.keywords.split(',').map{|k| Finforenet::Utils::String.keyword_regex(k)}.join("|")
      CACHE.set("dictionary_#{@scanner_task.id.to_s}",all_keywords) 
    end
 
@@ -189,12 +182,10 @@ class Admin::ScannerTasksController < ApplicationController
        Resque.enqueue(Finforenet::Jobs::Bg::MonthlyKeyword)
      elsif queue_name == 'RepairDaily'
        Resque.enqueue(Finforenet::Jobs::Bg::RepairDaily)
-     elsif queue_name == 'ImportElastic'
-       Resque.enqueue(Finforenet::Jobs::Bg::ImportElastic)
      elsif queue_name == 'MonthlyKeyword'
         Resque.enqueue(Finforenet::Jobs::Bg::MonthlyKeyword)
-     elsif queue_name == 'SecondaryDb'
-        Resque.enqueue(Finforenet::Jobs::Bg::SecondaryDb)
+     elsif queue_name == 'AnalyzeKeywords'
+        Resque.enqueue(Finforenet::Jobs::AnalyzeKeywords)
      elsif queue_name == 'Bsondumping'
         Resque.enqueue(Finforenet::Jobs::Bg::Bsondumping)
      end
