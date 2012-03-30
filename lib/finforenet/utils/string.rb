@@ -3,9 +3,9 @@ module Finforenet
     class String
       def self.keyword_regex(str)
         if !str.include?("$")
-      		_return = "[^$]#{str}|^#{str}|[^$]#{str}$"
+      	  _return = "[^$]#{str}|^#{str}|[^$]#{str}$"
       	else
-      		k = str.gsub("$","[$]")
+      	  k = str.gsub("$","[$]")
           _return = "#{k}\s|#{k}$"
       	end
         return _return

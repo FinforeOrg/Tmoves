@@ -14,7 +14,6 @@ class TrackingResult
   field :source,        :type => String
   field :created_at,    :type => Time
   field :tweet_text,    :type => String
-  field :keywords,      :type => String
   field :lang,          :type => String
   field :audience,      :type => Integer
   field :keywords_array,:type => Array
@@ -25,7 +24,7 @@ class TrackingResult
   
   index :tweet_id, :unique => true
   index :created_at
-  index([ [:created_at,     Mongo::DESCENDING]], :background => true)
+  index([ [:created_at, Mongo::DESCENDING]], :background => true)
   validates_uniqueness_of :tweet_id
   
   def self.collections_by(options)
@@ -62,7 +61,17 @@ class TrackingResult
     end
     
     def self.filter_keyword(status, dictionary)
-      status.text.scan(/#{dictionary}/i).uniq.compact!
+      status.text.scan(/#{dictionary}/i).map{|txt| txt.gsub(/^\s|\s$/,"").downcase }.uniq.compact
+    end
+
+    def self.languages(status)
+      begin
+       lang = TRANSLATOR_GRAM.detect(status.text.gsub(/((https?|ftp)\:\/\/([\w-]+\.)?([\w-])+\.(\w)+\/?[\w\?\.\=\&\-\#\+\-\#\+\/]+)/i,''))
+      rescue
+       lang = TRANSLATOR.language(status.text.gsub(/((https?|ftp)\:\/\/([\w-]+\.)?([\w-])+\.(\w)+\/?[\w\?\.\=\&\-\#\+\-\#\+\/]+)/i,''))
+      end
+      lang = lang.present? ? "#{lang}, #{status.user.lang}" : status.user.lang
+      return lang
     end
     
     def self.member_object(user)
@@ -84,7 +93,7 @@ class TrackingResult
       return _user
     end
     
-    def self.tweet_object(status,keywords)
+    def self.tweet_object(status, _keys)
       _tweet = {:retweet_count => status.retweet_count,
                 :coordinates   => status.coordinates,
                 :geo           => self.status_geo(status),
@@ -93,9 +102,9 @@ class TrackingResult
                 :created_at    => status.created_at.to_datetime,
                 :tweet_id      => status.id.to_s,
                 :tweet_text    => status.text,
-                :lang          => status.user.lang,
-                :keywords_arr  => keywords,
-                :keywords_str  => keywords.join(","),
+                :lang          => self.languages(status),
+                :keywords_arr  => _keys,
+                :keywords_str  => _keys.join(","),
                 :audience      => status.user.followers_count
               }
       return _tweet
