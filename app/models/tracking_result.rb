@@ -50,7 +50,11 @@ class TrackingResult
   
   private
     def self.status_geo(status)
-      status.geo.blank? ? "" : status.geo.coordinates.join(',')
+      if status.geo.present? && status.geo.coordinates.present?
+        return status.geo.coordinates.join(',')
+      else
+        return ""
+      end
     end
     
     def self.status_place(status)

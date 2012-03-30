@@ -90,7 +90,7 @@ module Finforenet
                            status.user.followers_count)
             if status.created_at.to_datetime.utc > @tomorrow
               Resque.enqueue(Finforenet::Jobs::Bg::DailyKeyword, @tomorrow.yesterday.to_i)
-			  @tomorrow = @tomorrow.tomorrow
+			        @tomorrow = @tomorrow.tomorrow
             end
           end
         end
