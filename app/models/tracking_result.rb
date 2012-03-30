@@ -95,7 +95,7 @@ class TrackingResult
                 :tweet_text    => status.text,
                 :lang          => status.user.lang,
                 :keywords_arr  => keywords,
-                :keywords_str  => keywords.join(",")
+                :keywords_str  => keywords.join(","),
                 :audience      => status.user.followers_count
               }
       return _tweet
