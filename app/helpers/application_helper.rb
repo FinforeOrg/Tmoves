@@ -98,44 +98,25 @@ module ApplicationHelper
     str.gsub(/\W/i,"-")
   end
 
-  def self.prepare_news_letter(reports, keywords, start_at, end_at)
+  def self.prepare_news_letter(reports, keyword_traffics, start_at, end_at)
      volumes_up = [] 
      volumes_down = [] 
      audiences_up = [] 
      audiences_down = []
      @reports = reports
-     keywords.each do |keyword|
-       keyword_traffics = keyword.keyword_traffics
-       tweet_traffic    = keyword_traffics.select{|kt| kt if kt.traffic.title.match(/tweet|twitter/i) }.first
-       follower_traffic = (keyword_traffics - [tweet_traffic]).first
-       current_tweet    = keyword.daily_tweets.where({:created_at => {"$gte" => start_at, "$lt" => end_at}}).first
-       if current_tweet
-         average7 = tweet_traffic.day7.to_f / 7
-         if average7 <= 0
-           tweet_alert = 0
-         else
-           tweet_alert = (current_tweet.total.to_f / average7) * 100
-         end
-         average14 = follower_traffic.day14.to_f / 14
-         if average14 <= 0
-            audience_alert = 0
-         else
-            audience_alert = (current_tweet.follower.to_f / average14) * 100
-         end
-       else
-         tweet_alert = 0
-         audience_alert = 0
-       end
+     keyword_traffics.each do |keyword_traffic|
+       tweet_health_seven = keyword_traffic.tweet_health_seven_days
+       audience_health_fourteen = keyword_traffic.audience_health_fourteen_days
 
-       if tweet_alert > 150
+       if tweet_health_seven > 150
          volumes_up.push(keyword)
-       elsif tweet_alert < 75
+       elsif tweet_health_seven < 75
          volumes_down.push(keyword)
        end
 
-       if audience_alert > 150
+       if audience_health_fourteen > 150
          audiences_up.push(keyword)
-       elsif audience_alert < 75
+       elsif audience_health_fourteen < 75
          audiences_down.push(keyword)
        end
     end

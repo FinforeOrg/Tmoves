@@ -1,7 +1,9 @@
 module Finforenet
   module Jobs
     class RepairData
-       attr_accessor :failed_tasks, :log, :keywords, :limit_at, :end_at, :keyword_counter, :start_at, :tweet_results, :keyword, :tweet_result, :dictionaries, :daily_tweet
+       attr_accessor :failed_tasks, :log, :keywords, :limit_at, :end_at 
+       attr_accessor :keyword_counter, :start_at, :tweet_results, :keyword
+       attr_accessor :tweet_result, :dictionaries, :daily_tweet
 
        def initialize
          @failed_tasks = []

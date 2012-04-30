@@ -23,17 +23,17 @@ module Finforenet
 
 			 def count_monthly_keywords
 				 @ids.each do |keyword_id|
-		 options_1month = find_options(@end_date.ago(1.months),@end_date,keyword_id)
+		       options_1month = find_options(@end_date.ago(1.months),@end_date,keyword_id)
 					 tweets_1month = Mongoid.database['daily_tweets'].find(options_1month).to_a
 					 total_1month = tweets_1month.inject(0){|total,tweet| total += tweet["total"].to_i }
 
 					 options_6month = find_options(@start_date,@end_date,keyword_id)
-		 tweets_6month = Mongoid.database['daily_tweets'].find(options_6month).to_a
+		       tweets_6month = Mongoid.database['daily_tweets'].find(options_6month).to_a
 					 total_6month = tweets_6month.inject(0){|total,tweet| total += tweet["total"].to_i }
 
 					 keyword_traffic = KeywordTraffic.where(:keyword_id => keyword_id).first
-		 keyword_traffic.update_attributes({:month1 => total_1month, :month6 => total_6month})
-	 end
+		       keyword_traffic.update_attributes({:month1 => total_1month, :month6 => total_6month})
+	       end
 				 next_task = @end_date.next_month.since(1.days)
 				 Resque.enqueue_at(next_task, Finforenet::Jobs::Bg::MonthlyKeyword)
 			 end

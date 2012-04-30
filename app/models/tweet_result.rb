@@ -1,17 +1,17 @@
 class TweetResult
   include Mongoid::Document
 
-  field :tweet_id, :type => String
+  field :tweet_id,      :type => String
   field :retweet_count, :type => Integer
-  field :coordinates, :type => String
-  field :geo, :type => String
-  field :place, :type => String
-  field :source, :type => String
-  field :created_at, :type => Time
-  field :tweet_text, :type => String
-  field :keywords, :type => String
-  field :lang, :type => String
-  field :audience, :type => Integer
+  field :coordinates,   :type => String
+  field :geo,           :type => String
+  field :place,         :type => String
+  field :source,        :type => String
+  field :created_at,    :type => Time
+  field :tweet_text,    :type => String
+  field :keywords,      :type => String
+  field :lang,          :type => String
+  field :audience,      :type => Integer
 
   index :created_at
   index :keywords

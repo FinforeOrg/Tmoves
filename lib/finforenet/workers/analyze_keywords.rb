@@ -16,7 +16,6 @@ module Finforenet
 				end
 			end
 
-
 		end
 	end
 end

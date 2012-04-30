@@ -1,114 +1,148 @@
 module Finforenet
   module Workers
     class CountDaily
-      attr_accessor :failed_tasks, :log, :keywords 
-      attr_accessor :limit_at, :start_at, :conter
+      attr_accessor :failed_tasks, :log, :keywords, :is_emailed
+      attr_accessor :limit_at, :start_at, :end_at, :conter
 
       def initialize(datetime = nil)
-       @failed_tasks = []
-       @counter = 0
-       @limit_at = get_limit_at(datetime) if datetime.present?
-       start_count_keywords
+         @failed_tasks = []
+         @counter = 0
+         @is_emailed = false
+         @limit_at = datetime if datetime.present?
+         start_count_keywords
       end
       
-      def get_limit_at(datetime)
-        Time.at(datetime.to_i).utc.midnight
-      end
-      
-      def get_static_keywords
-        Keyword.all.map{|key| {:id => key.id, :title => key.title} }
-      end
-
       def start_count_keywords
         @keywords = get_static_keywords
-        count_6_monts_ago
+        start_at  = DailyTweet.dec(:created_at).first.created_at.utc.midnight
+        @start_at = start_at.yesterday if start_at > Time.now.utc.midnight
+        @end_at   = start_at.tomorrow
+        start_recursive(start_at, end_at)
       end
       
-      def dt_opts(keyword_id, start_at, end_at)
-        {:keyword_id => keyword_id, :created_at => {"$gte" => start_at, "$lt" => end_at}}
-      end
-      
-      def get_daily_tweets(keyword_id, start_at, end_at)
-        opt = dt_opts(keyword_id, start_at, end_at)
-        daily_tweets = DailyTweet.where(opt)
-        _total = daily_tweets.sum(:total).to_i
-        _audience = daily_tweets.sum(:follower).to_i
-        return {:total => _total, :audience => _audience}
-      end
-      
-      def midnight
-        Time.now.utc.midnight
-      end
-      
-      def is_beginning_month?
-        @limit_at.to_i == midnight.at_beginning_of_month.to_i
-      end
-      
-      def is_monday?
-        @limit_at.to_i == midnight.monday.to_i
-      end
-      
-      def start_analyst
-        audience_id = Traffic.audience_id
-        tweet_id = Traffic.tweet_id
-        @keywords.each do |keyword|
-          if is_beginning_month?
-            count_6_months(audience_id, tweet_id, keyword[:id])
-            count_1_month(audience_id, tweet_id, keyword[:id])
+      def start_recursive(start_at, end_at = nil, counter = 0)
+        if counter < @keywords.count
+          keyword = @keywords[counter]
+          opts = dt_opts(keyword[:id], start_at, end_at)
+          keyword_traffic = KeywordTraffic.where(opts).first
+          unless keyword_traffic
+            daily_tweet = DailyTweet.where(opts).first
+            if daily_tweet
+              traffic = {:created_at     => start_at,
+                         :tweet_total    => daily_tweet.total.to_i,
+                         :audience_total => daily_tweet.follower.to_i,
+                         :keyword_id     => BSON::ObjectId(user),
+                         :keyword_str    => keyword[:title]
+                        }
+              keyword_traffic = KeywordTraffic.create(traffic)
+              keyword_traffic_id = keyword_traffic.id
+              count_six_months(start_at, keyword_traffic_id, keyword[:id])
+            end
+          else
+            keyword_traffic = KeywordTraffic.asc(:created_at).first
+            @start_at = keyword_traffic.created_at.utc.midnight.yesterday
+            @end_at = start_at.tomorrow
+            start_recursive(start_at, end_at)
           end
-          if is_monday?
-            count_10_weeks(audience_id, tweet_id, keyword[:id])
-          end
-          count_14_days(audience_id, tweet_id, keyword[:id])
-          count_7_days(audience_id, tweet_id, keyword[:id])
+        else
+          recovery_error
         end
-		email_daily_report
       end
       
-      def count_6_months(audience_id, tweet_id, keyword_id)
-        end_at = @limit_at.at_beginning_of_month
+      def count_six_months(start_at, keyword_traffic_id, keyword_id)
+        end_at = start_at.at_beginning_of_month
         start_at = end_at.ago(6.months)
-        count_data(:month6, start_at, end_at, audience_id, tweet_id, keyword_id)
+        tweet_data = get_daily_tweets(keyword_id, start_at, end_at)
+        keyword_traffic = KeywordTraffic.where(:_id => keyword_traffic_id).first
+        if keyword_traffic
+          metadata = {:audience_six_months => tweet_data[:audience], :tweet_six_months => tweet_data[:total]}
+          keyword_traffic.update_attributes(metadata)
+          count_one_month(start_at, keyword_traffic_id, keyword_id)
+        end
+        rescue => e
+          on_failed(e, start_at, keyword_traffic_id, keyword_id, "count_six_months")
       end
       
-      def count_1_month(audience_id, tweet_id, keyword_id)
-        end_at = @limit_at.at_beginning_of_month
+      def count_one_month(start_at, keyword_traffic_id, keyword_id)
+        end_at = start_at.at_beginning_of_month
         start_at = end_at.ago(1.month)
-        count_data(:month1, start_at, end_at, audience_id, tweet_id, keyword_id)
+        tweet_data = get_daily_tweets(keyword_id, start_at, end_at)
+        keyword_traffic = KeywordTraffic.where(:_id => keyword_traffic_id).first
+        if keyword_traffic
+          metadata = {:audience_one_month => tweet_data[:audience], :tweet_one_month => tweet_data[:total]}
+          keyword_traffic.update_attributes(metadata)
+          count_ten_weeks(start_at, keyword_traffic_id, keyword_id)
+        end
+        rescue => e
+          on_failed(e, start_at, keyword_traffic_id, keyword_id, "count_one_month")
       end
       
-      def count_10_weeks(audience_id, tweet_id, keyword_id)
-        end_at = @limit_at.monday
+      def count_ten_weeks(start_at, keyword_traffic_id, keyword_id)
+        end_at = start_at.monday
         start_at = end_at.ago(10.weeks)
-        count_data(:week10, start_at, end_at, audience_id, tweet_id, keyword_id)
-      end
-	  
-	  def count_14_days(audience_id, tweet_id, keyword_id)
-        end_at = @limit_at.tomorrow
-        start_at = end_at.ago(14.days)
-        count_data(:day14, start_at, end_at, audience_id, tweet_id, keyword_id)
-      end
-	  
-	  def count_7_days(audience_id, tweet_id, keyword_id)
-        end_at = @limit_at.tomorrow
-        start_at = end_at.ago(7.days)
-        count_data(:day7, start_at, end_at, audience_id, tweet_id, keyword_id)
+        tweet_data = get_daily_tweets(keyword_id, start_at, end_at)
+        keyword_traffic = KeywordTraffic.where(:_id => keyword_traffic_id).first
+        if keyword_traffic
+          metadata = {:audience_ten_weeks => tweet_data[:audience], :tweet_ten_weeks => tweet_data[:total]}
+          keyword_traffic.update_attributes(metadata)
+          count_seven_days(start_at, keyword_traffic_id, keyword_id)
+        end
+        rescue => e
+          on_failed(e, start_at, keyword_traffic_id, keyword_id, "count_ten_weeks")
       end
       
-      def count_data(attribute, start_at, end_at, audience_id, tweet_id, keyword_id)
-        tweet = get_daily_tweets(keyword_id, start_at, end_at)
-        tweet_traffic = KeywordTraffic.where({:keyword_id => keyword_id, :traffic_id => tweet_id}).first
-        tweet_traffic.update_attribute(attribute, tweet[:total].to_i) if tweet_traffic
-        audience_traffic = KeywordTraffic.where({:keyword_id => keyword_id, :traffic_id => audience_id}).first
-        audience_traffic.update_attribute(attribute, tweet[:audience].to_i) if audience_traffic
+      def count_seven_days(start_at, keyword_traffic_id, keyword_id)
+        end_at = start_at.tomorrow
+        start_at = end_at.ago(14.days)
+        tweet_data = get_daily_tweets(keyword_id, start_at, end_at)
+        keyword_traffic = KeywordTraffic.where(:_id => keyword_traffic_id).first
+        if keyword_traffic
+          metadata = {:audience_seven_days => tweet_data[:audience], :tweet_seven_days => tweet_data[:total]}
+          keyword_traffic.update_attributes(metadata)
+          count_fourteen_days(start_at, keyword_traffic_id, keyword_id)
+        end
+        rescue => e
+          on_failed(e, start_at, keyword_traffic_id, keyword_id, "count_seven_days")
       end
-
-      def on_failed(e)
-        @log = Logger.new("#{RAILS_ROOT}/log/daily_tweet.log")
-        @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-        @log.debug "Date     : #{Time.now}"
-        @log.debug "Error Msg: " + e.to_s
-        @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+      
+      def count_fourteen_days(start_at, keyword_traffic_id, keyword_id)
+        end_at = start_at.tomorrow
+        start_at = end_at.ago(14.days)
+        tweet_data = get_daily_tweets(keyword_id, start_at, end_at)
+        keyword_traffic = KeywordTraffic.where(:_id => keyword_traffic_id).first
+        if keyword_traffic
+          metadata = {:audience_fourteen_days => tweet_data[:audience], :tweet_fourteen_days => tweet_data[:total]}
+          keyword_traffic.update_attributes(metadata)
+          continue_recursive
+        end
+        rescue => e
+          on_failed(e, start_at, keyword_traffic_id, keyword_id, "count_fourteen_days")
+      end
+      
+      def on_failed(e, start_at, keyword_traffic_id, keyword_id, task_function)
+        write_error_in_logfile(e)
+        FailedDailyTask.create({:keyword_id         => keyword_id,
+                                :keyword_traffic_id => keyword_traffic_id,
+                                :start_at           => start_at,
+                                :end_at             => @end_at,
+                                :error_message      => e.to_s,
+                                :task_function      => task_function
+                              })
+        sleep(random_timer)
+        continue_recursive
+      end
+      
+      def continue_recursive
+        @counter += 1
+        start_recursive(@start_at, @end_at, @counter)
+      end
+      
+      def recovery_error
+        failed_task = FailedDailyTask.first
+        if failed_task
+          send(failed_task.task_function, failed_task.start_at, failed_task.keyword_traffic_id, failed_task.keyword_id)
+        end
+        email_daily_report unless @is_emailed
       end
 
       def random_timer
@@ -116,16 +150,47 @@ module Finforenet
       end  
 
       def email_daily_report
+        @is_emailed = true
         #Member.all.each do |user|
           user = Member.first
-          UserMailer.news_letter(user).deliver  
+          UserMailer.news_letter(user, @start_at, @end_at).deliver  
           rescue => e
-            on_failed(e)
+            write_error_in_logfile(e)
         #end
-        #Resque.redis.del "queue:Savetweetresult"
-        #Resque.enqueue_in(1.days, Finforenet::Jobs::Bg::DailyKeyword)
-        #expire_action :controller => :home, :action => :categories_tab
       end
+      
+      private
+        def get_limit_at(datetime)
+          Time.at(datetime.to_i).utc.midnight
+        end
+        
+        def get_static_keywords
+          Keyword.all.map{|key| {:id => key.id, :title => key.title} }
+        end
+        
+        def dt_opts(keyword_id, start_at, end_at)
+          {:keyword_id => keyword_id, :created_at => {"$gte" => start_at, "$lt" => end_at}}
+        end
+        
+        def get_daily_tweets(keyword_id, start_at, end_at)
+          opt = dt_opts(keyword_id, start_at, end_at)
+          daily_tweets = DailyTweet.where(opt)
+          _total = daily_tweets.sum(:total).to_i
+          _audience = daily_tweets.sum(:follower).to_i
+          return {:total => _total, :audience => _audience}
+        end
+        
+        def midnight
+          Time.now.utc.midnight
+        end
+        
+        def write_error_in_logfile(e)
+          @log = Logger.new("#{RAILS_ROOT}/log/daily_tweet.log")
+          @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+          @log.debug "Date     : #{Time.now}"
+          @log.debug "Error Msg: " + e.to_s
+          @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+        end
 
     end
   end
