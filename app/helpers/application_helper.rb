@@ -109,15 +109,15 @@ module ApplicationHelper
        audience_health_fourteen = keyword_traffic.audience_health_fourteen_days
 
        if tweet_health_seven > 150
-         volumes_up.push(keyword)
+         volumes_up.push({:keyword_traffic => keyword_traffic, :healthy => tweet_health_seven})
        elsif tweet_health_seven < 75
-         volumes_down.push(keyword)
+         volumes_down.push({:keyword_traffic => keyword_traffic, :healthy => tweet_health_seven})
        end
 
        if audience_health_fourteen > 150
-         audiences_up.push(keyword)
+         audiences_up.push({:keyword_traffic => keyword_traffic, :healthy => audience_health_fourteen})
        elsif audience_health_fourteen < 75
-         audiences_down.push(keyword)
+         audiences_down.push({:keyword_traffic => keyword_traffic, :healthy => audience_health_fourteen})
        end
     end
     @reports[0][:keywords] = volumes_up

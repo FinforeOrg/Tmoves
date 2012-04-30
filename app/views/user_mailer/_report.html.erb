@@ -28,10 +28,11 @@
 		  <td style="padding: 10px; border-left-width: 1px; border-left-color: #bac2cc; border-left-style: solid; border-right-width: 1px; border-right-color: #bac2cc; border-right-style: solid; border-top-width: 1px; border-top-color: #ffffff; border-top-style: solid; border-bottom-width: 3px; border-bottom-color: #ffffff; border-bottom-style: solid;" bgcolor="#edeff2" valign="top">
 			<table style="width:100%">
 			  <tbody>
-				<% report[:keywords].each do |keyword| %>
+				<% report[:keywords].each do |result| %>
+				  <% keyword_str = result[:keyword_traffic].keyword_str %>
 				  <tr style="border-bottom:1px solid #98a3b4;font-size:12px;font-family:arial">
 					<td style="border-bottom:1px solid #98a3b4;padding-bottom:5px;padding-top:5px;">
-					  <%= link_to keyword["title"], "http://www.tmoves.com/info/#{keyword.title.gsub(/\s/,'-')}/#{keyword.id.to_s}" %>
+					  <%= link_to keyword_str, "http://www.tmoves.com/info/#{keyword_str.gsub(/\s/,'-')}/#{keyword.id.to_s}" %>
 					</td>
 				  </tr>
 				<% end %>
