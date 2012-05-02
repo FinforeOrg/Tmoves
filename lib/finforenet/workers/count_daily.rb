@@ -28,17 +28,10 @@ module Finforenet
           unless keyword_traffic
             daily_tweet = DailyTweet.where(opts).first
             if daily_tweet
-              traffic = {:created_at     => start_at,
-                         :tweet_total    => daily_tweet.total.to_i,
-                         :audience_total => daily_tweet.follower.to_i,
-                         :keyword_id     => BSON::ObjectId(user),
-                         :keyword_str    => keyword[:title]
-                        }
-              keyword_traffic = KeywordTraffic.create(traffic)
-              keyword_traffic_id = keyword_traffic.id
-              count_six_months(start_at, keyword_traffic_id, keyword[:id])
+              populate_keyword_traffic(daily_tweet,keyword,start_at,end_at)
             else
-              continue_recursive
+              #continue_recursive
+              populate_daily_tweet(keyword,start_at,end_at)
             end
           else
             keyword_traffic = KeywordTraffic.asc(:created_at).first
@@ -184,6 +177,30 @@ module Finforenet
         
         def midnight
           Time.now.utc.midnight
+        end
+        
+        def populate_daily_tweet(keyword,start_at,end_at)
+          opts = {:keyword_arr.in => [keyword[:title].downcase], :created_at => {"$gte" => start_at, "$lt" => end_at}}
+          trackings = TrackingResult.where(opts)
+          total = trackings.count
+          audience = trackings.sum(:audience)
+          daily_tweet = DailyTweet.create({:keyword_id => keyword[:id], 
+                                           :total => total, 
+                                           :follower => audience, 
+                                           :created_at => start_at})
+          populate_keyword_traffic(daily_tweet,keyword,start_at,end_at)
+        end
+        
+        def populate_keyword_traffic(daily_tweet,keyword,start_at,end_at)
+          traffic = {:created_at     => start_at,
+                     :tweet_total    => daily_tweet.total.to_i,
+                     :audience_total => daily_tweet.follower.to_i,
+                     :keyword_id     => keyword[:id],
+                     :keyword_str    => keyword[:title]
+                    }
+          keyword_traffic = KeywordTraffic.create(traffic)
+          keyword_traffic_id = keyword_traffic.id
+          count_six_months(start_at, keyword_traffic_id, keyword[:id])
         end
         
         def write_error_in_logfile(e)

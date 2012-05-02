@@ -5,14 +5,13 @@ class HomeController < ApplicationController
   caches_page :categories_tab, :expires_in => 4.hours
   
   def keywords
-	charts = ["average","audience"]
+	  charts = ["average","audience"]
     random_chart = rand(charts.length)
     random_chart = 0 if random_chart > 1
     @chart_type = charts[random_chart]
     keywords = Keyword.all.cache
     @keyword = keywords[rand(keywords.size-1)]
     @total = DailyTweet.sum(:total).to_i
-	
     tweets = Traffic.tweets.cache
     @month1 = tweets.inject(0){|sum,tr| sum += tr.month1.to_i}
     @month6 = tweets.inject(0){|sum,tr| sum += tr.month6.to_i}
