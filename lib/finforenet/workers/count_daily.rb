@@ -14,7 +14,7 @@ module Finforenet
       
       def start_count_keywords
         @keywords = get_static_keywords
-        start_at  = DailyTweet.dec(:created_at).first.created_at.utc.midnight
+        start_at  = DailyTweet.desc(:created_at).first.created_at.utc.midnight
         @start_at = start_at.yesterday if start_at > Time.now.utc.midnight
         @end_at   = start_at.tomorrow
         start_recursive(start_at, end_at)
@@ -37,6 +37,8 @@ module Finforenet
               keyword_traffic = KeywordTraffic.create(traffic)
               keyword_traffic_id = keyword_traffic.id
               count_six_months(start_at, keyword_traffic_id, keyword[:id])
+            else
+              continue_recursive
             end
           else
             keyword_traffic = KeywordTraffic.asc(:created_at).first
