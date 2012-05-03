@@ -154,7 +154,6 @@ module Finforenet
         #end
       end
       
-      private
         def get_limit_at(datetime)
           Time.at(datetime.to_i).utc.midnight
         end
