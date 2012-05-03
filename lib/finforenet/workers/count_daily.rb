@@ -25,7 +25,7 @@ module Finforenet
           keyword = @keywords[counter]
           opts = dt_opts(keyword[:id], started_at, ended_at)
           keyword_traffic = KeywordTraffic.where(opts).first
-          unless keyword_traffic
+          if keyword_traffic.blank?
             daily_tweet = DailyTweet.where(opts).first
             if daily_tweet
               populate_keyword_traffic(daily_tweet,keyword,started_at,ended_at)
