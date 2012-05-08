@@ -1,4 +1,13 @@
 module ApplicationHelper
+  
+  def keyword_has_tickers?(keyword)
+    keyword.title =~ /^[$]/ || !keyword.ticker.blank?
+  end
+  
+  def total_tickers(keywords)
+    keywords.inject(0){|total,keyword| total += 1 if keyword_has_ticker?(keyword) }
+  end
+  
   def clean_tag(dirty_tag)
     he = HTMLEntities.new
     return sanitize(he.decode(dirty_tag).gsub('&lt;','<').gsub('&gt;','>'))
@@ -52,8 +61,8 @@ module ApplicationHelper
     return period
   end
 
-  def keyword_info_address(keyword)
-    return "/info/#{keyword.title.gsub(/\s/,'-')}/#{keyword.id.to_s}"
+  def keyword_info_address(keyword_traffic)
+    return "/info/#{keyword_traffic.keyword_str.gsub(/\s/,'-')}/#{keyword_traffic.keyword_id.to_s}"
   end
   
   def tickers_address(category,tickers = nil)
@@ -67,15 +76,23 @@ module ApplicationHelper
     return percentage
   end
   
-  def keyword_indicator(traffic,limit=6)
+  def keyword_indicator(keyword_traffic, limit=6)
     percentage = traffic_analysis(traffic,limit)
     _return = arrow_symbol(percentage)
     return {:percentage => percentage.to_i, :symbol => _return}
   end
   
+  def keyword_movement(total, average)
+    arrow_symbol(KeywordTraffic.calculate_healthy(total, average))
+  end
+  
   def arrow_symbol(percentage)
     image_name = percentage > 150 ? "arrow_green_up.png" : "arrow_red_down.png"
     return (percentage >= 75 && percentage <= 150) ? "" : image_tag(image_name,:width=>18,:height=>18, :style=>"float:left;")
+  end
+  
+  def prepare_ajax_path(sub_root, keyword_traffic)
+    (sub_root + keyword_traffic.keyword_str.gsub(/\s/,'-') + "/" + keyword_traffic.keyword_id.to_s + ".json").html_safe
   end
   
   def index_symbol(options)

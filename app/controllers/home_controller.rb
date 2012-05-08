@@ -1,29 +1,33 @@
 class HomeController < ApplicationController
   layout 'application'
   before_filter :prepare_options, :only => [:more_tweets, :total_records]
+  before_filter :prepare_lastest_traffic, :only => [:categories_tab, :prices_data, :average_statistic]
 
   caches_page :categories_tab, :expires_in => 4.hours
   
   def keywords
-	charts = ["average","audience"]
+	  charts = ["average","audience"]
     random_chart = rand(charts.length)
     random_chart = 0 if random_chart > 1
     @chart_type = charts[random_chart]
     keywords = Keyword.all.cache
     @keyword = keywords[rand(keywords.size-1)]
     @total = DailyTweet.sum(:total).to_i
-	
-    tweets = Traffic.tweets.cache
-    @month1 = tweets.inject(0){|sum,tr| sum += tr.month1.to_i}
-    @month6 = tweets.inject(0){|sum,tr| sum += tr.month6.to_i}
+	  keyword_traffic = KeywordTraffic.lastest_info
+    @month1 = keyword_traffic.tweet_one_month
+    @month6 = keyword_traffic.tweet_six_months
   end
   
   def categories_tab      
-    now = Time.now.utc.midnight
-    @active_date = DailyTweet.asc(:created_at).last.created_at.utc.midnight
-    @active_date = now.yesterday if now == @active_date
-    @cache_name = "categories_tab_" + Time.now.strftime("%b_%m_%Y")
-    @categories = KeywordCategory.all.asc(:index_at)
+    @cache_name  = "categories_tab_" + @active_date.strftime("%b_%m_%Y")
+    @categories  = KeywordCategory.all.asc(:index_at)
+    @keyword_traffics = KeywordTraffic.since(@active_date).map{|kt| {kt.keyword_id.to_s => kt}}
+    @statistics  = @categories.map do |category|
+      {
+        :title    => category.title,
+        :keywords => category.sorted_keywords.map{|keyword_id| @keyword_traffics[keyword_id.to_s]}
+      }
+    end 
     render :layout => false
   end
 
@@ -35,11 +39,13 @@ class HomeController < ApplicationController
 
   def info
     unless params[:keyword_id].blank?
-      @keyword = Keyword.find(params[:keyword_id])
-      @traffic = Traffic.tweets.where(:keyword_id => @keyword.id).first
-      @daily_changes = {:tweet => daily_analysis('tweet'), :audience => daily_analysis('audience')}
-      @options = {:keywords => to_regex(@keyword.title)}
-      @is_ticker = @keyword.title.match(/^\$/)
+      lastest      = KeywordTraffic.lastest_info
+      @active_date = lastest.created_at.utc.midnight.yesterday
+      @keyword_traffic = KeywordTraffic.where({:created_at => @active_date, :keyword_id => params[:keyword_id]}).first
+      @six_month_percent = @keyword_traffic.tweet_health_six_months
+      @seven_days_percent = @keyword_traffic.tweet_health_seven_days
+      @audience_fourteen_percent = @keyword_traffic.audience_health_fourteen_days
+      @ticker = @keyword_traffic.keyword.ticker
     end
 
     respond_to do |format|
@@ -58,7 +64,7 @@ class HomeController < ApplicationController
   def prices_data
     @cols = [{:id => 'string',:label => "Periode",:type  => "string"},
              {:id => 'number',:label => "Price (US$)",:type  => "number"}]
-    end_date = Time.now.utc.midnight
+    end_date = @active_date
     start_date = end_date.ago(2.weeks)
     @keyword = Keyword.find(params[:keyword_id])
     prices = get_tweet_prices(@keyword.price,start_date,end_date).reverse
@@ -68,10 +74,10 @@ class HomeController < ApplicationController
       price_value = price[4].to_f
       @rows.push({:c => [{ :v => price_date.strftime('%d %b %Y') },{ :v => price_value }]})
       if price_date.strftime('%a').match(/Fri/i)
-	saturday = price_date.tomorrow
-	[saturday, saturday.tomorrow].each do |wday|
-	  @rows.push({:c => [{ :v => wday.strftime('%d %b %Y') },{ :v => price_value }]})
-	end
+	      saturday = price_date.tomorrow
+	      [saturday, saturday.tomorrow].each do |wday|
+	        @rows.push({:c => [{ :v => wday.strftime('%d %b %Y') },{ :v => price_value }]})
+	      end
       end
     end
 
@@ -83,10 +89,11 @@ class HomeController < ApplicationController
 
   def statistics
     @keywords = []
+    
     if params[:tickers].blank?
-      @cols = [{:id => 'date',:label => "Periode",:type  => "string"},
-               {:id => 'number',:label => "Tweets",:type  => "number"},
-               {:id => 'number',:label => "Price",:type  => "number"}]
+      @cols = [{:id => 'date',  :label => "Periode",:type  => "string"},
+               {:id => 'number',:label => "Tweets", :type  => "number"},
+               {:id => 'number',:label => "Price",  :type  => "number"}]
       keyword = Keyword.where({:_id => params[:keyword_id]}).first
       @keywords.push(keyword) if keyword
     else
@@ -105,9 +112,8 @@ class HomeController < ApplicationController
     options = {:created_at => {"$gte" => @start_date,"$lt" => @end_date}, :keyword_id => { "$in" => @ids}}
     @tweets = Mongoid.database['daily_tweets'].find(options).to_a
 
-
     if params[:tickers].blank?
-     params[:type] == "monthly" ? process_monthly_chart : process_weekly_chart
+      params[:type] == "monthly" ? process_monthly_chart : process_weekly_chart
     else
       @ids.each do |keyword_id|
         current_tweets = @tweets.select{|dt| dt if is_data_on_range(dt,@start_date,@end_date,keyword_id)}
@@ -126,7 +132,7 @@ class HomeController < ApplicationController
   end
 
   def average_statistic
-    end_date = Time.now.utc.midnight
+    end_date = @active_date
     start_date = end_date.ago(2.months)
     prepare_chart_header("Average",start_date,end_date)
 
@@ -170,7 +176,7 @@ class HomeController < ApplicationController
   end
 
   def follower_weight
-    end_date = Time.now.utc.midnight
+    end_date = @active_date
     start_date = end_date.ago(2.weeks)
     prepare_chart_header("",start_date,end_date)
     attribute = params[:audience] ? "follower" : "total"
@@ -304,5 +310,10 @@ class HomeController < ApplicationController
       alert = ((perday.to_f / average) * 100).to_f
       periode = current_tweet.created_at.strftime('%b %d, %Y')
       return {:average => average, :alert=> alert, :periode => periode, :total => perday}
+    end
+    
+    def prepare_lastest_traffic
+      lastest      = KeywordTraffic.lastest_info
+      @active_date = lastest.created_at.utc.midnight.yesterday
     end
 end

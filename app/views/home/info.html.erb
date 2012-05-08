@@ -1,150 +1,122 @@
-<% monthly_chg = keyword_indicator(@traffic) %>
-<% tweet_chg = index_symbol(@daily_changes[:tweet]) %>
-<% audience_chg = index_symbol(@daily_changes[:audience]) %>
-
 <div class="block">
   <div class="block-header">
-    <%= @keyword.title %> Tweets & Statistics
+    <%= @keyword_traffic.keyword_str %> Tweets & Statistics
   </div>
   <div id="block-table" class="block-main block-tabs">
-   <div>
-     <div class="block" style="float:left;width:250px;position:relative;overflow:hidden;margin-right:10px;">
-       <div class="block-header">
-	Monthly Analysis
-      </div>
-       <div id="block-table" class="block-main">
-	<table class="block-main-table">
-	  <tbody>
-	    <tr class="header">
-	      <th>Last</th>
-	      <th>Tweets</th>
+    <div>
+      <div class="block" style="float:left;width:250px;position:relative;overflow:hidden;margin-right:10px;">
+        <div class="block-header">
+	        Monthly Analysis
+        </div>
+        <div id="block-table" class="block-main">
+	      <table class="block-main-table">
+	        <tbody>
+	          <tr class="header">
+	            <th>Last</th>
+	            <th>Tweets</th>
               <th>Analysis</th>
-	    </tr>
-	    <tr class="single_row">
-	      <td>1 Month</td>
-	      <td><%= number_with_delimiter(@traffic.month1) %></td>
-              <td style="text-align:center;vertical-align:middle;"><%= monthly_chg[:symbol] %> <h4> <%= monthly_chg[:percentage] %>% </h4></td>
-	    </tr>
-	    <tr class="single_row">         
-	      <td>6 Months</td>
-	      <td ><%= number_with_delimiter(@traffic.month6) %></td>
+	          </tr>
+	          <tr class="single_row">
+	            <td>1 Month</td>
+	            <td><%= number_with_delimiter(@keyword_traffic.tweet_one_month) %></td>
+              <td style="text-align:center;vertical-align:middle;">
+                <%= arrow_symbol(@six_month_percent) %>
+                <h4><%= @six_month_percent %>% </h4>
+              </td>
+	          </tr>
+	          <tr class="single_row">         
+	            <td>6 Months</td>
+	            <td ><%= number_with_delimiter(@keyword_traffic.tweet_six_months) %></td>
               <td>&nbsp;</td>
-	    </tr>
-	  </tbody>
-	</table>
+	          </tr>
+	        </tbody>
+	      </table>
       </div>
-     </div>
-     <div class="block" style="float:left;width:450px;position:relative;overflow:hidden;margin-right:10px;">
-       <div class="block-header">
-	Daily Analysis
-      </div>
-       <div id="block-table" class="block-main">
-	<table class="block-main-table">
-	  <tbody>
-	    <tr class="header">
-	      <th>Type</th>
-              <th>&nbsp;</th>
-              <th>Analysis</th>
-              <th><%= tweet_chg[:periode] %></th>
-              <th>Average</th>
-	    </tr>
-	    <tr class="single_row">
-	      <td>Tweets</td>
-              <th><%= tweet_chg[:symbol] %> </th>
-	      <td><h4><%= negatif_to_positif(tweet_chg[:alert]).to_i %>%</h4></td>
-              <td><%= number_with_delimiter(tweet_chg[:total].to_i) %></td>
-              <td><%= number_with_delimiter(tweet_chg[:average].to_i) %></td>
-	    </tr>
-	    <tr class="single_row">         
-	      <td>Audiences</td>
-	      <th><%= audience_chg[:symbol] %> </th>
-	      <td><h4><%= negatif_to_positif(audience_chg[:alert]).to_i %>%</h4></td>
-              <td><%= number_with_delimiter(audience_chg[:total].to_i) %></td>
-              <td><%= number_with_delimiter(audience_chg[:average].to_i) %></td>
-	    </tr>
-	  </tbody>
-	</table>
-      </div>
-     </div>
-   <div id="block-table">
-     <div>
-     <div class="block" style="float:left;width:250px;position:relative;overflow:hidden;margin-right:10px;">
-       <div class="block-header">
-        Info
+    </div>
+    <div class="block" style="float:left;width:450px;position:relative;overflow:hidden;margin-right:10px;">
+      <div class="block-header">
+	      Daily Analysis
       </div>
        <div id="block-table" class="block-main">
-        <table class="block-main-table">
-          <tbody>
-            <tr class="single_row">
-              <td>Keyword</td>
-              <td><b><%= @keyword.title %></td>
-            </tr>
-            <tr class="single_row">
-              <td>Ticker</td>
-              <td ><b><%= @keyword.ticker %> </b></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+	       <table class="block-main-table">
+	         <tbody>
+	           <tr class="header">
+	             <th>Type</th>
+               <th>&nbsp;</th>
+               <th>Analysis</th>
+               <th><%= @active_date.strftime('%b %d, %Y') %></th>
+               <th>Average</th>
+	           </tr>
+	           <tr class="single_row">
+	             <td>Tweets</td>
+               <td><%= arrow_symbol(@seven_days_percent) %> </td>
+	             <td><h4><%= @seven_days_percent %>%</h4></td>
+               <td><%= number_with_delimiter(@keyword_traffic.tweet_total) %></td>
+               <td><%= number_with_delimiter(@keyword_traffic.tweet_average_seven_days) %></td>
+	           </tr>
+	           <tr class="single_row">         
+	             <td>Audiences</td>
+	             <td><%= arrow_symbol(@audience_fourteen_percent) %> </td>
+	             <td><h4><%= @audience_fourteen_percent %>%</h4></td>
+               <td><%= number_with_delimiter(@keyword_traffic.audience_total) %></td>
+               <td><%= number_with_delimiter(@keyword_traffic.audience_average_fourteen_days) %></td>
+	           </tr>
+	         </tbody>
+	       </table>
+       </div>
      </div>
+     <div id="block-table">
+       <div>
+         <div class="block" style="float:left;width:250px;position:relative;overflow:hidden;margin-right:10px;">
+           <div class="block-header">
+             Info
+           </div>
+           <div id="block-table" class="block-main">
+             <table class="block-main-table">
+               <tbody>
+                 <tr class="single_row">
+                   <td>Keyword</td>
+                   <td><b><%= @keyword_traffic.keyword_str %></td>
+                 </tr>
+                 <tr class="single_row">
+                   <td>Ticker</td>
+                   <td ><b><%= @keyword_traffic.keyword.ticker %> </b></td>
+                 </tr>
+               </tbody>
+             </table>
+           </div>
+         </div>
+         <div style="clear:both">&nbsp;</div>
+       </div>
 
-     <div style="clear:both">&nbsp;</div>
-   </div>
+       <ul>
+         <li><a href="#tab-history">Statistics</a></li> 
+       </ul>
 
-    <ul>
-      <li><a href="#tab-history">Statistics</a></li>
-      <!-- <li style="display:none"><a href="#tab-tweet">Tweets</a></li> --> 
-    </ul>
-
-   <div id="tab-history" >
-     <div class="monthly_chart" style="height:250px;">
-        <%= image_tag("indicator.gif") %> loading monthly chart ...
-     </div>
-     <div style="height:35px;">&nbsp;</div> 
-     <div class="weekly_chart" style="height:250px;">
-       <%= image_tag("indicator.gif") %> loading weekly chart ...
-     </div>
-     <div style="height:35px;">&nbsp;</div>
-     <div class="average_chart" style="height:250px;">
-       <%= image_tag("indicator.gif") %> loading averages chart ...
-     </div>
-     <div style="height:35px;">&nbsp;</div>
-     <div class="audience_chart" style="height:250px;">
-       <%= image_tag("indicator.gif") %> loading audience chart ...
-     </div>
-     <% if @is_ticker %>
-	     <div style="height:25px;">&nbsp;</div>
-	     <div class="price_chart" style="height:250px;">
-	       <%= image_tag("indicator.gif") %> loading price chart ...
-	     </div>
-     <% end %>
-   </div>
-<!--
-    <div id="tab-tweet">
-     <div style="cursor:pointer;display:none;" class="notification information">
-       You have <span></span>&nbsp;new tweets. Please click here to display.
-     </div>
-     <table class="block-main-table">
-       <tbody class="tweet_container">
-         <tr class="header">
-           <th width="106">Twitter</th>
-           <th width="400">Tweets</th>
-           <th width="70">Retweet</th>
-           <th width="75">Language</th>
-           <% if current_admin %>
-             <th width="75">Keywords</th>
-           <% end %>
-         </tr>
-         <%= render :partial => "shared/tweet", :collection=>@results, :locals => { :is_hidden => "" } %>
-       </tbody>
-     </table>
-
-     <div class="button load_more" style="float:left;font-size:12px;">Load More</div>
-     <div style="float:right">&nbsp;</div>
-     <div style="clear:both;">&nbsp;</div>
-   </div>
--->
-</div>
+       <div id="tab-history" >
+         <div class="monthly_chart" style="height:250px;">
+           <%= image_tag("indicator.gif") %> loading monthly chart ...
+         </div>
+         <div style="height:35px;">&nbsp;</div> 
+         <div class="weekly_chart" style="height:250px;">
+           <%= image_tag("indicator.gif") %> loading weekly chart ...
+         </div>
+         <div style="height:35px;">&nbsp;</div>
+         <div class="average_chart" style="height:250px;">
+           <%= image_tag("indicator.gif") %> loading averages chart ...
+         </div>
+         <div style="height:35px;">&nbsp;</div>
+         <div class="audience_chart" style="height:250px;">
+           <%= image_tag("indicator.gif") %> loading audience chart ...
+         </div>
+         <% if @ticker.present? %>
+	         <div style="height:25px;">&nbsp;</div>
+	         <div class="price_chart" style="height:250px;">
+	           <%= image_tag("indicator.gif") %> loading price chart ...
+	         </div>
+         <% end %>
+       </div>
+    </div>
 
 <script type='text/javascript' src='http://www.google.com/jsapi'></script>
 <script type='text/javascript'>
@@ -153,7 +125,7 @@ $(document).ready(function(){
   $( ".block-tabs" ).tabs();
 
   $(".weekly_chart").comboChart({
-     url: "/statistics/<%= @keyword.title.gsub(/\s/,'-') %>/<%= @keyword.id.to_s %>.json",
+     url: "<%= prepare_ajax_path('/statistics/', @keyword_traffic) %>",
      parameters: {"type" : "weekly"},
      title: "NO. OF TWEETS, LAST 10 WEEKS",
      api: google,
@@ -165,7 +137,7 @@ $(document).ready(function(){
   });
 
   $(".monthly_chart").comboChart({
-     url: "/statistics/<%= @keyword.title.gsub(/\s/,'-') %>/<%= @keyword.id.to_s %>.json",
+     url: "<%= prepare_ajax_path('/statistics/', @keyword_traffic) %>",
      parameters: {"type" : "monthly"},
      title: "NO. OF TWEETS, LAST 6 MONTHS",
      api: google,
@@ -178,7 +150,7 @@ $(document).ready(function(){
   });
 
   $(".average_chart").lineChart({
-     url: "/average_statistic/<%= @keyword.title.gsub(/\s/,'-') %>/<%= @keyword.id.to_s %>.json",
+     url: "<%= prepare_ajax_path('/average_statistic/', @keyword_traffic) %>",
      parameters: {},
      title: "DAILY TWEETS V 7 DAY AVERAGE w/ PRICES, LAST 2 MONTHS",
      api: google,
@@ -189,7 +161,7 @@ $(document).ready(function(){
   });
 
   $(".audience_chart").lineChart({
-     url: "/follower_weight/<%= @keyword.title.gsub(/\s/,'-') %>/<%= @keyword.id.to_s %>.json",
+     url: "<%= prepare_ajax_path('/follower_weight/', @keyword_traffic) %>",
      parameters: {"audience":true},
      title: "DAILY AUDIENCES & TWEETS, LAST 14 DAYS",
      api: google,
@@ -200,7 +172,7 @@ $(document).ready(function(){
   });
   <% if @is_ticker %>
   $(".price_chart").lineChart({
-     url: "/prices_data/<%= @keyword.title.gsub(/\s/,'-') %>/<%= @keyword.id.to_s %>.json",
+     url: "<%= prepare_ajax_path('/prices_data/', @keyword_traffic) %>",
      title: "CLOSING PRICE, LAST 14 DAYS",
      api: google,
      displayLegend: "top",
@@ -210,31 +182,6 @@ $(document).ready(function(){
   <% end %>
   var reload_total_tweets = function(){
     clearInterval(refresh_total_tweets);
-
-/*    $.get("/keyword_indexes",{"kid":"<%= @keyword.id %>",type: "tweets"},function(response){$('.index_tweets').html(response)});
-    $.get("/keyword_indexes",{"kid":"<%= @keyword.id %>",type: "audience"},function(response){$('.index_audience').html(response)});
-
-    $.get("/total_records",{"kid":"<%= @keyword.id %>",month: 1},
-          function(response) {
-             if(response && response != ""){
-               var _total_page = $.formatNumber( response, {format:"#,000"} )
-               $(".month1").html(_total_page);
-             }
-          });
-
-    $.get("/total_records",{"kid":"<%= @keyword.id %>",month: 6},
-          function(response) {
-             if(response && response != ""){
-               var _total_page = $.formatNumber( response, {format:"#,000"} )
-               $(".month6").html(_total_page);
-             }
-          });*/
-/*     $(".tweet_container").liveTweet({
-	      timestamp_old: "<%= Time.now.utc.ago(5.minutes) %>",
-	      url: "/more_tweets/<%= @keyword.title.gsub(/\s/,'-') %>/<%= @keyword.id.to_s %>",
-	      button: $('div.button.load_more'),
-	      delays: 10000
-      }); */
   };
 
   var refresh_total_tweets = setInterval(reload_total_tweets, 5000);

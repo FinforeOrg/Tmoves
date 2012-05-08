@@ -11,18 +11,18 @@ class KeywordCategory
   cache
 
   def ordered_keywords
-      match_keywords = []
-      diff_keywords = []
-      tmp_keywords = self.keywords.to_a
-      self.sorted_keywords.split(",").each do |key|
-        tmp_keywords.each do |keyword|
-          if key == keyword.id.to_s
-            match_keywords.push(keyword)
-            break
-          end
+    match_keywords = []
+    diff_keywords = []
+    tmp_keywords = self.keywords.to_a
+    self.sorted_keywords.split(",").each do |key|
+      tmp_keywords.each do |keyword|
+        if key == keyword.id.to_s
+          match_keywords.push(keyword)
+          break
         end
-      end if !self.sorted_keywords.blank?
-      diff_keywords = tmp_keywords - match_keywords
-      return match_keywords + diff_keywords
+      end
+    end if self.sorted_keywords.present?
+    diff_keywords = tmp_keywords - match_keywords
+    return match_keywords + diff_keywords
   end
 end

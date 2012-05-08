@@ -25,12 +25,20 @@ class KeywordTraffic
 
   belongs_to :keyword
   
+  def self.lastest_info
+    self.where({:tweet_one_month => {"$ne" => nil}, :tweet_six_months => {"$ne" => nil}}).desc(:created_at).first
+  end
+  
+  def self.since(start_at)
+    self.where({:created_at => {"$gte" => start_at, "$lt" => start_at.tomorrow}})
+  end
+  
   # ******************************************************************
   # TWEET STATISTICS
   # ******************************************************************
     
   def tweet_health_seven_days
-    healthy_calculator(tweet_seven_days.to_f, tweet_average_seven_days)
+    healthy_calculator(self.tweet_total.to_f, tweet_average_seven_days)
   end
   
   def tweet_average_seven_days
@@ -38,7 +46,7 @@ class KeywordTraffic
   end
   
   def tweet_health_fourteen_days
-    healthy_calculator(tweet_average_fourteen_days.to_f, tweet_average_fourteen_days)
+    healthy_calculator(self.tweet_total.to_f, tweet_average_fourteen_days)
   end
   
   def tweet_average_fourteen_days
@@ -46,7 +54,7 @@ class KeywordTraffic
   end
   
   def tweet_health_ten_weeks
-    healthy_calculator(tweet_average_ten_weeks.to_f, tweet_average_fourteen_days)
+    healthy_calculator(self.tweet_total.to_f, tweet_average_ten_weeks)
   end
   
   def tweet_average_ten_weeks
@@ -54,7 +62,7 @@ class KeywordTraffic
   end
   
   def tweet_health_six_months
-    healthy_calculator(tweet_average_six_months.to_f, tweet_average_fourteen_days)
+    healthy_calculator(self.tweet_one_month.to_f, tweet_average_six_months)
   end
   
   def tweet_average_six_months
@@ -62,11 +70,11 @@ class KeywordTraffic
   end
   
   def tweet_health_one_month
-    healthy_calculator(tweet_average_one_month.to_f, tweet_average_fourteen_days)
+    healthy_calculator(self.tweet_total.to_f, tweet_average_one_month)
   end
   
   def tweet_average_one_month
-    average_calculator(self.tweet_six_months.to_f, months_to_days(1))
+    average_calculator(self.tweet_one_month.to_f, months_to_days(1))
   end
   
   # ******************************************************************
@@ -74,7 +82,7 @@ class KeywordTraffic
   # ******************************************************************
   
   def audience_health_seven_days
-    healthy_calculator(audience_seven_days.to_f, audience_average_seven_days)
+    healthy_calculator(self.audience_total.to_f, audience_average_seven_days)
   end
   
   def audience_average_seven_days
@@ -82,7 +90,7 @@ class KeywordTraffic
   end
   
   def audience_health_fourteen_days
-    healthy_calculator(audience_average_fourteen_days.to_f, audience_average_fourteen_days)
+    healthy_calculator(self.audience_total.to_f, audience_average_fourteen_days)
   end
   
   def audience_average_fourteen_days
@@ -90,7 +98,7 @@ class KeywordTraffic
   end
   
   def audience_health_ten_weeks
-    healthy_calculator(audience_average_ten_weeks.to_f, audience_average_fourteen_days)
+    healthy_calculator(self.audience_total.to_f, audience_average_ten_weeks)
   end
   
   def audience_average_ten_weeks
@@ -98,7 +106,7 @@ class KeywordTraffic
   end
   
   def audience_health_six_months
-    healthy_calculator(audience_average_six_months.to_f, audience_average_fourteen_days)
+    healthy_calculator(audience_one_month.to_f, audience_average_six_months)
   end
   
   def audience_average_six_months
@@ -106,24 +114,28 @@ class KeywordTraffic
   end
   
   def audience_health_one_month
-    healthy_calculator(audience_average_one_month.to_f, audience_average_fourteen_days)
+    healthy_calculator(self.audience_total.to_f, audience_average_one_month)
   end
   
   def audience_average_one_month
-    average_calculator(self.audience_one_months.to_f, months_to_days(1))
+    average_calculator(self.audience_one_month.to_f, months_to_days(1))
   end
   
   # ******************************************************************
   # UTILITIES OF STATISTICS
   # ******************************************************************
-   
-  def healthy_calculator(_total,_average)
+  
+  def self.calculate_healthy(_total, _average)
     if _average > 0
       _result = (_total/_average)*100
     else
       _result = 0
     end
     return _result
+  end
+   
+  def healthy_calculator(_total,_average)
+    self.class.calculate_healthy(_total, _average)
   end
   
   def average_calculator(_total,_devider)
