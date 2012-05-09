@@ -8,7 +8,7 @@ class Admin::ScannerTasksController < ApplicationController
   def index
     @scanner_tasks = ScannerTask.all.cache
     @workers = Resque.workers
-    @queues = ["Savetweetresult", "StreamTrack", "DailyFollower", "DailyKeyword"]
+    @queues = ["Savetweetresult", "AnalyzeKeywords", "DailyKeyword"]
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @scanner_tasks }
@@ -168,22 +168,12 @@ class Admin::ScannerTasksController < ApplicationController
    end
 
    def start_queue(queue_name)
-     if queue_name == 'WeeklyKeyword'
-       Resque.enqueue(Finforenet::Jobs::Bg::WeeklyKeyword)
-     elsif queue_name == 'DailyKeyword'
+     if queue_name == 'DailyKeyword'
        Resque.enqueue(Finforenet::Jobs::Bg::DailyKeyword)
-     elsif queue_name == 'DailyFollower'
-       Resque.enqueue(Finforenet::Jobs::Bg::DailyFollower)
      elsif queue_name == 'Savetweetresult'
        Resque.enqueue(Finforenet::Jobs::Bg::Savetweetresult)
-     elsif queue_name == 'MigrationDigger'
-       Resque.enqueue(Finforenet::Jobs::Bg::MigrationDigger)
-     elsif queue_name == 'MonthlyKeyword'
-       Resque.enqueue(Finforenet::Jobs::Bg::MonthlyKeyword)
      elsif queue_name == 'RepairDaily'
        Resque.enqueue(Finforenet::Jobs::Bg::RepairDaily)
-     elsif queue_name == 'MonthlyKeyword'
-        Resque.enqueue(Finforenet::Jobs::Bg::MonthlyKeyword)
      elsif queue_name == 'AnalyzeKeywords'
         Resque.enqueue(Finforenet::Jobs::AnalyzeKeywords)
      elsif queue_name == 'Bsondumping'

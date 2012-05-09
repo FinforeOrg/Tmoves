@@ -85,7 +85,7 @@ module Finforenet
         else
           if new_status.valid?
             Resque.enqueue(Finforenet::Jobs::AnalyzeKeywords, 
-                           new_status.keywords_str, 
+                           new_status.keywords_arr.join(","), 
                            status.created_at, 
                            status.user.followers_count)
             if status.created_at.to_datetime.utc > @tomorrow

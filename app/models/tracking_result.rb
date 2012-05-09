@@ -16,7 +16,8 @@ class TrackingResult
   field :tweet_text,    :type => String
   field :lang,          :type => String
   field :audience,      :type => Integer
-  field :keywords_array,:type => Array
+  field :keywords_array,:type => Array   #TODO: It should be deprecated carefully
+  field :keywords_arr,  :type => Array
   field :keywords_str,  :type => String
   
   embeds_one :tracking_user
