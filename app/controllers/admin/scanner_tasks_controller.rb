@@ -25,7 +25,6 @@ class Admin::ScannerTasksController < ApplicationController
   # GET /scanner_tasks/new.xml
   def new
     @scanner_task = ScannerTask.new
-
     respond_to do |format|
       format.html # new.html.erb
       format.xml  { render :xml => @scanner_task }
@@ -163,7 +162,15 @@ class Admin::ScannerTasksController < ApplicationController
      @account = @scanner_task.scanner_account
      CACHE.set("account_#{@scanner_task.id.to_s}",{:username=>@account.username,:password=>@account.password, :token => @account.token, :secret=> @account.secret}) 
      CACHE.set("keyword_#{@scanner_task.id.to_s}",@scanner_task.keywords) 
-     all_keywords = @scanner_task.keywords.split(',').map{|k| Finforenet::Utils::String.keyword_regex(k)}.join("|")
+    all_keywords = @scanner_task.keywords.split(',').map{|k|
+                     if k.include?("$")
+                       k = k.gsub("$","[$]")
+                       "#{k}\s|#{k}$"
+                     else
+                       k
+                     end
+                   }.join("|") 
+     #all_keywords = @scanner_task.keywords.split(',').map{|k| Finforenet::Utils::String.keyword_regex(k)}.join("|")
      CACHE.set("dictionary_#{@scanner_task.id.to_s}",all_keywords) 
    end
 
