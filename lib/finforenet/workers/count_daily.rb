@@ -19,7 +19,7 @@ module Finforenet
         if first_tr_at > last_dt_at
           @start_at = first_tr_at
         else
-          @start_at = last_dt_at
+          @start_at = last_dt_at.tomorrow
         end
         @start_at = @start_at.yesterday if @start_at > Time.now.utc.midnight
         @end_at   = @start_at.tomorrow
@@ -27,7 +27,7 @@ module Finforenet
       end
       
       def start_recursive
-        if counter < @keywords.count
+        if @counter < @keywords.count
           keyword = @keywords[@counter]
           opts = dt_opts(keyword[:id])
           keyword_traffic = KeywordTraffic.where(opts).first
@@ -37,13 +37,23 @@ module Finforenet
               populate_keyword_traffic(daily_tweet,keyword)
             else
               #continue_recursive
-              populate_daily_tweet(keyword,started_at,ended_at)
+              populate_daily_tweet(keyword)
             end
           else
-            keyword_traffic = KeywordTraffic.asc(:created_at).first
-            @started_at = keyword_traffic.created_at.utc.midnight.yesterday
-            @ended_at = started_at.tomorrow
-            start_recursive(started_at, ended_at)
+            if keyword_traffic.audience_six_months.to_i < 1 || keyword_traffic.tweet_six_months.to_i < 1
+              count_six_months(keyword_traffic.id, keyword[:id])
+            elsif keyword_traffic.audience_one_month.to_i < 1 || keyword_traffic.tweet_one_month.to_i < 1
+              count_one_month(keyword_traffic.id, keyword[:id])
+            elsif keyword_traffic.audience_ten_weeks.to_i < 1 || keyword_traffic.tweet_ten_weeks.to_i < 1
+              count_ten_weeks(keyword_traffic.id, keyword[:id])
+            elsif keyword_traffic.audience_seven_days.to_i < 1 || keyword_traffic.tweet_seven_days.to_i < 1
+              count_seven_days(keyword_traffic.id, keyword[:id])
+            elsif keyword_traffic.audience_fourteen_days.to_i < 1 || keyword_traffic.tweet_fourteen_days.to_i < 1
+              count_fourteen_days(keyword_traffic.id, keyword[:id])
+            else
+              @counter += 1
+              start_recursive
+            end
           end
         else
           recovery_error
@@ -107,7 +117,7 @@ module Finforenet
       end
       
       def count_fourteen_days(keyword_traffic_id, keyword_id)
-        ended_at = @started_at.tomorrow
+        ended_at = @start_at.tomorrow
         started_at = ended_at.ago(14.days)
         tweet_data = get_daily_tweets(keyword_id, started_at, ended_at)
         keyword_traffic = KeywordTraffic.where(:_id => keyword_traffic_id).first
@@ -188,7 +198,10 @@ module Finforenet
         end
         
         def populate_daily_tweet(keyword)
-          opts = {:keyword_arr.in => [keyword[:title].downcase], 
+          opts = {"$or" => [
+                     {:keywords_array => {"$in" => [keyword[:title].downcase]}},
+                     {:keywords_arr   => {"$in" => [keyword[:title].downcase]}}
+                   ], 
                   :created_at => {"$gte" => @start_at, "$lt" => @end_at}}
           trackings = TrackingResult.where(opts)
           total = trackings.count

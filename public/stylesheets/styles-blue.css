@@ -1,0 +1,9 @@
+#admin #menu-v-items li:hover img
+{
+	border: 1px solid #459bdc;
+}
+
+#admin #username, #admin #messages
+{
+	color: #3997df;
+}

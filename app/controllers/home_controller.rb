@@ -3,7 +3,7 @@ class HomeController < ApplicationController
   before_filter :prepare_options, :only => [:more_tweets, :total_records]
   before_filter :prepare_lastest_traffic, :only => [:categories_tab, :prices_data, :average_statistic]
 
-  caches_page :categories_tab, :expires_in => 4.hours
+  #caches_page :categories_tab, :expires_in => 4.hours
   
   def keywords
 	  charts = ["average","audience"]
