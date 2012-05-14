@@ -20,13 +20,13 @@
                   %td
                     = link_to keyword_traffic.keyword_str, keyword_info_address(keyword_traffic)
                   %td
-                    = number_with_delimiter(tweet_traffic.tweet_one_month)
+                    = number_with_delimiter(keyword_traffic.tweet_one_month)
                   %td{:style => "text-align:center;vertical-align:top;"}
-                    = keyword_movement(tweet_traffic.tweet_one_month, tweet_traffic.tweet_average_six_months)
-                  %td= tweet_traffic.tweet_total
+                    = keyword_movement(keyword_traffic.tweet_one_month, keyword_traffic.tweet_average_six_months)
+                  %td= keyword_traffic.tweet_total
                   %td{:style => "text-align:center;vertical-align:top;"}
-                    = keyword_movement(tweet_traffic.tweet_total, tweet_traffic.tweet_average_seven_days)
-                  %td= tweet_traffic.audience_total
+                    = keyword_movement(keyword_traffic.tweet_total, keyword_traffic.tweet_average_seven_days)
+                  %td= keyword_traffic.audience_total
                   %td{:style => "text-align:center;vertical-align:top;"}
-                    = keyword_movement(tweet_traffic.audience_total, tweet_traffic.audience_average_fourteen_days)
+                    = keyword_movement(keyword_traffic.audience_total, keyword_traffic.audience_average_fourteen_days)
   %div{:style => "clear:both;"}  
