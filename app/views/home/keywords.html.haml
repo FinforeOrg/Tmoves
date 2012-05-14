@@ -52,43 +52,41 @@
         title: "DAILY TWEETS V 7 DAY AVERAGE, LAST 2 MONTHS",
         api: google,
         colors: ['blue','red','orange'],
-        series: {0:{targetAxisIndex:0,visibleInLegend: true},1:{targetAxisIndex:0,visibleInLegend: true},2:{targetAxisIndex:1, visibleInLegend: 
-true}},
-       vAxes: {0:{title:'No. of Tweets',textStyle:{color: 'blue'}}, 1:{title:'Price (US$)',textStyle:{color: 'orange'}}},
-       displayLegend: "top"
+        series: {0:{targetAxisIndex:0,visibleInLegend: true},1:{targetAxisIndex:0,visibleInLegend: true},2:{targetAxisIndex:1, visibleInLegend: true}}, vAxes: {0:{title:'No. of Tweets',textStyle:{color: 'blue'}}, 1:{title:'Price (US$)',textStyle:{color: 'orange'}}},
+        displayLegend: "top"
       });
     });
 - else 
   :javascript
     $(document).ready(function(){
       $(".audience_chart").lineChart({
-       url: "/follower_weight/#{@keyword.title.gsub(/\s/,'-')}/#{@keyword.id.to_s}.json",
-       parameters: {"audience":true},
-       title: "DAILY AUDIENCES & TWEETS, LAST 14 DAYS",
-       api: google,
-       displayLegend: "top",
-       series: [{targetAxisIndex:0,visibleInLegend: true},{targetAxisIndex:1, visibleInLegend: true}],
-       vAxes: {0:{title:'Audience',textStyle:{color: 'orange'}}, 1:{title:'No. of Tweets',textStyle:{color: 'blue'}}},
-       colors: ['orange','blue']
+        url: "/follower_weight/#{@keyword.title.gsub(/\s/,'-')}/#{@keyword.id.to_s}.json",
+        parameters: {"audience":true},
+        title: "DAILY AUDIENCES & TWEETS, LAST 14 DAYS",
+        api: google,
+        displayLegend: "top",
+        series: [{targetAxisIndex:0,visibleInLegend: true},{targetAxisIndex:1, visibleInLegend: true}],
+        vAxes: {0:{title:'Audience',textStyle:{color: 'orange'}}, 1:{title:'No. of Tweets',textStyle:{color: 'blue'}}},
+        colors: ['orange','blue']
       });
     });
 :javascript
   $(document).ready(function(){
-      var reload_total_records = function(){
+    var reload_total_records = function(){
       clearInterval(refresh_total_page);
       $.get("/total_records", {},
-            function(response) {
-               if(response && response != ""){
-                 var _total_page = $.formatNumber( response, {format:"#,000"} )
-                 $("td.total_db").html(_total_page);
-               }
-               refresh_total_page = setInterval(reload_total_records, 5000);
-            });
+        function(response) {
+          if(response && response != ""){
+            var _total_page = $.formatNumber( response, {format:"#,000"} )
+            $("td.total_db").html(_total_page);
+          }
+          refresh_total_page = setInterval(reload_total_records, 5000);
+      });
     };
-   var refresh_total_page = setInterval(reload_total_records, 5000);
+    var refresh_total_page = setInterval(reload_total_records, 5000);
 
-   $.get("/categories_tab",{},function(response){
-     $( "#block-tab" ).html(response);
-     $( "#block-tab" ).tabs(); 
-   })
+    $.get("/categories_tab",{},function(response){
+      $( "#block-tab" ).html(response);
+      $( "#block-tab" ).tabs(); 
+    })
   });
