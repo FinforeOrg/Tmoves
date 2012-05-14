@@ -1,7 +1,7 @@
 class HomeController < ApplicationController
   layout 'application'
   before_filter :prepare_options, :only => [:more_tweets, :total_records]
-  before_filter :prepare_lastest_traffic, :only => [:categories_tab, :prices_data, :average_statistic]
+  before_filter :prepare_lastest_traffic, :only => [:follower_weight, :categories_tab, :prices_data, :average_statistic]
 
   #caches_page :categories_tab, :expires_in => 4.hours
   
@@ -25,7 +25,7 @@ class HomeController < ApplicationController
     @statistics  = @categories.map do |category|
       {
         :title    => category.title,
-        :keywords => category.sorted_keywords.map{|keyword_id| @keyword_traffics[keyword_id.to_s]}
+        :keywords => category.ordered_keywords.map{|keyword_id| @keyword_traffics[keyword_id.to_s]}
       }
     end 
     render :layout => false
