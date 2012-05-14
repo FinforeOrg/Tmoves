@@ -4,10 +4,11 @@
 // It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
 // the compiled file.
 //
+//= require jquery
 //= require jquery-ui-1.8.6.custom.min
 //= require jquery.ui.combobox
 //= require jquery.custom_radio_checkbox
-//= require jquery_ujs.min
+//= require jquery_ujs
 //= require startup
 //= require jquery.form
 //= require jquery-ui-numeric

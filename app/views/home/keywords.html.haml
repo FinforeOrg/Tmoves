@@ -43,21 +43,25 @@
 %script{:src => "http://www.google.com/jsapi", :type => "text/javascript"}
 :javascript
   google.load('visualization', '1', {'packages':['corechart','annotatedtimeline']});
-
-  $(document).ready(function(){
-    if @chart_type == "average" 
-    $(".average_chart").lineChart({
-       url: "/average_statistic/#{@keyword.title.gsub(/\s/,'-')}/#{@keyword.id.to_s}.json",
-       parameters: {},
-       title: "DAILY TWEETS V 7 DAY AVERAGE, LAST 2 MONTHS",
-       api: google,
-       colors: ['blue','red','orange'],
-       series: {0:{targetAxisIndex:0,visibleInLegend: true},1:{targetAxisIndex:0,visibleInLegend: true},2:{targetAxisIndex:1, visibleInLegend: true}},
+- if @chart_type == "average"
+  :javascript
+    $(document).ready(function(){
+      $(".average_chart").lineChart({
+        url: "/average_statistic/#{@keyword.title.gsub(/\s/,'-')}/#{@keyword.id.to_s}.json",
+        parameters: {},
+        title: "DAILY TWEETS V 7 DAY AVERAGE, LAST 2 MONTHS",
+        api: google,
+        colors: ['blue','red','orange'],
+        series: {0:{targetAxisIndex:0,visibleInLegend: true},1:{targetAxisIndex:0,visibleInLegend: true},2:{targetAxisIndex:1, visibleInLegend: 
+true}},
        vAxes: {0:{title:'No. of Tweets',textStyle:{color: 'blue'}}, 1:{title:'Price (US$)',textStyle:{color: 'orange'}}},
        displayLegend: "top"
+      });
     });
-    else 
-    $(".audience_chart").lineChart({
+- else 
+  :javascript
+    $(document).ready(function(){
+      $(".audience_chart").lineChart({
        url: "/follower_weight/#{@keyword.title.gsub(/\s/,'-')}/#{@keyword.id.to_s}.json",
        parameters: {"audience":true},
        title: "DAILY AUDIENCES & TWEETS, LAST 14 DAYS",
@@ -66,9 +70,10 @@
        series: [{targetAxisIndex:0,visibleInLegend: true},{targetAxisIndex:1, visibleInLegend: true}],
        vAxes: {0:{title:'Audience',textStyle:{color: 'orange'}}, 1:{title:'No. of Tweets',textStyle:{color: 'blue'}}},
        colors: ['orange','blue']
+      });
     });
-
-
+:javascript
+  $(document).ready(function(){
       var reload_total_records = function(){
       clearInterval(refresh_total_page);
       $.get("/total_records", {},
