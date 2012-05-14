@@ -15,7 +15,7 @@
                 %th v Average
                 %th Audience
                 %th v Average
-              - statistics[:keywords].each do |keyword_traffic|
+              - statistic[:keywords].each do |keyword_traffic|
                 %tr.single_row{:id => @active_date}
                   %td
                     = link_to keyword_traffic.keyword_str, keyword_info_address(keyword_traffic)
