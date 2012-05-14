@@ -186,7 +186,7 @@ class ApplicationController < ActionController::Base
         @google_error = true
         return []
       else
-        prices = FasterCSV.parse(file, :return_headers=>false)
+        prices = CSV.parse(file, :return_headers=>false)
         prices.shift
         return prices
       end

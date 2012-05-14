@@ -21,7 +21,8 @@ class HomeController < ApplicationController
   def categories_tab      
     @cache_name  = "categories_tab_" + @active_date.strftime("%b_%m_%Y")
     @categories  = KeywordCategory.all.asc(:index_at)
-    @keyword_traffics = KeywordTraffic.since(@active_date).map{|kt| {kt.keyword_id.to_s => kt}}
+    @keyword_traffics = {}
+    KeywordTraffic.since(@active_date).map{|kt| @keyword_traffics.merge!({kt.keyword_id.to_s => kt})}
     @statistics  = @categories.map do |category|
       {
         :title    => category.title,
