@@ -1,0 +1,17 @@
+- content_for :title, "Edit Password"
+#login-panel
+  %span#title Admin Finfore-Stream
+  %br/
+  %span#login-subtitle Please enter your new password.
+  #login-form
+    = form_for("admin", :url => admin_password_path,:html => { :method=>:put }) do |f|
+      = devise_error_messages!
+      = f.hidden_field :reset_password_token
+      #login-password.right{:style => "width:100px;"} New Password
+      = f.password_field :password
+      .login-delimiter  
+      #login-password.right{:style => "width:100px;"} Confirm New Password
+      = f.password_field :password_confirmation,{:id=>"admin_password"}
+      %br/
+      %br/
+      = f.submit 'Change', {:id => 'login-signin', :class => 'button'}

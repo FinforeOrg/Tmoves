@@ -1,0 +1,24 @@
+- content_for :title, "Sign In"
+#login-panel
+  %span#title Admin Finfore-Stream
+  %br/
+  %span#login-subtitle Please enter your identification.
+  #login-form
+    = form_for("admin", :url => admin_session_path) do |f|
+      #login-username.right Username
+      = f.text_field :email
+      %span#admin_email-error
+        %img.error{:src => "images/button-error.png"}>/
+        Error username
+      .login-delimiter  
+      #login-password.right Password
+      = f.password_field :password
+      %span#admin_password-error
+        %img.error{:src => "images/button-error.png"}>/
+        Error password
+      #remember-container.right
+        = f.check_box :remember_me, {:id => 'remember'}
+        %span#login-remember Remember
+      = f.submit 'Sign in', {:id => 'login-signin', :class => 'button'}
+    .login-delimiter  
+    = link_to "Forgot password ", new_password_path('admin'), {:id => 'login-forgot'}

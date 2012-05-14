@@ -1,0 +1,61 @@
+.block
+.block-header= @tweet_user.name
+#block-form.block-main
+	%div{:style => "float:left;padding-right:6px;"}
+		= image_tag(@tweet_user.profile_image_url)
+	%div{:style => "float:right;padding-right:6px;"}
+		%p
+			%b= link_to @tweet_user.screen_name, "http://www.twitter.com/#{@tweet_user.screen_name}",{:target=>"_blank"}
+		%br/
+		%p
+			%b Followers:
+			= @tweet_user.followers_count
+		%br/
+		%p
+			%b Friends:
+			= @tweet_user.friends_count
+		%br/
+		%p
+			%b Twitter ID#:
+			= @tweet_user.twitter_id
+		%br/
+		%p
+			%b Joined at:
+			= @tweet_user.joined_at
+		%br/
+		%p
+			%b Listed count:
+			= @tweet_user.listed_count
+		%br/
+		%p
+			%b Total Favourites:
+			= @tweet_user.favourites_count
+		%br/
+		%p
+			%b Total Status:
+			= @tweet_user.statuses_count
+		%br/
+		%p
+			%b Description:
+			= @tweet_user.description
+		%br/
+		%p
+			%b Location:
+			= @tweet_user.location
+		%br/
+		%p
+			%b Time zone:
+			= @tweet_user.time_zone
+		%br/
+		%p
+			%b Notifications:
+			= @tweet_user.notifications
+		%br/
+		%p
+			%b Language:
+			= @tweet_user.lang
+		%br/
+		%p
+			%b Protected:
+			= @tweet_user.is_protected
+	%div{:style => "clear:both"}

@@ -1,0 +1,93 @@
+- content_for :title, "Statistics"
+.block
+  .block-header
+    Traffic Statistic
+  #block-table.block-main
+    .trackers_chart{:style => "height:250px"}
+      = image_tag("indicator.gif")
+      traffic chart ...
+.block
+  .block-header Keyword Chart
+  #block-form.block-main
+    .notification.failure.hidden
+      %span
+      %img.close{:src => "/assets/close.png"}
+    - form_tag(keywords_admin_statistics_path, :method=>'get', :id=>"regis_chart_form") do
+      %p Please enter a keyword or use comma (,) as keywords separator. Only single keyword has weekly average data.
+      %br/
+      %p
+        Keywords
+        %br/
+        = text_field_tag 'keywords'
+        %br/
+      %br/
+      %p
+        Start Date
+        %br/
+        = text_field_tag 'start_date'
+        %br/
+      %br/
+      %p
+        End Date
+        %br/
+        = text_field_tag 'end_date'
+        %br/
+      = hidden_field_tag 'format',"html"
+      %br/
+      %br/
+      %p.header  
+      .form-container
+        %input#submit.button{:name => "commit", :style => "left:0px", :type => "submit", :value => "Add"}/
+#chartSpace
+= stylesheet_link_tag "jquery.ui.core.css"
+= stylesheet_link_tag "jquery.ui.datepicker.css"
+= javascript_include_tag "jquery.ui.datepicker.js"
+%script{:src => "http://www.google.com/jsapi", :type => "text/javascript"}
+:javascript
+  google.load('visualization', '1', {'packages':['corechart','annotatedtimeline']});
+  $(document).ready(function() {
+     $("a.close_chart").bind("click",function(){
+       $(this).parents("div.block").first().remove();
+    });
+
+    $("#start_date").datepicker();
+    $("#end_date").datepicker();
+
+    $.get("/admin/statistics/tracker.json",function(data){
+      processTrackersChart(data);
+    },"json");
+
+    $("#regis_chart_form").ajaxForm({
+      beforeSubmit:  validateForm,
+      success:       onSuccess
+         });
+
+  });
+
+  function validateForm(){
+    if($("#end_date").val() < $("#start_date").val()){
+      $(".notification.failure span").html("End Date should be greater than Start Date");
+      $(".notification.failure").fadeIn();
+      return false;
+    }else if($("#keywords").val().split(/\,/).length < 1){
+      $(".notification.failure span").html("You have to enter at least 1 keyword or use comma (,) as separator keywords");
+      $(".notification.failure").fadeIn();
+      return false;
+    }else{
+      $(".notification.failure").fadeOut();
+      return true;
+    }
+  }
+
+  function onSuccess(response){
+    $("#chartSpace").append(response);
+  }
+
+  function processTrackersChart(data){
+    _size = data.rows.length;
+    _title = "Periode:"+data.rows[0].c[0].v+" - "+ data.rows[_size-1].c[0].v;
+
+    var dataTable = new google.visualization.DataTable(data);
+    var chart = new google.visualization.ColumnChart($(".trackers_chart")[0]);
+    chart.draw(dataTable, {title: 'Trackers Traffic',hAxis: {title: _title, titleTextStyle: {color: 'blue'}}});  
+  }

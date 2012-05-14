@@ -1,0 +1,34 @@
+.notification.information{:style => "cursor:pointer;display:none;"}
+  %span>
+  \ new tweets. Please click to display them.
+.block
+  .block-header
+    TRACK/TWEET RESULTS
+    #type-selector
+      %form{:action => "", :method => "get"}
+        %input#search{:name => "search", :style => "background: url("'/images/search.png"') no-repeat scroll 95% center white;", :type => "text", :value => ""}
+          %span#search-tag{:style => "display: block;"} Search
+  #block-table.block-main
+    %table.block-main-table
+      %tbody.tweet_container
+        %tr.header
+          %th{:width => "106"} Twitter
+          %th{:width => "400"} Tweets
+          %th{:width => "70"} Retweet
+          %th{:width => "75"} Language
+          %th{:width => "75"} Keywords
+        = render :partial => "shared/tweet", :collection=>@results, :locals => { :is_hidden => "" }
+    .button.load_more{:style => "float:left;font-size:12px;"} Load More
+    %div{:style => "float:right"}
+      %span.total_records  
+    %div{:style => "clear:both;"}  
+:javascript
+  $(document).ready(function(){
+    $(".tweet_container").liveTweet({
+       timestamp_new: "#{@results.first['created_at']}",
+       timestamp_old: "#{@results.last['created_at']}",
+       url: " more_tweets_admin_tweet_results_url({:search => params[:search]}) ",
+       button: $('div.button.load_more'),
+       delays: 35000
+    });
+  });

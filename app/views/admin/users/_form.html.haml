@@ -1,0 +1,28 @@
+#block-form.block-main
+= form_for [:admin,@user] do |f|
+  - if @user.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@user.errors.count, "error")
+        prohibited this user from being saved:
+      %ul
+        - @user.errors.full_messages.each do |msg|
+          %li= msg
+  %p.header Email
+  .form-container
+    = f.text_field :email
+  %br/
+  %p.header Password
+  .form-container
+    = f.password_field :password
+  %br/
+  %p.header Password Confirmation
+  .form-container
+    = f.password_field :password_confirmation
+  %br/
+  %br/
+  %p.header  
+  .form-container
+    %input#submit.button{:name => "commit", :style => "left:0px", :type => "submit", :value => "Save"}/
+    #cancel.button{:style => "left:90px"}
+      = link_to 'Cancel', admin_users_path, {:class => "link-blank",:style=>"text-decoration:none;color:white;"}

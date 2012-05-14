@@ -1,0 +1,65 @@
+:css
+  .checkbox .label{
+    width: 300px;
+  }
+#block-form.block-main
+  = form_for [:admin,@chart_type] do |f|
+    - if @chart_type.errors.any?
+      #error_explanation
+        %h2
+          = pluralize(@chart_type.errors.count, "error")
+          prohibited this chart type from being saved:
+        %ul
+          - @chart_type.errors.full_messages.each do |msg|
+            %li= msg
+    %p.header Title
+    .form-container
+      = f.text_field :title
+    %br/
+    %p.header Days
+    .form-container
+      = f.number_field :days
+      chart period in days
+    %br/
+    %p.header Weeks
+    .form-container
+      = f.number_field :weeks
+      chart period in weeks
+    %br/
+    %p.header Months
+    .form-container
+      = f.number_field :months
+      chart period in months
+    %br/
+    %p.header Show Legend
+    .form-container
+      = f.check_box :display_legend, {:rel => "check it if chart will display header or legend"}
+    %br/
+    %p.header Total Average
+    .form-container
+      = f.check_box :total_average, {:rel => "check it if the chart shows total averages"}
+    %br/
+    %p.header Total Tweet
+    .form-container
+      = f.check_box :total_tweet, {:rel => "check it if the chart shows total tweets"}
+    %br/
+    %p.header Total Follower
+    .form-container
+      = f.check_box :total_follower, {:rel => "check it if the chart shows total followers"}
+    %br/
+    %p.header Chart Category
+    .form-container
+      = f.select :category, options_for_select(@categories)
+    %br/
+    Examples : 
+    #{link_to "TimeLines", "http://bit.ly/qbLpqz", {:target => "_blank"}} | 
+    #{link_to "Sticks", "http://bit.ly/o1zaw5", {:target => "_blank"}} | 
+    #{link_to "Lines", "http://bit.ly/oQCbS0", {:target => "_blank"}}
+    %br/
+    %br/
+    %br/
+    %p.header  
+    .form-container
+      %input#submit.button{:name => "commit", :style => "left:0px", :type => "submit", :value => "Save"}/
+      #cancel.button{:style => "left:90px"}
+        = link_to 'Cancel', admin_chart_types_path, {:class => "link-blank",:style=>"text-decoration:none;color:white;"}

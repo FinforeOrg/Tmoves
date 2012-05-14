@@ -1,0 +1,49 @@
+:css
+  .myDragClass{
+    background: #CCCFFF;
+  }
+- content_for :title, "keyword categories"
+%span#welcome Listing keyword categories
+%br/
+.block
+  .block-header
+    = link_to "Create New Category", new_admin_keyword_category_path, {:class => 'link-custom'}
+    #type-selector
+      = link_to "Save Orders", "#", {:class => 'link-custom save_orders', :onclick=> "javascript:check_orders();"}
+  #block-table.block-main
+    %table#category_table.block-main-table
+      %tbody
+        %tr
+          %th{:width => "70%"} Categories
+          %th{:width => "10%"} Keywords
+          %th Action
+        - @categories.each do |category|
+          %tr{:id => category.id}
+            %td= category.title
+            %td= link_to category.keywords.count, admin_keywords_path({:cat=> category.id})
+            %td
+              = link_to image_tag("icon-edit.png", {:border => 0}), edit_admin_keyword_category_path(category)
+              %span Edit
+              |
+              \#{link_to image_tag("icon-cancel.png", {:border => 0}), admin_keyword_category_path(category), :confirm => 'Are you sure?', :method => :delete}
+              %span Delete
+:javascript
+  var orders = "";
+
+  $(document).ready(function() {
+   $("#category_table").tableDnD({
+     onDragClass: "myDragClass",
+     onDrop: function(table, row) {
+               var rows = table.tBodies[0].rows;
+               orders = "";
+
+               for (var i=1; i<rows.length; i++) {
+                  orders += rows[i].id+",";
+               }
+             }
+   });
+  });
+   function check_orders(){
+     var _parameters = "?orders="+orders;
+     window.location = "#{url_for(save_orders_admin_keyword_categories_path)}" + _parameters;
+   }

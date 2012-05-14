@@ -1,0 +1,41 @@
+- content_for :title, "Tweet Results"
+.block
+  .block-header
+    TRACKER TASKS
+  #block-table.block-main
+    %table.block-main-table
+      %tbody
+        %tr
+          %th Keywords
+          %th Action
+        - @scanner_tasks.each do |scanner_task|
+          %tr
+            %td= scanner_task.keywords.gsub(/\,/i,", ")
+            %td= link_to image_tag("icon-cancel.png", {:border => 0}), admin_scanner_task_path(scanner_task), :confirm => 'Are you sure?', :method => :delete
+    %div
+      = link_to 'New Tracker', new_admin_scanner_task_path
+.block
+  .block-header
+    Current Workers
+  #block-table.block-main
+    %table.block-main-table
+      %tbody
+        %tr
+          %th Worker
+          %th Queue
+          %th Run At
+          %th Action
+        - @workers.each do |worker|
+          %tr
+            %td= worker.id
+            %td= worker.processing["queue"]
+            %td= worker.processing.blank? ? "Done" : (time_ago_in_words(worker.processing["run_at"]) + " ago")
+            %td
+              - if worker.processing.blank?
+                = link_to "Activate", more_workers_admin_scanner_tasks_path({:wid => worker.id})
+              - else
+                = link_to "Shutdown", shutdown_worker_admin_scanner_tasks_path({:wid=> worker.id})
+    %div
+      %form{:action => url_for(more_workers_admin_scanner_tasks_path), :method => "get"}
+        New Worker : #{select_tag "queue", options_for_select(@queues)}
+        %input#submit.button{:name => "commit", :type => "submit", :value => "Add"}/

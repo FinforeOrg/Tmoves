@@ -1,0 +1,24 @@
+#block-form.block-main
+= form_for [:admin,@scanner_account] do |f|
+  - if @scanner_account.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@scanner_account.errors.count, "error")
+        prohibited this scanner_account from being saved:
+      %ul
+        - @scanner_account.errors.full_messages.each do |msg|
+          %li= msg
+  %p.header Title
+  .form-container
+    = f.text_field :username
+  %br/
+  %p.header Password
+  .form-container
+    = f.password_field :password
+  %br/
+  %br/
+  %p.header  
+  .form-container
+    %input#submit.button{:name => "commit", :style => "left:0px", :type => "submit", :value => "Save"}/
+    #cancel.button{:style => "left:90px"}
+      = link_to 'Cancel', admin_scanner_accounts_path, {:class => "link-blank",:style=>"text-decoration:none;color:white;"}

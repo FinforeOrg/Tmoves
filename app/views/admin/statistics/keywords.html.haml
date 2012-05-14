@@ -1,0 +1,22 @@
+.block
+  .block-header
+    STATISTIC: #{@keywords.split(",").to_sentence}
+    #type-selector
+      = link_to "[x]close","#"+@chart_identification, {:class=>"close_chart",:style=>"text-decoration:none;color:white;font-size:11px"}
+  #block-table.block-main
+    %div{:id => @chart_identification, :style => "height:250px"}
+      = image_tag("indicator.gif")
+      loading chart (please be patient) ...
+- unless @keywords.blank?
+  :javascript
+    $(document).ready(function(){
+      $.get("/admin/statistics/keywords.json?keywords="+encodeURIComponent("#{@keywords.gsub(/\&\;/i,'&')}")+"&start_date=#{@start_date}&end_date=#{@end_date}",function(data){
+         $(data.rows).each(function(obj) {
+           data.rows[obj].c[0].v = new Date(data.rows[obj].c[0].v);
+         });
+
+        var dataTable = new google.visualization.DataTable(data);
+        var chart = new google.visualization.AnnotatedTimeLine($('##{@chart_identification}')[0]);
+        chart.draw(dataTable, {allowRedraw: true, legendPosition:'newRow'});
+       },"json");
+    });

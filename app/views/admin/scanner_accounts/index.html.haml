@@ -1,0 +1,28 @@
+- content_for :title, "Twitter Accounts"
+%span#welcome Twitter Accounts
+%br/
+.block
+	.block-header
+		= link_to "Create New Twitter", auth_admin_scanner_accounts_path, {:class => 'link-custom'}
+	#block-table.block-main
+		%table.block-main-table
+			%tbody
+				%tr
+					%th{:width => "60%"} Username
+					%th{:width => "5%"} Used?
+					%th{:width => "5%"} Oauth?
+					%th Action
+				- @scanner_accounts.each do |scanner_account|
+					%tr
+						%td= scanner_account.username
+						%td= scanner_account.is_used ? "Yes" : "No"
+						%td= scanner_account.token ? "Yes" : "No"
+						%td
+							= link_to image_tag("icon-edit.png", {:border => 0}), edit_admin_scanner_account_path(scanner_account)
+							%span Edit
+							|
+							\#{link_to image_tag("icon-edit.png", {:border => 0}), auth_admin_scanner_accounts_path({:acct_id=>scanner_account.id.to_s})}
+							%span Auth
+							|
+							\#{link_to image_tag("icon-cancel.png", {:border => 0}), admin_scanner_account_path({:id=>scanner_account.id,:destroy=>true}), :confirm => 'Are you sure?', :method => :delete}
+							%span Delete

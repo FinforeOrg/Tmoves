@@ -1,0 +1,26 @@
+- content_for :title, "Chart Types"
+%span#welcome Listing Chart Types
+%br/
+.block
+  .block-header
+    = link_to "Create New Chart Type", new_admin_chart_type_path, {:class => 'link-custom'}
+  #block-table.block-main
+    %table#keyword_table.block-main-table
+      %tbody
+        %tr
+          %th{:width => "40%"} Title
+          %th Data
+          %th Period
+          %th Category
+          %th Action
+        - @chart_types.each do |chart_type|
+          %tr
+            %td= chart_type.title
+            %td= display_chart_data(chart_type)
+            %td= display_chart_period(chart_type)
+            %td= chart_type.category
+            %td
+              = link_to image_tag("icon-edit.png", {:border => 0}), edit_admin_chart_type_path(chart_type)
+              %span Edit |
+              \#{link_to image_tag("icon-cancel.png", {:border => 0}), admin_chart_type_path(chart_type), :confirm => 'Are you sure?', :method => :delete}
+              %span Delete

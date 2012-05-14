@@ -1,0 +1,49 @@
+:css
+  .form-container, .form-container *{
+    list-style: none outside none;
+  }
+
+  .form-container ul li
+  {
+      float: left;
+      width: 20em;
+      padding: 10px;
+  }
+
+  .form-container ul li span
+  {
+
+     left: 30px;
+      position: relative;
+
+  }
+#block-form.block-main
+  = form_for [:admin,@scanner_task] do |f|
+    - if @scanner_task.errors.any?
+      #error_explanation
+        %h2
+          = pluralize(@scanner_task.errors.count, "error")
+          prohibited this stream_task from being saved:
+        %ul
+          - @scanner_task.errors.full_messages.each do |msg|
+            %li= msg
+    %p.header Select reference keywords below
+    .form-container
+      %ul
+        - @lists.each do |key|
+          %li
+            = check_box_tag "keywords[]", key
+            %span= key
+      %div{:style=>"clear:both;"}
+    %br/
+    %p.header Select twitter
+    .form-container
+      = f.collection_select(:scanner_account_id, @twitters,:id,:username, {:include_blank => 'Select Account'})
+      = link_to "register twitter", auth_admin_scanner_accounts_path, :target => "_blank"
+    %br/
+    %br/
+    %p.header  
+    .form-container{:style => "padding:10px;"}
+      %input#submit.button{:name => "commit", :style => "left:0px", :type => "submit", :value => "Save"}/
+      #cancel.button{:style => "left:90px"}
+        = link_to 'Cancel', admin_scanner_tasks_path, {:class => "link-blank",:style=>"text-decoration:none;color:white;"}

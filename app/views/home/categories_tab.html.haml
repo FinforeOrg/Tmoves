@@ -1,0 +1,32 @@
+%ul
+  - @statistics.each do |statistic|
+    %li= link_to statistic[:title],"##{slug(statistic[:title])}"
+- @statistics.each do |statistic|
+  - if statistics[:keywords].present?
+    .block.box-3{:id => slug(statistic[:title])}
+      #block-table.block-main{:style => "overflow:auto;border:none;"}
+        %table.block-main-table
+          %tbody.tweet_container
+            %tr.header
+              %th Keywords
+              %th Tweets 1 Month
+              %th v 6 Month
+              %th Daily Tweets
+              %th v Average
+              %th Audience
+              %th v Average
+            - statistics[:keywords].each do |keyword_traffic|
+              %tr.single_row{:id => @active_date}
+                %td
+                  = link_to keyword_traffic.keyword_str, keyword_info_address(keyword_traffic)
+                %td
+                  = number_with_delimiter(tweet_traffic.tweet_one_month)
+                %td{:style => "text-align:center;vertical-align:top;"}
+                  = keyword_movement(tweet_traffic.tweet_one_month, tweet_traffic.tweet_average_six_months)
+                %td= tweet_traffic.tweet_total
+                %td{:style => "text-align:center;vertical-align:top;"}
+                  = keyword_movement(tweet_traffic.tweet_total, tweet_traffic.tweet_average_seven_days)
+                %td= tweet_traffic.audience_total
+                %td{:style => "text-align:center;vertical-align:top;"}
+                  = keyword_movement(tweet_traffic.audience_total, tweet_traffic.audience_average_fourteen_days)
+%div{:style => "clear:both;"}  

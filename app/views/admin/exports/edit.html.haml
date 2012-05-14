@@ -1,0 +1,10 @@
+- content_for :title, "Editing export"
+.block
+  .block-header Editing export
+  #block-form.block-main
+    = render 'form'
+    %p
+      %br/
+      = link_to 'Show', admin_export_path(@export), {:class => "link-blank"}
+      |
+      \#{link_to 'Back', admin_exports_path, {:class => "link-blank"}}

@@ -39,6 +39,7 @@ class TrackingResult
   
   def self.create_status(status, dictionary)
     keywords = self.filter_keyword(status,dictionary)
+    return false if keywords.blank?
     _tracking = self.tweet_object(status,keywords).merge!({:tracking_user_attributes => self.member_object(status.user)})
     self.create(_tracking)
   end
@@ -62,7 +63,9 @@ class TrackingResult
     end
     
     def self.filter_keyword(status, dictionary)
-      status.text.scan(/#{dictionary}/i).map{|txt| txt.gsub(/^\s|\s$/,"").downcase }.uniq.compact
+      matches_keywords = status.text.scan(/#{dictionary}/i).select{ |m| m.present? }
+      result = matches_keywords.map{|mk| mk.gsub(/(^\s+)|(\s+$)/,"").downcase }.uniq
+      return result
     end
 
     def self.languages(status)
@@ -105,6 +108,7 @@ class TrackingResult
                 :tweet_text    => status.text,
                 :lang          => self.languages(status),
                 :keywords_arr  => _keys,
+                :keywords_array => _keys,
                 :keywords_str  => _keys.join(","),
                 :audience      => status.user.followers_count
               }

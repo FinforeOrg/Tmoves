@@ -1,4 +1,6 @@
 Streaming::Application.routes.draw do
+  require 'sidekiq/web'
+  mount Sidekiq::Web => '/sidekiqs'
 
   devise_for :members, :class_name => "Member" do
     get "/subscribe" => "devise/registrations#new"
@@ -105,24 +107,23 @@ Streaming::Application.routes.draw do
 
   root :to => "home#keywords"
 
-  match '/admin' => "admin/tweet_results#index", :as => :admin_root
-  match '/' => "home#keywords"
-  match '/info/:title/:keyword_id' => "home#info"
-  match '/statistics/:title/:keyword_id' => "home#statistics"
-  match '/more_tweets/:title/:keyword_id' => "home#more_tweets"
-  match '/average_statistic/:title/:keyword_id' => "home#average_statistic"
-  match '/follower_weight/:title/:keyword_id' => "home#follower_weight"
-  match '/show_twitter/:id' => "home#show_twitter"
-  match '/total_records' => "home#total_records"
-  match '/keyword_indexes' => "home#keyword_indexes"
-  match '/tickers/:title/:category_id' => "home#tickers"
-  match '/prices_data/:title/:keyword_id' => "home#prices_data"
-  match '/about_us' => "home#about_us"
-  match '/categories_tab' => "home#categories_tab"
-  match '/term_of_service' => "home#term_of_service"
-  match '/contact_us' => "home#contact_us"
-  match '/toc' => "home#toc"
-  match '/delivery_message' => "home#delivery_message"
+  match '/admin', :to => "admin/tweet_results#index", :as => :admin_root
+  match '/info/:title/:keyword_id', :to => "home#info", :as => "info_keyword"
+  match '/statistics/:title/:keyword_id', :to => "home#statistics", :as => "statistic"
+  match '/more_tweets/:title/:keyword_id', :to => "home#more_tweets", :as => "more_tweets"
+  match '/average_statistic/:title/:keyword_id', :to => "home#average_statistic", :as => "average_statistic"
+  match '/follower_weight/:title/:keyword_id', :to => "home#follower_weight", :as => "follower_weight"
+  match '/show_twitter/:id', :to => "home#show_twitter", :as => "show_twitter"
+  match '/total_records', :to => "home#total_records", :as => "total_records"
+  match '/keyword_indexes', :to => "home#keyword_indexes", :as => "keyword_indexes"
+  match '/tickers/:title/:category_id', :to => "home#tickers", :as => "tickers"
+  match '/prices_data/:title/:keyword_id', :to => "home#prices_data", :as => "price_data"
+  match '/about_us', :to => "home#about_us", :as => "about_us"
+  match '/categories_tab', :to => "home#categories_tab", :as => "categories_tab"
+  match '/term_of_service', :to => "home#term_of_service", :as => "term_of_service"
+  match '/contact_us', :to => "home#contact_us", :as => "contact_us"
+  match '/toc', :to => "home#toc", :as => "toc"
+  match '/delivery_message', :to => "home#delivery_message", :as => "deliver_message"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

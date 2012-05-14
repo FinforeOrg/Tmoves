@@ -1,0 +1,46 @@
+- content_for :title, "Export"
+%span#welcome Listing Exports
+%br/
+.block
+  .block-header
+    = link_to "Create new export", new_admin_export_path, {:class => 'link-custom'}
+  #block-table.block-main
+    %table.block-main-table
+      %tbody
+        %tr
+          %th Keywords
+          %th Start date
+          %th End date
+          %th Status
+          %th Progress
+          %th Action
+        - @exports.each do |export|
+          %tr
+            %td= export.keywords
+            %td= export.start_date
+            %td= export.end_date
+            %td= export.current_status
+            %td{:class => "progress_#{export.id}"}= "#{export.total_progress}%"
+            %td
+              = link_to image_tag("icon-settings.png", {:border => 0}), admin_export_path(export)
+              - if export.status != 1
+                = link_to image_tag("icon-edit.png", {:border => 0}), edit_admin_export_path(export)
+                = link_to image_tag("icon-cancel.png", {:border => 0}), admin_export_path({:id=>export.id,:destroy=>true}), :confirm => 'Are you sure?', :method => :delete
+    = paginate @exports
+:javascript
+  $(document).ready(function(){
+    var ids = " #{@exports.map(&:id)} ";
+
+    function check_progress(){
+      $.getJSON("/admin/exports/update_progress.json",{"ids" : ids},function(response){
+        $(response).each(function(item){
+          $(".progress_"+item.id.toString()).html(item.total_progress);
+        });
+      });
+    }
+
+    if(ids && ids.length > 0){ 
+      var auto_refresh = setInterval(check_progress,5000);
+    }
+
+  });

@@ -1,0 +1,43 @@
+!!! Strict
+%html{:xmlns => "http://www.w3.org/1999/xhtml"}
+  %head
+    %title
+      Admin Interface - #{h yield(:title)}
+    = stylesheet_link_tag 'admin'
+    - unless devise_controller?
+      = stylesheet_link_tag 'common'
+      = stylesheet_link_tag 'workspace'
+      = javascript_include_tag 'jquery'
+      = javascript_include_tag 'workspace'
+      = javascript_include_tag 'tickbox'
+      :javascript
+        jQuery.noConflict();
+        $ = jQuery.noConflict();
+        $(document).ready(function(){
+          $("img.close").live("click",function(){
+             $(this).parent().fadeOut();
+          });
+          $("a.twtName").fancybox({
+           'titleShow'     : false,
+           'transitionIn'	 : 'elastic',
+           'transitionOut' : 'elastic',
+           'easingIn'      : 'easeOutBack',
+           'easingOut'     : 'easeInBack'
+          });
+        });
+        = csrf_meta_tag
+    = yield :head
+  %body
+    - if devise_controller?
+      #login.content
+        = yield
+    - else
+      #admin.content
+        #inner{:style => "margin-left:0px;"}
+          - if current_admin
+            = render :partial => "admin/shared/head"
+          - margin = current_admin ? 'margin-top:45px;' : ''
+          #main{:style => '#{margin}'}
+            - unless notice.blank?
+              = render :partial => 'admin/shared/notice', :locals => {:message => notice}
+            = yield

@@ -1,0 +1,56 @@
+.block
+.block-header
+  = @category.title
+  Tickers Statistics
+#block-table.block-main
+  %div
+    %h2.month1
+    %br/
+    %h2.month6
+    %br/
+  #tab-history
+    .monthly_chart{:style => "height:250px;"}
+      = image_tag("indicator.gif")
+      loading 6 months chart ...
+    .weekly_chart{:style => "height:250px;"}
+      = image_tag("indicator.gif")
+      loading 10 weeks chart ...
+    .last_month_chart{:style => "height:250px;"}
+      = image_tag("indicator.gif")
+      loading last month chart ...
+%script{:src => "http://www.google.com/jsapi", :type => "text/javascript"}
+:javascript
+  google.load('visualization', '1', {'packages':['corechart','annotatedtimeline']});
+  $(document).ready(function(){
+  
+    $(".weekly_chart").stickChart({
+       url: "/statistics/#{@category.title.gsub(/\s/,'-')}/#{@category.id.to_s}.json",
+       parameters: {"type" : "weekly", "tickers": true},
+       title: "NO. OF TWEETS, LAST 10 WEEKS",
+       api: google,
+       displayLegend: "top",
+       vAxes: null,
+       hAxis: {textStyle:{fontSize:11}}
+    });
+  
+    $(".monthly_chart").stickChart({
+       url: "/statistics/#{@category.title.gsub(/\s/,'-')}/#{@category.id.to_s}.json",
+       parameters: {"type" : "monthly", "tickers": true},
+       title: "NO. OF TWEETS, LAST 6 MONTHS",
+       api: google,
+       displayLegend: "top",
+       vAxes: null,
+       hAxis: {textStyle:{fontSize:11}}
+    });
+  
+    $(".last_month_chart").stickChart({
+       url: "/statistics/#{@category.title.gsub(/\s/,'-')}/#{@category.id.to_s}.json",
+       parameters: {"type" : "monthly", "tickers": true, "numb" : 1},
+       title: "NO. OF TWEETS, LAST MONTH",
+       api: google,
+       displayLegend: "top",
+       vAxes: null,
+       hAxis: {textStyle:{fontSize:11}}
+    });
+  
+  });

@@ -1,0 +1,80 @@
+- content_for :head do
+  = javascript_include_tag "jquery.autocomplete.min.js"
+  = stylesheet_link_tag "jquery.autocomplete.css"
+  = javascript_include_tag "jquery.ui.datepicker.js"
+  = stylesheet_link_tag "jquery.ui.core.css"
+  = stylesheet_link_tag "jquery.ui.datepicker.css"
+  :javascript
+    $(document).ready(function(){
+      $("#export_start_date").datepicker();
+      $("#export_end_date").datepicker();
+      $("#export_keywords").autocomplete(' autocomplete_keywords_admin_exports_url ', {
+        formatResult: function(data, value) {
+          return value.split(";");
+        }
+      }).result(function(event, data, formatted) {
+        $("#export_keywords").val("");
+        if(data) $("#results").append(elmSpan(formatted));
+      });
+  
+      $("#export_keywords").keypress(function(event) {
+        if (event.which == 13) {
+          if($("#export_keywords").val() != "") {
+            $("#results").append(elmSpan($("#export_keywords").val()));
+            $("#export_keywords").val("");
+          }
+          return false;
+        }
+      });
+    });
+  
+    function removeSpan(elm){
+      $(elm.parentNode).remove();
+      return false;
+    }
+  
+    function elmSpan(val){
+      return "<input type='hidden' name = 'export[keywords][]' \n\
+          value = '"+val+"' />"+val+" remove"
+    }
+= form_for([:admin, @export]) do |f|
+  - if @export.errors.any?
+    %p
+      %h2
+        = pluralize(@export.errors.count, "error")
+        prohibited this export from being saved:
+      %ul
+        - @export.errors.full_messages.each do |msg|
+          %li= msg
+  %p
+    = f.label :keywords
+    %br/
+    = f.text_field :keywords, {:name => "words", :value => ""}
+    %br/
+  #results
+    - unless @keywords.nil?
+      - @keywords.each do |key|
+        %span
+          %input{:name => "export[keywords][]", :type => "hidden", :value => key}/
+          = key
+          %a{:href => "#", :onclick => "removeSpan(this)", :style => "font-size: 10px"} remove
+        %br/
+  %p
+    %br/
+    = f.label :start_date
+    %br/
+    = f.text_field :start_date, {:size => 7,                                                |
+      :value => (@export.start_date.blank? ? '' : @export.start_date.strftime('%m/%d/%Y'))} |
+  %p
+    %br/
+    = f.label :end_date
+    %br/
+    = f.text_field :end_date, {:size => 7,                                              |
+      :value => (@export.end_date.blank? ? '' : @export.end_date.strftime('%m/%d/%Y'))} |
+  %br/
+  %br/
+  %p.header  
+  .form-container
+    %input#submit.button{:name => "commit", :style => "left:0px", :type => "submit", :value => "Save"}/
+    #cancel.button{:style => "left:90px"}
+      = link_to 'Cancel', admin_exports_path, {:class => "link-blank",:style=>"text-decoration:none;color:white;"}

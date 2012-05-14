@@ -1,0 +1,11 @@
+= form_for(@keyword_chart) do |f|
+  - if @keyword_chart.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@keyword_chart.errors.count, "error")
+        prohibited this keyword_chart from being saved:
+      %ul
+        - @keyword_chart.errors.full_messages.each do |msg|
+          %li= msg
+  .actions
+    = f.submit

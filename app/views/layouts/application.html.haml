@@ -1,0 +1,59 @@
+!!! Strict
+%html{:xmlns => "http://www.w3.org/1999/xhtml"}
+  %head
+    %title Tmoves: tracking keywords for investors
+    = stylesheet_link_tag 'admin'
+    - unless devise_controller?
+      = stylesheet_link_tag 'common'
+      = stylesheet_link_tag 'workspace'
+      %script{:src => "/javascripts/jquery.js", :type => "text/javascript"}
+      = javascript_include_tag 'workspace'
+      = javascript_include_tag 'tickbox'
+      %script{:src => "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js", :type => "text/javascript"}
+      :javascript
+        jQuery.noConflict();
+        $ = jQuery.noConflict();
+        var is_reject = false;
+        $(document).ready(function(){
+          $("img.close").live("click",function(){
+            $(this).parent().fadeOut();
+          });
+          $.defaultPopUp = {
+            'titleShow'     : false,
+            'transitionIn'	: 'elastic',
+            'transitionOut'	: 'elastic',
+            'easingIn'      : 'easeOutBack',
+            'easingOut'     : 'easeInBack'
+          }
+          $("a.twtName, a.subscribes").fancybox($.defaultPopUp);
+          $.defaultPopUp['showCloseButton'] = false;
+          $("a.popUpMsg").fancybox($.defaultPopUp);
+          if ($.cookie('o8214SSoSSS3') != '1') {
+            if($.cookie('o8214SSoSSS3') == '2'){
+              $("a.popUpMsg").attr("href","/toc?reject=true");
+            }
+            $("a.popUpMsg").click();
+           }
+        });
+
+        function accept_toc(){
+           $.fancybox.close();
+           $.cookie('o8214SSoSSS3', '1'); 
+        }
+
+        function reject_toc(){
+            $.cookie('o8214SSoSSS3', '2');
+            location.href = "http://www.finfore.info";
+        }
+
+        = csrf_meta_tag
+    = yield :head
+  %body
+    #admin.content{:style => "margin:0 15px;"}
+      #inner{:style => "margin-left:0px;"}
+        = render :partial => "shared/head"
+        #main{:style => "margin-top:15px;"}
+          - unless notice.blank?
+            = render :partial => 'admin/shared/notice', :locals => {:message => notice}
+          = yield
+    %a.popUpMsg{:href => "/toc", :style => "display:none;"}  

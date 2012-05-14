@@ -1,0 +1,33 @@
+- content_for :title, "Export Details"
+.block
+  .block-header Export Details
+  #block-form.block-main
+    %p
+      %b Keywords:
+      = @export.keywords
+    %p
+      %b Start date:
+      = @export.start_date
+    %p
+      %b End date:
+      = @export.end_date
+    %p
+      %b Status:
+      = @export.current_status
+    %p
+      %b Progress:
+      = @export.total_progress
+      \%
+    - if @export.status == 2
+      %br/
+      %p
+        = link_to "Click here to resume progress", resume_progress_admin_export_path(@export)
+    - if @export.status == 4
+      %br/
+      %p
+        = link_to "Click here to download the export file", "http://tmoves.com/csv/#{@export.id}/#{@export.path}"
+    %p
+      %br/
+      = link_to 'Back', admin_exports_path, {:class => "link-blank"}
+      |
+      \#{link_to 'Edit', edit_admin_export_path(@export), {:class => "link-blank"}}

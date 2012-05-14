@@ -26,7 +26,7 @@ module Finforenet
 
 			def check_daily_keyword(status)
 				if status.created_at.to_time.utc >= @start_count_daily_at
-					Resque.enqueue(Finforenet::Jobs::Bg::DailyKeyword)
+					#Resque.enqueue(Finforenet::Jobs::Bg::DailyKeyword)
 				end
 			end
 

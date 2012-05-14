@@ -35,7 +35,7 @@ module Finforenet
 		       keyword_traffic.update_attributes({:month1 => total_1month, :month6 => total_6month})
 	       end
 				 next_task = @end_date.next_month.since(1.days)
-				 Resque.enqueue_at(next_task, Finforenet::Jobs::Bg::MonthlyKeyword)
+				 #Resque.enqueue_at(next_task, Finforenet::Jobs::Bg::MonthlyKeyword)
 			 end
 
 			 def on_failed(e)

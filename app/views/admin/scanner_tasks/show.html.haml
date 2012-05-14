@@ -1,0 +1,7 @@
+%p#notice= notice
+%p
+  %b Keywords:
+  = @scanner_task.keywords
+= link_to 'Edit', edit_scanner_task_path(@scanner_task)
+|
+\#{link_to 'Back', scanner_tasks_path}

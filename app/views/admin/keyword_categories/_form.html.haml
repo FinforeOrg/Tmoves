@@ -1,0 +1,20 @@
+#block-form.block-main
+= form_for [:admin,@category] do |f|
+  - if @category.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@category.errors.count, "error")
+        prohibited this keyword from being saved:
+      %ul
+        - @category.errors.full_messages.each do |msg|
+          %li= msg
+  %p.header Title
+  .form-container
+    = f.text_field :title
+  %br/
+  %br/
+  %p.header  
+  .form-container
+    %input#submit.button{:name => "commit", :style => "left:0px", :type => "submit", :value => "Save"}/
+    #cancel.button{:style => "left:90px"}
+      = link_to 'Cancel', admin_keyword_categories_path, {:class => "link-blank",:style=>"text-decoration:none;color:white;"}

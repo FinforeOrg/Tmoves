@@ -1,0 +1,25 @@
+- new_tweet = ""
+- member = TweetUser.where(:_id => tweet["tweet_user_id"]).first
+- lang = tweet_language(tweet,member)
+- keyword = tweet['keywords']
+- new_tweet = "new_tweet" unless @is_hidden.blank?
+%tr{:class => new_tweet, :style => is_hidden}
+  %td{:valign => "top"}
+    - if member.present?
+      %b= link_to member.screen_name, "/show_twitter/"+member.id.to_s,{:style=>"text-decoration:none",:class=>"twtName"}
+      %br/
+      = link_to image_tag(member.profile_image_url, {:height=>48,:width=>48,:border=>0}), "http://www.twitter.com/#{member.screen_name}"
+      = succeed "Follower" do
+        %br/
+      %br/
+      = member.followers_count
+  %td{:valign => "top"}
+    = clean_tag(auto_link(tweet["tweet_text"],{:html=> { :target => '_blank' }}))
+    %br/
+    about #{time_ago_in_words(tweet["created_at"])} ago
+    </td valign="top">
+    %td{:align => "center", :valign => "top"}
+      = tweet["retweet_count"]
+    %td= lang
+    - if current_admin
+      %td= link_to keyword,"?search=#{keyword}"

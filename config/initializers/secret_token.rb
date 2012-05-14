@@ -4,4 +4,4 @@
 # If you change this key, all old signed cookies will become invalid!
 # Make sure the secret is at least 30 characters and all random,
 # no regular words or you'll be exposed to dictionary attacks.
-Streaming::Application.config.secret_token = 'a9babd1404bf793b01f9ce95a21de864c89e30c7d82d15bdd17aacf73497f40782b6ec829ac0bd95e67d9d65368a262bac7aa2ef8f50b934361f9e4b6e98c01e'
+Streaming::Application.config.secret_token = 'ee3ce0a7735800dcbaa4ccdd091c9ba56020336c4e49d6cd90579a3baad78436246d2259a1d47b9b5f276d4c852b87c0cec9b21ebf433e0a65f5a8db8984cc9f'

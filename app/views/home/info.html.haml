@@ -1,0 +1,166 @@
+.block
+.block-header
+	= @keyword_traffic.keyword_str
+	Tweets & Statistics
+#block-table.block-main.block-tabs
+	%div
+		.block{:style => "float:left;width:250px;position:relative;overflow:hidden;margin-right:10px;"}
+			.block-header
+				Monthly Analysis
+			#block-table.block-main
+				%table.block-main-table
+					%tbody
+						%tr.header
+							%th Last
+							%th Tweets
+							%th Analysis
+						%tr.single_row
+							%td 1 Month
+							%td= number_with_delimiter(@keyword_traffic.tweet_one_month)
+							%td{:style => "text-align:center;vertical-align:middle;"}
+								= arrow_symbol(@six_month_percent)
+								%h4
+									= @six_month_percent
+									\%
+						%tr.single_row
+							%td 6 Months
+							%td= number_with_delimiter(@keyword_traffic.tweet_six_months)
+							%td  
+		.block{:style => "float:left;width:450px;position:relative;overflow:hidden;margin-right:10px;"}
+			.block-header
+				Daily Analysis
+			#block-table.block-main
+				%table.block-main-table
+					%tbody
+						%tr.header
+							%th Type
+							%th  
+							%th Analysis
+							%th= @active_date.strftime('%b %d, %Y')
+							%th Average
+						%tr.single_row
+							%td Tweets
+							%td
+								= arrow_symbol(@seven_days_percent)
+							%td
+								%h4
+									= @seven_days_percent
+									\%
+							%td= number_with_delimiter(@keyword_traffic.tweet_total)
+							%td= number_with_delimiter(@keyword_traffic.tweet_average_seven_days)
+						%tr.single_row
+							%td Audiences
+							%td
+								= arrow_symbol(@audience_fourteen_percent)
+							%td
+								%h4
+									= @audience_fourteen_percent
+									\%
+							%td= number_with_delimiter(@keyword_traffic.audience_total)
+							%td= number_with_delimiter(@keyword_traffic.audience_average_fourteen_days)
+		#block-table
+			%div
+				.block{:style => "float:left;width:250px;position:relative;overflow:hidden;margin-right:10px;"}
+					.block-header
+						Info
+					#block-table.block-main
+						%table.block-main-table
+							%tbody
+								%tr.single_row
+									%td Keyword
+									%td
+										%b= @keyword_traffic.keyword_str
+								%tr.single_row
+									%td Ticker
+									%td
+										%b
+											= @keyword_traffic.keyword.ticker
+				%div{:style => "clear:both"}  
+			%ul
+				%li
+					%a{:href => "#tab-history"} Statistics
+			#tab-history
+				.monthly_chart{:style => "height:250px;"}
+					= image_tag("indicator.gif")
+					loading monthly chart ...
+				%div{:style => "height:35px;"}  
+				.weekly_chart{:style => "height:250px;"}
+					= image_tag("indicator.gif")
+					loading weekly chart ...
+				%div{:style => "height:35px;"}  
+				.average_chart{:style => "height:250px;"}
+					= image_tag("indicator.gif")
+					loading averages chart ...
+				%div{:style => "height:35px;"}  
+				.audience_chart{:style => "height:250px;"}
+					= image_tag("indicator.gif")
+					loading audience chart ...
+				- if @ticker.present?
+					%div{:style => "height:25px;"}  
+					.price_chart{:style => "height:250px;"}
+						= image_tag("indicator.gif")
+						loading price chart ...
+		%script{:src => "http://www.google.com/jsapi", :type => "text/javascript"}
+		- if @is_ticker 
+		  :javascript
+				$(".price_chart").lineChart({
+					 url: " prepare_ajax_path('/prices_data/', #{@keyword_traffic}) ",
+					 title: "CLOSING PRICE, LAST 14 DAYS",
+					 api: google,
+					 displayLegend: "top",
+					 series: {},
+					 colors: ['green']
+				});
+		:javascript
+			google.load('visualization', '1', {'packages':['corechart','annotatedtimeline']});
+			$(document).ready(function(){
+				$( ".block-tabs" ).tabs();
+				$(".weekly_chart").comboChart({
+					 url: " prepare_ajax_path('/statistics/', #{@keyword_traffic}) ",
+					 parameters: {"type" : "weekly"},
+					 title: "NO. OF TWEETS, LAST 10 WEEKS",
+					 api: google,
+					 seriesType: "bars",
+					 displayLegend: "top",
+					 series: {1:{targetAxisIndex:1, visibleInLegend: true, type: "line"}},
+					 vAxes: {0:{title:'No. of Tweets',textStyle:{color: 'blue'}}, 1:{title:'Price (US$)',textStyle:{color: 'orange'}}},
+					 colors: ['blue','orange']
+				});
+				$(".monthly_chart").comboChart({
+					 url: " prepare_ajax_path('/statistics/', #{@keyword_traffic}) ",
+					 parameters: {"type" : "monthly"},
+					 title: "NO. OF TWEETS, LAST 6 MONTHS",
+					 api: google,
+					 description: "Period ",
+					 displayLegend: "top",
+					 seriesType: "bars",
+					 vAxes: {0:{title:'No. of Tweets',textStyle:{color: 'blue'}}, 1:{title:'Price (US$)',textStyle:{color: 'orange'}}},
+					 series: {1:{targetAxisIndex:1, visibleInLegend: true, type: "line"}},
+					 colors: ['blue','orange']
+				});
+				$(".average_chart").lineChart({
+					 url: " prepare_ajax_path('/average_statistic/', #{@keyword_traffic}) ",
+					 parameters: {},
+					 title: "DAILY TWEETS V 7 DAY AVERAGE w/ PRICES, LAST 2 MONTHS",
+					 api: google,
+					 colors: ['blue','red','green'],
+					 displayLegend: "top",
+					 vAxes: {0:{title:'No. of Tweets',textStyle:{color: 'blue'}}, 1:{title:'Price (US$)',textStyle:{color: 'green'}}},
+					 series: {2:{targetAxisIndex:1, visibleInLegend: true}}
+				});
+				$(".audience_chart").lineChart({
+					 url: " prepare_ajax_path('/follower_weight/', #{@keyword_traffic}) ",
+					 parameters: {"audience":true},
+					 title: "DAILY AUDIENCES & TWEETS, LAST 14 DAYS",
+					 api: google,
+					 displayLegend: "top",
+					 series: [{targetAxisIndex:0,visibleInLegend: true},{targetAxisIndex:1, visibleInLegend: true}],
+					 vAxes: {0:{title:'Audience',textStyle:{color: 'orange'}}, 1:{title:'No. of Tweets',textStyle:{color: 'blue'}}},
+					 colors: ['orange','blue']
+				});
+				var reload_total_tweets = function(){
+					clearInterval(refresh_total_tweets);
+				};
+				var refresh_total_tweets = setInterval(reload_total_tweets, 5000);
+			
+			});

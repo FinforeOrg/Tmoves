@@ -1,0 +1,13 @@
+%p#notice= notice
+%p
+  %b Username:
+  = @scanner_account.username
+%p
+  %b Password:
+  = @scanner_account.password
+%p
+  %b Is used:
+  = @scanner_account.is_used
+= link_to 'Edit', edit_scanner_account_path(@scanner_account)
+|
+\#{link_to 'Back', scanner_accounts_path}

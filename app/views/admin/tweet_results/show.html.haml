@@ -1,0 +1,34 @@
+%p#notice= notice
+%p
+  %b Tweet:
+  = @tweet_result.tweet_id
+%p
+  %b Retweet count:
+  = @tweet_result.retweet_count
+%p
+  %b Coordinates:
+  = @tweet_result.coordinates
+%p
+  %b Geo:
+  = @tweet_result.geo
+%p
+  %b Place:
+  = @tweet_result.place
+%p
+  %b Source:
+  = @tweet_result.source
+%p
+  %b Created at:
+  = @tweet_result.created_at
+%p
+  %b Tweet text:
+  = @tweet_result.tweet_text
+%p
+  %b Keywords:
+  = @tweet_result.keywords
+%p
+  %b Lang:
+  = @tweet_result.lang
+= link_to 'Edit', edit_tweet_result_path(@tweet_result)
+|
+\#{link_to 'Back', tweet_results_path}

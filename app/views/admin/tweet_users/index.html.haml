@@ -1,0 +1,47 @@
+%h1 Listing tweet_users
+%table
+  %tr
+    %th Description
+    %th Followers count
+    %th Statuses count
+    %th Url
+    %th Location
+    %th Friends count
+    %th Favourites count
+    %th Time zone
+    %th Is protected
+    %th Profile image url
+    %th Screen name
+    %th Lang
+    %th Name
+    %th Notifications
+    %th Twitter
+    %th Joined at
+    %th Listed count
+    %th
+    %th
+    %th
+  - @tweet_users.each do |tweet_user|
+    %tr
+      %td= tweet_user.description
+      %td= tweet_user.followers_count
+      %td= tweet_user.statuses_count
+      %td= tweet_user.url
+      %td= tweet_user.location
+      %td= tweet_user.friends_count
+      %td= tweet_user.favourites_count
+      %td= tweet_user.time_zone
+      %td= tweet_user.is_protected
+      %td= tweet_user.profile_image_url
+      %td= tweet_user.screen_name
+      %td= tweet_user.lang
+      %td= tweet_user.name
+      %td= tweet_user.notifications
+      %td= tweet_user.twitter_id
+      %td= tweet_user.joined_at
+      %td= tweet_user.listed_count
+      %td= link_to 'Show', tweet_user
+      %td= link_to 'Edit', edit_tweet_user_path(tweet_user)
+      %td= link_to 'Destroy', tweet_user, :confirm => 'Are you sure?', :method => :delete
+%br/
+= link_to 'New Tweet user', new_tweet_user_path

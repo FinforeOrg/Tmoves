@@ -14,25 +14,25 @@ class DailyTweet
 
   #cache
   
-  def self.save_total_and_follower(created_at, total_follower, keyword_id)
-    midnight = created_at.to_datetime.utc.midnight
+  def self.save_total_and_follower(_created_at, total_follower, _keyword_id)
+    midnight = _created_at
     search_options = {:created_at => {"$gte" => midnight, "$lt" => midnight.tomorrow}, 
-                      :keyword_id => keyword_id}
+                      :keyword_id => _keyword_id}
     daily_tweet = self.where(search_options).first
     if daily_tweet
       _total = total_follower.to_i > 0 ? 1 : -1
       daily_tweet.inc(:total, _total)
       daily_tweet.inc(:follower, total_follower)
     else
-      DailyTweet.create({:keyword_id => self.id, 
+      DailyTweet.create({:keyword_id => _keyword_id, 
                          :total      => 1, 
                          :follower   => total_follower, 
                          :created_at => midnight})
     end
   end
   
-  def self.find_keyword_periode(keyword_id, start_at, end_at)
-    self.where({:created_at => {"$gte" => start_at, "$lt" => end_at}, :keyword_id => keyword_id})
+  def self.find_keyword_periode(_keyword_id, start_at, end_at)
+    self.where({:created_at => {"$gte" => start_at, "$lt" => end_at}, :keyword_id => _keyword_id})
   end
 
 end

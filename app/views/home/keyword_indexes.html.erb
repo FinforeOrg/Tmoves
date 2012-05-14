@@ -1,4 +1,0 @@
-<% option_symbol = {:alert => @alert, :limit => @limit} %>
-<%= index_symbol(option_symbol) %>
-<% movement = @alert.to_i < 0 ? -@alert : @alert %>
-<h4><%= movement %> %</h4>

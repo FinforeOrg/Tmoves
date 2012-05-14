@@ -8,4 +8,5 @@ class ScannerAccount
 
   has_many :scanner_tasks
   has_many :twitter_followers
+  has_one :scanner_task
 end

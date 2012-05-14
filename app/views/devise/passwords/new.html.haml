@@ -1,0 +1,11 @@
+- content_for :title, "Forgot Password"
+#login-panel
+  %span#title Admin Finfore-Stream
+  %br/
+  %span#login-subtitle Please enter your email.
+  #login-form
+    = form_for("admin", :url => admin_password_path) do |f|
+      = devise_error_messages!
+      #login-username.right Email
+      = f.email_field :email
+      = f.submit 'Send', {:id => 'login-signin', :class => 'button'}

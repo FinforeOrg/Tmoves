@@ -8,7 +8,7 @@ class Admin::ScannerTasksController < ApplicationController
   def index
     @scanner_tasks = ScannerTask.all.cache
     @workers = Resque.workers
-    @queues = ["Savetweetresult", "AnalyzeKeywords", "DailyKeyword"]
+    @queues = ["AnalyzeKeywords", "DailyKeyword"]
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @scanner_tasks }
@@ -44,10 +44,7 @@ class Admin::ScannerTasksController < ApplicationController
 
     respond_to do |format|
       if @scanner_task.save
-        prepare_scanner_task
-	@scanner_task.scanner_account.update_attribute(:is_used,true)
-        system "/usr/bin/rake resque:work QUEUE=StreamTrack RAILS_ENV=production &"
-        Resque.enqueue(Finforenet::Jobs::Background, @scanner_task.id.to_s)
+        TrackKeyword.perform_async(@scanner_task.id.to_s)
         format.html { redirect_to(admin_scanner_tasks_url, :notice => 'Scanner task was successfully created.') }
         format.xml  { render :xml => @scanner_task, :status => :created, :location => @scanner_task }
       else
@@ -78,20 +75,9 @@ class Admin::ScannerTasksController < ApplicationController
   def destroy
     @scanner_task = ScannerTask.find(params[:id])
 
-    if @scanner_task
-      kill_process = "StreamTrack"
-      Resque.workers.each do |worker|
-        if worker.processing["queue"] == kill_process
-          worker.unregister_worker
-          break
-        end
-      end 
-
+    if @scanner_task 
       @scanner_task.scanner_account.update_attribute(:is_used,false)
       @scanner_task.destroy    
-      CACHE.delete("account_#{@scanner_task.id.to_s}")
-      CACHE.delete("dictionary_#{@scanner_task.id.to_s}")
-      CACHE.delete("keyword_#{@scanner_task.id.to_s}")
     end
  
     respond_to do |format|
@@ -105,7 +91,7 @@ class Admin::ScannerTasksController < ApplicationController
      start_queue(params[:category])
    else
      @scanner_task = ScannerTask.find(params[:id])
-     Resque.enqueue(Finforenet::Jobs::Background, @scanner_task.id.to_s)
+     TrackKeyword.perform_async(@scanner_task.id.to_s)
    end
    
    respond_to do |format|
@@ -116,13 +102,7 @@ class Admin::ScannerTasksController < ApplicationController
   def more_workers
    if !params[:queue].blank? || !params[:wid].blank?
      message = "#{params[:queue]} new worker has been added" 
-     if params[:wid].blank?
-       system "/usr/bin/rake resque:work QUEUE=#{params[:queue]} RAILS_ENV=production &" 
-     else
-       params[:queue] = params[:wid].split(":").pop
-     end
      start_queue(params[:queue])
-
    else
      message = "No worker has been added" 
    end
@@ -151,42 +131,19 @@ class Admin::ScannerTasksController < ApplicationController
   private
    def prepare_keywords
      ids = ScannerTask.all.map{|x| x.scanner_account_id.to_s}
-    @twitters = ScannerAccount.not_in({"_id"=>ids}).order_by(:username).only(:id,:username)
-    #@twitters = ScannerAccount.order_by(:username).only(:id,:username).all
-    keywords = Keyword.order_by(:title).only(:title).all.map(&:title)
-    exists = ScannerTask.only(:keywords).all.map(&:keywords).join(",").split(",")
-    @lists = keywords - exists
-   end
-
-   def prepare_scanner_task
-     @account = @scanner_task.scanner_account
-     CACHE.set("account_#{@scanner_task.id.to_s}",{:username=>@account.username,:password=>@account.password, :token => @account.token, :secret=> @account.secret}) 
-     CACHE.set("keyword_#{@scanner_task.id.to_s}",@scanner_task.keywords) 
-    all_keywords = @scanner_task.keywords.split(',').map{|k|
-                     if k.include?("$")
-                       k = k.gsub("$","[$]")
-                       "#{k}\s|#{k}$"
-                     else
-                       k
-                     end
-                   }.join("|") 
-     #all_keywords = @scanner_task.keywords.split(',').map{|k| Finforenet::Utils::String.keyword_regex(k)}.join("|")
-     CACHE.set("dictionary_#{@scanner_task.id.to_s}",all_keywords) 
+     @twitters = ScannerAccount.not_in({"_id"=>ids}).order_by(:username).only(:id,:username)
+     #@twitters = ScannerAccount.order_by(:username).only(:id,:username).all
+     keywords = Keyword.order_by(:title).only(:title).all.map(&:title)
+     exists = ScannerTask.only(:keywords).all.map(&:keywords).join(",").split(",")
+     @lists = keywords - exists
    end
 
    def start_queue(queue_name)
      if queue_name == 'DailyKeyword'
-       Resque.enqueue(Finforenet::Jobs::Bg::DailyKeyword)
-     elsif queue_name == 'Savetweetresult'
-       Resque.enqueue(Finforenet::Jobs::Bg::Savetweetresult)
-     elsif queue_name == 'RepairDaily'
-       Resque.enqueue(Finforenet::Jobs::Bg::RepairDaily)
+       DailyKeyword.perform_async
      elsif queue_name == 'AnalyzeKeywords'
-        Resque.enqueue(Finforenet::Jobs::AnalyzeKeywords)
-     elsif queue_name == 'Bsondumping'
-        Resque.enqueue(Finforenet::Jobs::Bg::Bsondumping)
+       AnalyzeKeywords.perform_async
      end
-	 #Resque.redis.del "queue:Savetweetresult"
    end
 
 end
