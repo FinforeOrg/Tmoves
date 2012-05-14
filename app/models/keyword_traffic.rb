@@ -145,7 +145,7 @@ class KeywordTraffic
   
   def months_to_days(_range)
     end_date = self.created_at.to_date.beginning_of_month
-    start_date = end_date.ago(_range.month)
+    start_date = end_date.ago(_range.month).to_date
     return (end_date - start_date).to_i
   end
    
