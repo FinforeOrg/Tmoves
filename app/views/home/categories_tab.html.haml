@@ -2,7 +2,7 @@
   - @statistics.each do |statistic|
     %li= link_to statistic[:title],"##{slug(statistic[:title])}"
   - @statistics.each do |statistic|
-    - if statistics[:keywords].present?
+    - if statistic[:keywords].present?
       .block.box-3{:id => slug(statistic[:title])}
         #block-table.block-main{:style => "overflow:auto;border:none;"}
           %table.block-main-table
