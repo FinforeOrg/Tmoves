@@ -9,7 +9,7 @@ module Finforenet
 
       def initialize(stream_task_id)
         @task_id = stream_task_id          
-        @log = Logger.new("#{RAILS_ROOT}/log/stream.log")
+        @log = Logger.new("#{Rails.root}/log/stream.log")
         @tomorrow = Time.now.utc.midnight.tomorrow
         start_scan if is_task_ready?
         rescue => e
@@ -25,7 +25,7 @@ module Finforenet
         else
           @stream_account = @stream_task.scanner_account
           @keywords       = @stream_task.keywords
-          @dictionary     = @stream_task.keyword_regex
+          @dictionary     = @stream_task.keywords_regex
         end
         return _return
       end
@@ -91,8 +91,12 @@ module Finforenet
           log_tweet_error(e.to_s)
         else
           if tracking_result
-            AnalyzeKeywords.perform_async(tracking_result.keywords_str, status.created_at.to_i, status.followers_count)
-            if status.created_at.to_datetime.utc > @tomorrow
+            begin
+              KeywordsAnalyst.perform_async(tracking_result.keywords_str, tracking_result.created_at.to_i, status.user.followers_count)
+            rescue
+            else
+            end
+            if tracking_result.created_at.to_time.utc > @tomorrow
               DailyKeyword.perform_async(@tomorrow.yesterday.to_i)
 			        @tomorrow = @tomorrow.tomorrow
             end

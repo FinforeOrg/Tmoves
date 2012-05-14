@@ -8,7 +8,7 @@ class Admin::ScannerTasksController < ApplicationController
   def index
     @scanner_tasks = ScannerTask.all.cache
     @workers = Resque.workers
-    @queues = ["AnalyzeKeywords", "DailyKeyword"]
+    @queues = ["KeywordsAnalyst", "DailyKeyword"]
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @scanner_tasks }
@@ -141,8 +141,8 @@ class Admin::ScannerTasksController < ApplicationController
    def start_queue(queue_name)
      if queue_name == 'DailyKeyword'
        DailyKeyword.perform_async
-     elsif queue_name == 'AnalyzeKeywords'
-       AnalyzeKeywords.perform_async
+     elsif queue_name == 'KeywordsAnalyst'
+       KeywordsAnalyst.perform_async
      end
    end
 

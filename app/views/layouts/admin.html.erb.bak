@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Admin Interface - <%=h yield(:title) %></title>
+    <%= include_stylesheets :admin %>
+    <% unless devise_controller? %>
+      <%= include_stylesheets :common, :workspace %>
+      <%= include_javascripts :basic %>
+      <%= include_javascripts :workspace %>
+      <%= include_javascripts :thickbox %>
+      <script type="text/javascript">
+        jQuery.noConflict();
+        $ = jQuery.noConflict();
+        $(document).ready(function(){
+          $("img.close").bind("click",function(){
+  	    $(this).parent().fadeOut();
+	  });
+          $("a.twtName").fancybox({
+		'titleShow'     : false,
+		'transitionIn'	: 'elastic',
+		'transitionOut'	: 'elastic',
+		'easingIn'      : 'easeOutBack',
+		'easingOut'     : 'easeInBack'
+	   });
+        });
+    </script>
+    <% end %>
+    <%= csrf_meta_tag %>
+    <%= yield :head %>
+  </head>
+  <body>
+    <% if devise_controller? %>
+      <div class="content" id="login">
+        <%= yield %>
+      </div>
+    <% else %>
+      <div class="content" id="admin">
+        <%#= render :partial => "admin/shared/menu" %>
+        <div id="inner" style="margin-left:0px;">
+          <%= render :partial => "admin/shared/head" %>
+          <div id="main">
+          <% unless notice.blank? %>
+            <%= render :partial => 'admin/shared/notice', :locals => {:message => notice} %>
+          <% end %>
+            <%= yield %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </body>
+</html>

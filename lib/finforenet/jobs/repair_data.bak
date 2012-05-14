@@ -1,0 +1,146 @@
+module Finforenet
+  module Jobs
+    class RepairData
+       attr_accessor :failed_tasks, :log, :keywords, :limit_at, :end_at, :keyword_counter, :start_at, :tweet_results, :keyword, :tweet_result, :dictionaries, :daily_tweet
+
+       def initialize
+         @failed_tasks = []
+          @log = Logger.new("#{RAILS_ROOT}/log/daily_tweet.log")
+         @keywords = Mongoid.database["keywords"].find({}).to_a.map{|k| OpenStruct.new k}
+        @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+        @log.debug "Date     : #{Time.now}"
+        @log.debug "Options  : #{@keywords.size}"
+        @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+         @dictionaries = Keyword.all.map(&:title).join(",")
+         @dictionaries = to_regex(@dictionaries)
+         @keyword_counter = 0
+         @keyword = nil
+         @tweet_result = nil
+         @daily_tweet = nil
+         @end_at = "01/17/2012".to_time.utc.midnight
+         @start_at = @end_at.yesterday
+         @limit_at = @start_at.ago(3.months).at_beginning_of_month
+         Finforenet::RedisFilter.del_data("tweetidx")        
+         start_repairing
+       end
+       
+       def start_repairing
+        if @limit_at <= @start_at
+          if @keyword_counter <= @keywords.length
+            @keyword = @keywords[@keyword_counter]
+            if @keyword
+              @keyword_counter += 1
+              next_keyword_analysis
+            else
+              prepare_next_day
+            end
+          else
+            prepare_next_day
+          end
+        end
+       end
+         
+        def prepare_next_day
+          @start_at = @end_at
+          @end_at = @start_at.yesterday
+          @keyword_counter = 0
+        @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+        @log.debug "Date     : #{@start_at}"
+        @log.debug "TwtRest  : #{@tweet_result}"
+        @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+          start_repairing
+        end
+            
+       def next_keyword_analysis
+          options = {:created_at => {"$gte" => @start_at, "$lt" => @end_at}, :tweet_text => to_regex(@keyword.title)}
+          @tweet_results = Mongoid.database["tweet_results"].find(options).to_a
+#.map{|tr| OpenStruct.new tr}
+          @daily_tweet = get_daily_tweet
+#        @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+#        @log.debug "Date     : #{@start_at}"
+#        @log.debug "Keyword  : #{@keyword.title}"
+#        @log.debug "DailyTwt : #{@daily_tweet}"
+#        @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+          if @daily_tweet
+            @daily_tweet.update_attributes({:total => 0, :follower => 0}) 
+          else
+            @daily_tweet = DailyTweets.create({:created_at => @start_at, :total => 0, :follower => 0, :keyword_id => @keyword._id})
+          end
+          analysis_daily_tweet
+       end
+           
+       def analysis_daily_tweet
+         @tweet_result = @tweet_results.shift
+#        @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+#        @log.debug "Date     : #{@start_at}"
+#        @log.debug "TwtRest  : #{@tweet_result}"
+#        @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+
+         if @tweet_result
+           if Finforenet::RedisFilter.push_data("tweetidx",@tweet_result["tweet_id"])
+             keywords = scan_text(@tweet_result["tweet_text"]).uniq.join(",")
+             tweetresult = TweetResult.where(:_id => @tweet_result["_id"]).first
+             if tweetresult
+               begin
+                 tweetresult.update_attribute(:keywords, keywords)
+               rescue
+                 #import_to_elasticsearch(tweetresult)
+               end
+               dailytweet = DailyTweet.where(:_id => @daily_tweet._id).first
+               if dailytweet
+                 dailytweet.inc(:total, 1)
+                 dailytweet.inc(:follower, @tweet_result["audience"].to_i)
+    #    @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+    #    @log.debug "Date     : #{@start_at}"
+    #    @log.debug "Keyword  : #{@keyword.title}"
+    #    @log.debug "Total    : #{dailytweet.total}"
+    #    @log.debug "Follower : #{dailytweet.follower}"
+    #    @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+               end
+             end
+           else
+    #    @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+    #    @log.debug "Date     : #{@start_at}"
+    #    @log.debug "Keyword  : #{@keyword.title}"
+    #    @log.debug "Delete    : #{@tweet_result['_id']"
+    #    @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+             tweetresult = TweetResult.where(:_id => @tweet_result["_id"]).first
+             tweetresult.destroy if tweetresult
+           end
+           analysis_daily_tweet
+         else
+           start_repairing
+         end
+       end
+           
+        def import_to_elasticsearch(tweetresult)
+          #Tire.index 'tweet_results' do
+          #   import [@tweet_result]
+          #end
+          tweetresult.update_index
+        end
+           
+        def scan_text(text)
+          text.scan(/#{@dictionaries}/i)   
+        end
+
+        def get_daily_tweet
+           DailyTweet.where({:created_at.gte => @start_at, :created_at.lt => @end_at, :keyword_id => @keyword._id}).first
+        end
+         
+       def to_regex(str)
+         array_keywords = str.split(",")
+         str = array_keywords.map{|a|
+                if !a.include?("$")
+                  "[^$]#{a}|^#{a}|[^$]#{a}$"
+                else
+                  k = a.gsub("$","[$]")
+                 "#{k}\s|#{k}$"
+                end
+              }.join("|").gsub(/\'|\"/i,"")
+          return Regexp.new(str, Regexp::IGNORECASE)
+       end
+    end
+  end
+end
+

@@ -38,6 +38,7 @@ class TrackingResult
   end
   
   def self.create_status(status, dictionary)
+    dictionary = dictionary.gsub(/(^\|)|(\|$)/i,"")
     keywords = self.filter_keyword(status,dictionary)
     return false if keywords.blank?
     _tracking = self.tweet_object(status,keywords).merge!({:tracking_user_attributes => self.member_object(status.user)})
@@ -63,16 +64,19 @@ class TrackingResult
     end
     
     def self.filter_keyword(status, dictionary)
-      matches_keywords = status.text.scan(/#{dictionary}/i).select{ |m| m.present? }
+      dictionary = dictionary.gsub(/(^\|)|(\|$)/i,"")
+      matches_keywords = status.text.match(/#{dictionary}/i).to_a.select{ |m| m.present? }.uniq
       result = matches_keywords.map{|mk| mk.gsub(/(^\s+)|(\s+$)/,"").downcase }.uniq
       return result
     end
 
     def self.languages(status)
       begin
-       lang = TRANSLATOR_GRAM.detect(status.text.gsub(/((https?|ftp)\:\/\/([\w-]+\.)?([\w-])+\.(\w)+\/?[\w\?\.\=\&\-\#\+\-\#\+\/]+)/i,''))
-      rescue
+#       lang = TRANSLATOR_GRAM.detect(status.text.gsub(/((https?|ftp)\:\/\/([\w-]+\.)?([\w-])+\.(\w)+\/?[\w\?\.\=\&\-\#\+\-\#\+\/]+)/i,''))
+#      rescue
        lang = TRANSLATOR.language(status.text.gsub(/((https?|ftp)\:\/\/([\w-]+\.)?([\w-])+\.(\w)+\/?[\w\?\.\=\&\-\#\+\-\#\+\/]+)/i,''))
+      rescue
+      else
       end
       lang = lang.present? ? "#{lang}, #{status.user.lang}" : status.user.lang
       return lang

@@ -47,6 +47,7 @@ end
   gem 'resque-scheduler'
   gem 'sinatra'
   gem 'slim'
+  gem 'thin'
   gem 'sidekiq'
 #end
 

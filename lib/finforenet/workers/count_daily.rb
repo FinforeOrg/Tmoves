@@ -226,7 +226,7 @@ module Finforenet
         end
         
         def write_error_in_logfile(e)
-          @log = Logger.new("#{RAILS_ROOT}/log/daily_tweet.log")
+          @log = Logger.new("#{Rails.root}/log/daily_tweet.log")
           @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
           @log.debug "Date     : #{Time.now}"
           @log.debug "Error Msg: " + e.to_s

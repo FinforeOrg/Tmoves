@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Tmoves: tracking keywords for investors</title>
+    <%= include_stylesheets :admin %>
+    <% unless devise_controller? %>
+      <%= include_stylesheets :common, :workspace %>
+      <script type="text/javascript" src="/javascripts/jquery.js"></script> 
+      <%= include_javascripts :workspace %>
+      <%= include_javascripts :tickbox %>
+      <script type="text/javascript" src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>
+      <script type="text/javascript">
+        jQuery.noConflict();
+        $ = jQuery.noConflict();
+        $(document).ready(function(){
+          $("img.close").live("click",function(){
+  	    $(this).parent().fadeOut();
+	  });
+
+     $.defaultPopUp = {
+		'titleShow'     : false,
+		'transitionIn'	: 'elastic',
+		'transitionOut'	: 'elastic',
+		'easingIn'      : 'easeOutBack',
+		'easingOut'     : 'easeInBack'
+	  }
+
+          $("a.twtName, a.subscribes").fancybox($.defaultPopUp);
+      $.defaultPopUp['showCloseButton'] = false;
+
+          $("a.popUpMsg").fancybox({
+                'titleShow'     : false,
+                'showCloseButton' : false,
+                'transitionIn'  : 'elastic',
+                'transitionOut' : 'elastic',
+                'easingIn'      : 'easeOutBack',
+                'easingOut'     : 'easeInBack'
+          });
+
+          if ($.cookie('o8214SSoSSS3') != '1') {
+            $("a.popUpMsg").click();
+           }
+        });
+
+        function accept_toc(){
+           $.fancybox.close();
+           $.cookie('o8214SSoSSS3', '1'); 
+        }
+
+        function reject_toc(){
+            location.href = "http://www.finfore.info";
+        }
+
+    </script>
+
+    <% end %>
+    <%= csrf_meta_tag %>
+    <%= yield :head %>
+  </head>
+  <body>
+      <div class="content" id="admin" style="margin:0 15px;">
+        <div id="inner" style="margin-left:0px;">
+          <%= render :partial => "shared/head" %>
+          <div id="main" style="margin-top:15px;">
+          <% unless notice.blank? %>
+            <%= render :partial => 'admin/shared/notice', :locals => {:message => notice} %>
+          <% end %>
+            <%= yield %>
+          </div>
+        </div>
+      </div>
+
+      <a class="popUpMsg" href="/toc" style="display:none;">&nbsp;</a>
+  </body>
+</html>

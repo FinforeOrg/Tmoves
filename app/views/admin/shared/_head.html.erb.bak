@@ -1,0 +1,35 @@
+<div id="welcome-container">
+  <span id="title">Admin Interface</span>
+  <br />
+  Hello&nbsp;<span id="username"><%=current_admin.email%></span>
+</div>
+<div id="out">
+  <%= link_to "Sign out ", logout_path %>
+  <%=  image_tag("sign-out.png", {:border => 0}) %>
+</div>
+<ul id="menu-h-items">
+  <li>
+    <%= image_tag("blue/tweet_results.png", {:border => 0}),admin_tweet_results_path %>
+    <%= link_to image_tag("tweet_results_selected.png", {:border => 0, :class => "hover"}),admin_tweet_results_path %>
+  </li>
+  <li>
+    <%= image_tag("blue/keywords.png", {:border => 0}) %>
+    <%= link_to image_tag("keywords_selected.png", {:border => 0, :class => "hover"}), admin_keywords_path %>
+  </li>
+  <li>
+    <%= image_tag("blue/twitter_accounts.png", {:border => 0}) %>
+    <%= link_to image_tag("twitter_accounts_selected.png", {:border => 0, :class => "hover"}), admin_scanner_accounts_path %>
+  </li>
+  <li>
+    <%= image_tag("blue/tracks_board.png", {:border => 0}) %>
+    <%= link_to image_tag("tracks_board_selected.png", {:border => 0, :class => "hover"}), admin_scanner_tasks_path %>
+  </li>
+  <li>
+    <%= image_tag("blue/reports.png", {:border => 0}) %>
+    <%= link_to image_tag("reports_selected.png", {:border => 0, :class => "hover"}), admin_exports_path %>
+  </li>
+  <li>
+    <%= image_tag("blue/statistics.png", {:border => 0}) %>
+    <%= image_tag("statistics_selected.png", {:border => 0, :class => "hover"}) %>
+  </li>
+</ul>
