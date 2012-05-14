@@ -20,11 +20,11 @@
               %td{:style => "text-align:center;vertical-align:middle;"}
                 = arrow_symbol(@six_month_percent)
                 %h4
-                  = @six_month_percent
+                  = @six_month_percent.to_i
                   \%
             %tr.single_row
               %td 6 Months
-              %td= number_with_delimiter(@keyword_traffic.tweet_six_months)
+              %td= number_with_delimiter(@keyword_traffic.tweet_six_months.to_i)
               %td  
     .block{:style => "float:left;width:450px;position:relative;overflow:hidden;margin-right:10px;"}
       .block-header
@@ -44,20 +44,20 @@
                 = arrow_symbol(@seven_days_percent)
               %td
                 %h4
-                  = @seven_days_percent
+                  = @seven_days_percent.to_i
                   \%
               %td= number_with_delimiter(@keyword_traffic.tweet_total)
-              %td= number_with_delimiter(@keyword_traffic.tweet_average_seven_days)
+              %td= number_with_delimiter(@keyword_traffic.tweet_average_seven_days.to_i)
             %tr.single_row
               %td Audiences
               %td
                 = arrow_symbol(@audience_fourteen_percent)
               %td
                 %h4
-                  = @audience_fourteen_percent
+                  = @audience_fourteen_percent.to_i
                   \%
               %td= number_with_delimiter(@keyword_traffic.audience_total)
-              %td= number_with_delimiter(@keyword_traffic.audience_average_fourteen_days)
+              %td= number_with_delimiter(@keyword_traffic.audience_average_fourteen_days.to_i)
     #block-table
       %div
         .block{:style => "float:left;width:250px;position:relative;overflow:hidden;margin-right:10px;"}
@@ -104,7 +104,7 @@
     - if @is_ticker
       :javascript
         $(".price_chart").lineChart({
-           url: " prepare_ajax_path('/prices_data/', #{@keyword_traffic}) ",
+           url: "#{prepare_ajax_path('/prices_data/', @keyword_traffic)}",
            title: "CLOSING PRICE, LAST 14 DAYS",
            api: google,
            displayLegend: "top",
@@ -116,7 +116,7 @@
       $(document).ready(function(){
         $( ".block-tabs" ).tabs();
         $(".weekly_chart").comboChart({
-           url: " prepare_ajax_path('/statistics/', #{@keyword_traffic}) ",
+           url: "#{prepare_ajax_path('/statistics/', @keyword_traffic)}",
            parameters: {"type" : "weekly"},
            title: "NO. OF TWEETS, LAST 10 WEEKS",
            api: google,
@@ -127,7 +127,7 @@
            colors: ['blue','orange']
         });
         $(".monthly_chart").comboChart({
-           url: " prepare_ajax_path('/statistics/', #{@keyword_traffic}) ",
+           url: "#{prepare_ajax_path('/statistics/', @keyword_traffic)}",
            parameters: {"type" : "monthly"},
            title: "NO. OF TWEETS, LAST 6 MONTHS",
            api: google,
@@ -139,7 +139,7 @@
            colors: ['blue','orange']
         });
         $(".average_chart").lineChart({
-           url: " prepare_ajax_path('/average_statistic/', #{@keyword_traffic}) ",
+           url: "#{prepare_ajax_path('/average_statistic/', @keyword_traffic)}",
            parameters: {},
            title: "DAILY TWEETS V 7 DAY AVERAGE w/ PRICES, LAST 2 MONTHS",
            api: google,
@@ -149,7 +149,7 @@
            series: {2:{targetAxisIndex:1, visibleInLegend: true}}
         });
         $(".audience_chart").lineChart({
-           url: " prepare_ajax_path('/follower_weight/', #{@keyword_traffic}) ",
+           url: "#{prepare_ajax_path('/follower_weight/', @keyword_traffic)}",
            parameters: {"audience":true},
            title: "DAILY AUDIENCES & TWEETS, LAST 14 DAYS",
            api: google,
