@@ -97,8 +97,9 @@
           if(response && response != ""){
             var _total_page = $.formatNumber( response, {format:"#,000"} )
             $("td.total_db").html(_total_page);
+          }else{
+            $("td.total_db").html('TimeOut');
           }
-          refresh_total_page = setInterval(reload_total_records, 5000);
       });
     };
     var refresh_total_page = setInterval(reload_total_records, 15000);
