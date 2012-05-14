@@ -26,7 +26,7 @@ class HomeController < ApplicationController
     @statistics  = @categories.map do |category|
       {
         :title    => category.title,
-        :keywords => category.ordered_keywords.map{|keyword_id| @keyword_traffics[keyword_id.to_s]}
+        :keywords => category.ordered_keywords.map{|keyword| @keyword_traffics[keyword.id.to_s]}
       }
     end 
     render :layout => false
