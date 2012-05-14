@@ -159,6 +159,7 @@ class ApplicationController < ActionController::Base
       return (1..6).map{ (0..?z).map(&:chr).grep(/[a-z\d]/i)[rand(62)]}.join
     end
     
+    require 'csv'
     def get_tweet_price(query,date_at)
       query = CGI::escape(query.gsub(/\$/,""))
       date_str = CGI::escape(date_at.strftime('%b %d, %Y'))
