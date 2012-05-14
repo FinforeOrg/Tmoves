@@ -23,10 +23,10 @@
             %th Tweets
           %tr.single_row
             %td 1 Month
-            %td.tweet_month1= number_with_delimiter(@month1)
+            %td.tweet_month1 loading ...
           %tr.single_row
             %td 6 Months
-            %td.tweet_month6= number_with_delimiter(@month6)
+            %td.tweet_month6 loading ...
           %tr.single_row
             %td Total Database
             %td.total_db{:style => "font-weight:bold;font-size:16px;"}loading ...
@@ -72,6 +72,24 @@
     });
 :javascript
   $(document).ready(function(){
+    $.get("/total_records?month=1", {},
+      function(response) {
+        if(response && response != ""){
+          var _total_page = $.formatNumber( response, {format:"#,000"} )
+          $("td.tweet_month1").html(_total_page);
+        }else{
+          $("td.tweet_month1").html('TimeOut');
+        }
+    });
+    $.get("/total_records?month=6", {},
+      function(response) {
+        if(response && response != ""){
+          var _total_page = $.formatNumber( response, {format:"#,000"} )
+          $("td.tweet_month6").html(_total_page);
+        }else{
+          $("td.tweet_month6").html('TimeOut');
+        }
+    });
     var reload_total_records = function(){
       clearInterval(refresh_total_page);
       $.get("/total_records", {},
@@ -83,7 +101,7 @@
           refresh_total_page = setInterval(reload_total_records, 5000);
       });
     };
-    var refresh_total_page = setInterval(reload_total_records, 5000);
+    var refresh_total_page = setInterval(reload_total_records, 15000);
 
     $.get("/categories_tab",{},function(response){
       $( "#block-tab" ).html(response);

@@ -13,9 +13,9 @@ class HomeController < ApplicationController
     keywords = Keyword.all.cache
     @keyword = keywords[rand(keywords.size-1)]
     #@total = DailyTweet.sum(:total).to_i
-	  keyword_traffic = KeywordTraffic.lastest_info
-    @month1 = keyword_traffic.tweet_one_month
-    @month6 = keyword_traffic.tweet_six_months
+	  #keyword_traffic = KeywordTraffic.lastest_info
+    #@month1 = keyword_traffic.tweet_one_month
+    #@month6 = keyword_traffic.tweet_six_months
   end
   
   def categories_tab      
@@ -59,7 +59,25 @@ class HomeController < ApplicationController
 
   def total_records
     #count_total_records
-    @total = DailyTweet.sum(:total).to_i
+    if params[:month].present?
+      now = Time.now.utc.midnight
+      if params[:month].to_i == 1
+        end_at = now.beginning_of_month
+        start_at = end_at.ago(1.month)
+        @total_result = DailyTweet.where({:created_at => {"$gte" => start_at, "$lt" => end_at}}).sum(:total).to_i
+      elsif params[:month].to_i == 6
+        end_at = now.beginning_of_month
+        start_at = end_at.ago(6.months)
+        @total_result = DailyTweet.where({:created_at => {"$gte" => start_at, "$lt" => end_at}}).sum(:total).to_i
+      end
+    else
+      @total_result = DailyTweet.sum(:total).to_i
+    end
+    respond_to do |format|
+      format.html { render :text => @total_result }
+      format.xml  { render :xml => @total_result }
+      format.json { render :json => @total_result }
+    end
   end
   
   def prices_data
