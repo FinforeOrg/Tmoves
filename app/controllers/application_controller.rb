@@ -171,7 +171,7 @@ class ApplicationController < ActionController::Base
        @google_error = true
        return false
       else
-        data = FasterCSV.parse(file, :return_headers=>false).pop
+        data = CSV.parse(file).pop
         return data[4]
       end
     end
