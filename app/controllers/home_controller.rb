@@ -12,7 +12,7 @@ class HomeController < ApplicationController
     @chart_type = charts[random_chart]
     keywords = Keyword.all.cache
     @keyword = keywords[rand(keywords.size-1)]
-    @total = DailyTweet.sum(:total).to_i
+    #@total = DailyTweet.sum(:total).to_i
 	  keyword_traffic = KeywordTraffic.lastest_info
     @month1 = keyword_traffic.tweet_one_month
     @month6 = keyword_traffic.tweet_six_months
@@ -58,7 +58,8 @@ class HomeController < ApplicationController
   end
 
   def total_records
-    count_total_records
+    #count_total_records
+    @total = DailyTweet.sum(:total).to_i
   end
   
   def prices_data
