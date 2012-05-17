@@ -66,7 +66,7 @@ class TrackingResult
     def self.filter_keyword(status, dictionary)
       dictionary = dictionary.gsub(/(^\|)|(\|$)/i,"")
       matches_keywords = status.text.match(/#{dictionary}/i).to_a.select{ |m| m.present? }.uniq
-      result = matches_keywords.map{|mk| mk.gsub(/(^\s+)|(\s+$)/,"").downcase }.uniq
+      result = matches_keywords.map{|mk| mk.gsub(/(^\s+)|(\s+$)/,"").gsub(/^([^($|\w)])/i,"").downcase }.uniq
       return result
     end
 

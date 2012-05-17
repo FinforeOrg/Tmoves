@@ -8,21 +8,26 @@ module Finforenet
          @failed_tasks = []
          @counter = 0
          @is_emailed = false
-         @limit_at = datetime if datetime.present?
+         @limit_at = get_limit_at(datetime) if datetime.present?
          start_count_keywords
       end
       
       def start_count_keywords
         @keywords = get_static_keywords
-        last_dt_at = DailyTweet.desc(:created_at).first.created_at.utc.midnight
-        first_tr_at = TrackingResult.asc(:created_at).first.created_at.utc.midnight
-        if first_tr_at > last_dt_at
-          @start_at = first_tr_at
+        if @limit_at.blank?
+          last_dt_at = DailyTweet.desc(:created_at).first.created_at.utc.midnight
+          first_tr_at = TrackingResult.asc(:created_at).first.created_at.utc.midnight
+          if first_tr_at > last_dt_at
+            @start_at = first_tr_at
+          else
+            @start_at = last_dt_at.tomorrow
+          end
+          @start_at = @start_at.yesterday if @start_at > Time.now.utc.midnight
+          @end_at   = @start_at.tomorrow
         else
-          @start_at = last_dt_at.tomorrow
+          @start_at = @limit_at
+          @end_at = @start_at.tomorrow
         end
-        @start_at = @start_at.yesterday if @start_at > Time.now.utc.midnight
-        @end_at   = @start_at.tomorrow
         start_recursive
       end
       
@@ -40,20 +45,23 @@ module Finforenet
               populate_daily_tweet(keyword)
             end
           else
-            if keyword_traffic.audience_six_months.to_i < 1 || keyword_traffic.tweet_six_months.to_i < 1
+            #if keyword_traffic.audience_six_months.to_i < 1 || keyword_traffic.tweet_six_months.to_i < 1
+            #  count_six_months(keyword_traffic.id, keyword[:id])
+            #elsif keyword_traffic.audience_one_month.to_i < 1 || keyword_traffic.tweet_one_month.to_i < 1
+            #  count_one_month(keyword_traffic.id, keyword[:id])
+            #elsif keyword_traffic.audience_ten_weeks.to_i < 1 || keyword_traffic.tweet_ten_weeks.to_i < 1
+            #  count_ten_weeks(keyword_traffic.id, keyword[:id])
+            #elsif keyword_traffic.audience_seven_days.to_i < 1 || keyword_traffic.tweet_seven_days.to_i < 1
+            #  count_seven_days(keyword_traffic.id, keyword[:id])
+            #elsif keyword_traffic.audience_fourteen_days.to_i < 1 || keyword_traffic.tweet_fourteen_days.to_i < 1
+            #  count_fourteen_days(keyword_traffic.id, keyword[:id])
+            #else
+              daily_tweet = DailyTweet.where(opts).first
+              keyword_traffic.update_attributes({:tweet_total => daily_tweet.total.to_i, :audience_total => daily_tweet.follower.to_i})
               count_six_months(keyword_traffic.id, keyword[:id])
-            elsif keyword_traffic.audience_one_month.to_i < 1 || keyword_traffic.tweet_one_month.to_i < 1
-              count_one_month(keyword_traffic.id, keyword[:id])
-            elsif keyword_traffic.audience_ten_weeks.to_i < 1 || keyword_traffic.tweet_ten_weeks.to_i < 1
-              count_ten_weeks(keyword_traffic.id, keyword[:id])
-            elsif keyword_traffic.audience_seven_days.to_i < 1 || keyword_traffic.tweet_seven_days.to_i < 1
-              count_seven_days(keyword_traffic.id, keyword[:id])
-            elsif keyword_traffic.audience_fourteen_days.to_i < 1 || keyword_traffic.tweet_fourteen_days.to_i < 1
-              count_fourteen_days(keyword_traffic.id, keyword[:id])
-            else
-              @counter += 1
-              start_recursive
-            end
+              #@counter += 1
+              #start_recursive
+            #end
           end
         else
           recovery_error

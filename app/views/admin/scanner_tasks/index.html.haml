@@ -11,7 +11,7 @@
         - @scanner_tasks.each do |scanner_task|
           %tr
             %td= scanner_task.keywords.gsub(/\,/i,", ")
-            %td= link_to image_tag("icon-cancel.png", {:border => 0}), admin_scanner_task_path(scanner_task), :confirm => 'Are you sure?', :method => :delete
+            %td= button_to "delete", admin_scanner_task_path(scanner_task), :confirm => 'Are you sure?', :method => :delete
     %div
       = link_to 'New Tracker', new_admin_scanner_task_path
 .block

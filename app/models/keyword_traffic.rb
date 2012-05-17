@@ -26,7 +26,8 @@ class KeywordTraffic
   belongs_to :keyword
   
   def self.lastest_info
-    self.where({:tweet_one_month => {"$ne" => nil}, :tweet_six_months => {"$ne" => nil}}).desc(:created_at).first
+    #self.where({:tweet_one_month => {"$ne" => nil}, :tweet_six_months => {"$ne" => nil}}).desc(:created_at).first
+    self.desc(:created_at).first
   end
   
   def self.since(start_at)

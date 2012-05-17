@@ -101,7 +101,7 @@
             = image_tag("indicator.gif")
             loading price chart ...
     %script{:src => "http://www.google.com/jsapi", :type => "text/javascript"}
-    - if @is_ticker
+    - if @ticker
       :javascript
         $(".price_chart").lineChart({
            url: "#{prepare_ajax_path('/prices_data/', @keyword_traffic)}",

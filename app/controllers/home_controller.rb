@@ -22,7 +22,7 @@ class HomeController < ApplicationController
     @cache_name  = "categories_tab_" + @active_date.strftime("%b_%m_%Y")
     @categories  = KeywordCategory.all.asc(:index_at)
     @keyword_traffics = {}
-    KeywordTraffic.since(@active_date).map{|kt| @keyword_traffics.merge!({kt.keyword_id.to_s => kt})}
+    KeywordTraffic.since(@active_date.yesterday).map{|kt| @keyword_traffics.merge!({kt.keyword_id.to_s => kt})}
     @statistics  = @categories.map do |category|
       {
         :title    => category.title,
@@ -41,7 +41,7 @@ class HomeController < ApplicationController
   def info
     unless params[:keyword_id].blank?
       lastest      = KeywordTraffic.lastest_info
-      @active_date = lastest.created_at.utc.midnight.yesterday
+      @active_date = lastest.created_at.utc.midnight
       @keyword_traffic = KeywordTraffic.where({:created_at => @active_date, :keyword_id => params[:keyword_id]}).first
       @six_month_percent = @keyword_traffic.tweet_health_six_months
       @seven_days_percent = @keyword_traffic.tweet_health_seven_days
@@ -334,6 +334,6 @@ class HomeController < ApplicationController
     
     def prepare_lastest_traffic
       lastest      = KeywordTraffic.lastest_info
-      @active_date = lastest.created_at.utc.midnight.yesterday
+      @active_date = lastest.created_at.utc.midnight.tomorrow
     end
 end
