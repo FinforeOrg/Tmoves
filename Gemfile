@@ -40,6 +40,7 @@ end
   gem 'omniauth-twitter'
   gem 'omniauth-linkedin'
   gem 'exception_notification'
+  gem 'gibberish'
 #end
 
 #group :crons do

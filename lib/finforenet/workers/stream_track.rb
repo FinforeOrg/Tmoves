@@ -68,25 +68,30 @@ module Finforenet
 
         client = TweetStream::Client.new
         client.on_error do |message|
+          client.stop
           log_tweet_error(message)
-          sleep(random_timer)
         end.on_delete do |status_id, user_id|
-          delete_status(status_id, user_id)
+          DeleteStream.perform_async(status_id, user_id)
         end.track(*@keywords) do |status,client|
-          save_tracking(status)
-          #begin
-          #  SaveStream.perform_async(status,@dictionary,@tomorrow)
-          #rescue => e
-          #  log_accident(e)
-          #else
-          #  begin
-          #    @tomorrow = @tomorrow.tomorrow if status.created_at.to_datetime > @tomorrow
-          #  rescue => e
-          #    log_accident(e)
-          #  else
-          #  end
-          #end
+          save_by_worker(status,client)
+        end.on_reconnect do |timeout, retries|
+          
         end
+      end
+      
+      def save_by_worker(status,client)
+        encoded = Yajl::Encoder.encode(status)
+        secure_tweet = protect_text(encoded)
+        secure_dictionary = protect_text(@dictionary)
+        SaveStream.perform_async(secure_tweet,secure_dictionary,@tomorrow.to_i)
+        @tomorrow = @tomorrow.tomorrow if status.created_at.to_datetime > @tomorrow
+      rescue => e
+        log_accident(e)
+      end
+      
+      def protect_text(str)
+        cipher = Gibberish::AES.new("_!tM0v3s!_")
+        cipher.enc(str)
       end
 
       def log_accident(e)
@@ -120,10 +125,6 @@ module Finforenet
              end
            end
          end
-      end
-      
-      def delete_status(status_id, user_id)
-        TrackingResult.delete_status(status_id, user_id)
       end
       
       def save_tracking(status)

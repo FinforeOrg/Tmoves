@@ -48,7 +48,7 @@ class TrackingResult
   
   def self.delete_status(status_id, user_id)
     _result = self.where(:tweet_id => status_id.to_s).first
-    _result.delete
+    _result.destroy if _result
   end
   
   private
