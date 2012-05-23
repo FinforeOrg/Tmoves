@@ -24,6 +24,7 @@ class KeywordTraffic
   index([ [:created_on, Mongo::DESCENDING]], :background => true)
 
   belongs_to :keyword
+  after_create :after_creation
   
   def self.lastest_info
     #self.where({:tweet_one_month => {"$ne" => nil}, :tweet_six_months => {"$ne" => nil}}).desc(:created_at).first
@@ -67,7 +68,7 @@ class KeywordTraffic
   end
   
   def tweet_average_six_months
-    average_calculator(self.tweet_six_months.to_f, months_to_days(6))
+    average_calculator(self.tweet_six_months.to_f, 6)
   end
   
   def tweet_health_one_month
@@ -148,6 +149,24 @@ class KeywordTraffic
     end_date = self.created_at.to_date.beginning_of_month
     start_date = end_date.ago(_range.month).to_date
     return (end_date - start_date).to_i
+  end
+
+  def after_creation
+    if self.class.where({:created_at => self.created_at}).count >= 113
+      Member.all.each do |user|
+        begin
+          UserMailer.news_letter(user, self.created_at, self.created_at.tomorrow).deliver
+        rescue
+          @log = Logger.new("#{Rails.root}/log/daily_tweet.log")
+          @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+          @log.debug "Keyword Traffic Model Line 163"
+          @log.debug "Date     : #{Time.now}"
+          @log.debug "Error Msg: " + e.to_s
+          @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+        else
+        end  
+      end
+    end
   end
    
 end

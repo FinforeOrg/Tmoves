@@ -27,6 +27,7 @@ module Finforenet
           @keywords       = @stream_task.keywords
           @dictionary     = @stream_task.keywords_regex
         end
+        @log.debug "#{_return} Task ID  : #{@task_id}"
         return _return
       end
 
@@ -59,6 +60,12 @@ module Finforenet
           basic_login
         end
 
+            @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+            @log.debug "Date     : #{Time.now}"
+            @log.debug "Task ID  : #{@task_id}"
+            @log.debug "Dictionary: #{@dictionary}"
+            @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+
         client = TweetStream::Client.new
         client.on_error do |message|
           log_tweet_error(message)
@@ -67,6 +74,18 @@ module Finforenet
           delete_status(status_id, user_id)
         end.track(*@keywords) do |status,client|
           save_tracking(status)
+          #begin
+          #  SaveStream.perform_async(status,@dictionary,@tomorrow)
+          #rescue => e
+          #  log_accident(e)
+          #else
+          #  begin
+          #    @tomorrow = @tomorrow.tomorrow if status.created_at.to_datetime > @tomorrow
+          #  rescue => e
+          #    log_accident(e)
+          #  else
+          #  end
+          #end
         end
       end
 
@@ -76,8 +95,31 @@ module Finforenet
           @log.debug "Task ID  : #{@task_id}"
           @log.debug "Error Msg: " + e.to_s
           @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-          h = Net::HTTP.new('tmoves.com')
-          h.get("/admin/scanner_tasks/#{@task_id}/restart")
+          restart_worker
+      end
+
+      def restart_worker
+         #sleep(random_timer)
+         scanner_task = ScannerTask.where({:_id => @task_id}).first
+         TrackKeyword.perform_async(@task_id)
+         if scanner_task
+           accounts = ScannerAccount.where({:is_used => false})
+           total_account = accounts.count - 1
+           if total_account > 0
+             begin
+               account = accounts.to_a[rand(total_account)]
+             rescue
+               TrackKeyword.perform_async(@task_id)
+             else
+               if account
+                 scanner_task.scanner_account.update_attribute(:is_used, false)
+                 scanner_task.update_attribute(:scanner_account_id, account.id)
+                 account.update_attribute(:is_used, true)
+               end
+               TrackKeyword.perform_async(@task_id)
+             end
+           end
+         end
       end
       
       def delete_status(status_id, user_id)
@@ -110,10 +152,11 @@ module Finforenet
           @log.debug "Task ID : #{@task_id}"
           @log.debug "ERR: #{message}"
           @log.debug "-----------------------------------------------"
+          restart_worker
       end
 
       def random_timer
-        rand(60)*2
+        rand(30)*2
       end
     end
   end

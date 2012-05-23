@@ -22,6 +22,7 @@ class TrackingResult
   
   embeds_one :tracking_user
   accepts_nested_attributes_for :tracking_user
+  after_create :after_creation
   
   index :tweet_id, :unique => true
   index :created_at
@@ -57,6 +58,13 @@ class TrackingResult
       else
         return ""
       end
+    end
+
+    def after_creation
+      if $redis.get("total_db").to_i < 1
+        $redis.set "total_db", DailyTweet.sum(:total).to_i
+      end
+      $redis.incr "total_db"
     end
     
     def self.status_place(status)

@@ -1,79 +1,61 @@
-!!! Strict
-%html{"xml:lang" => "en", :xmlns => "http://www.w3.org/1999/xhtml"}
-	%head
-		%meta{:content => "text/html; charset=utf-8", "http-equiv" => "Content-Type"}/
-		%title Newsletter Tmoves
-		/ general stylesheet
-		:css
-			p { padding: 0; margin: 0; }
-			h1, h2, h3, p, li { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
-			td { vertical-align:top;}
-			ul, ol { margin: 0; padding: 0;}
-			.title, .date {
-				text-shadow: #8aa3c6 0px 1px 0px;
-			}
-
-			.textshadow {
-				text-shadow: #ffffff 0px 1px 0px;
-			}
-			.trxtshadow-2 {
-				text-shadow: #768296 0px -1px 0px;
-			}
-			%body{:background => "", :bgcolor => "", :leftmargin => "0", :marginheight => "0", :marginwidth => "0", :style => "margin: 0px; background-color: #eee; background-image: url(''); background-repeat: repeat;", :topmargin => "0"}
-				%table{:border => "0", :cellpadding => "0", :cellspacing => "0", :width => "100%"}
-					%tbody
-						%tr{:valign => "top"}
-							%td{:valign => "top"}
-								/ container
-								%table{:align => "center", :border => "0", :cellpadding => "0", :cellspacing => "0", :width => "626"}
-									%tbody
-										%tr
-											%td{:background => "http://www.tmoves.com/images/header-bg.jpg", :bgcolor => "#546781", :height => "97", :style => "vertical-align: middle;", :valign => "middle"}
-												%table{:align => "center", :border => "0", :cellpadding => "0", :cellspacing => "0", :height => "97", :width => "555"}
-													%tbody
-														%tr
-															%td{:style => "vertical-align:middle; text-align: left;", :valign => "middle", :width => "36"}
-																%img{:alt => "", :height => "", :src => "http://www.tmoves.com/images/finfore-logo.png", :style => "margin:0; margin-top: 4px; display: block;", :width => ""}
-															%td{:style => "vertical-align: middle; text-align: right;padding-top:12px;", :valign => "middle"}
-																%h1.title{:style => "margin:0; padding:0; font-size:20px; font-weight: normal; color: #192c45;"}
-																	%span{:style => "font-weight: bold;"}> report
-																	\ of #{@start_at.strftime('%b %d %Y')}
-															%td{:style => "vertical-align:middle; text-align: center;", :valign => "middle", :width => "55"}
-																%h2.date{:style => "margin:0; padding:0; font-size:13px; font-weight: normal; color: #192c45; text-transform: uppercase; font-weight: bold; line-height:1;"}
-																	%currentmonthname
-																%h2.date{:style => "margin:0; padding:0; font-size:23px; font-weight: normal; color: #192c45; font-weight: bold;"}
-																	%currentyear
-										%tr
-											%td{:valign => "top"}
-												%table{:align => "center", :bgcolor => "#ffffff", :border => "0", :cellpadding => "0", :cellspacing => "0", :style => "border-width: 3px; border-color: #ffffff; border-style: solid;", :width => "100%"}
-													%tbody
-														%tr
-															%td{:bgcolor => "#eef0f3", :style => "border-bottom-width: 3px; border-bottom-color: #ffffff; border-bottom-style: solid;", :valign => "top", :width => "100%"}
-																/ content
-																%table{:align => "center", :border => "0", :cellpadding => "0", :cellspacing => "0", :width => "100%"}
-																	%tbody
-																		%tr
-																			%td{:valign => "top"}
-																				%table{:align => "center", :border => "0", :cellpadding => "0", :cellspacing => "0", :width => "100%"}
-																					%tbody
-																						%tr
-																							%td{:bgcolor => "#edeff2", :style => "padding-top: 20px; padding-bottom: 15px; padding-left: 21px; padding-right: 21px; border-left-width: 1px; border-left-color: #bac2cc; border-left-style: solid; border-right-width: 1px; border-right-color: #bac2cc; border-right-style: solid; border-bottom-width: 3px; border-bottom-color: #ffffff; border-bottom-style: solid; border-top-width: 1px; border-top-color: #ffffff; border-top-style: solid;", :valign => "top"}
-																								%p{:style => "font-size: 12px; line-height: 20px; font-weight: normal; color: #56667d; margin: 0; margin-bottom: 10px;"}
-																									Dear #{@user.email}:
-																								%p{:style => "font-size: 12px; line-height: 20px; font-weight: normal; color: #56667d; margin: 0; margin-bottom: 10px;"}
-																									Please find below the summary daily alert from Tmoves for #{@start_at.strftime('%d %b %Y')}.
-																		- @reports.each do |report|
-																			= render :partial => "report", :locals => {:report => report}
-																		%tr
-																			%td{:bgcolor => "#e7eaee", :height => "50", :style => "vertical-align:middle; border-width: 1px; border-style: solid; border-color: #b6bec9; text-align: center;", :valign => "middle"}
-																				%p{:style => "margin:0; font-size: 10px; font-weight: bold; color: #96a2b3; font-family: Arial; line-height: 18px;"}
-																					TMoves is registered trademarks of
-																					= succeed "." do
-																						%a{:href => "http://www.finfore.info/"} Finfore Limited
-																					%br
-																						Finfore Limited, 4th Floor, 24/326 Regent Street, London W1B 3HH, United Kingdom. Ph +44 20 3286 0905
-																				%p{:style => "margin:0; font-size: 10px; font-weight: bold; color: #96a2b3; font-family: Arial; line-height: 18px;"}
-																					Don't want to receive these emails anymore? You can
-																					%a{:href => "http://www.tmoves.com/members/unsubscribe?email=#{@user.email}", :style => "color: #455670; text-decoration: underline;"}
-																						unsubscribe
-												/ /container
+:css
+  p { padding: 0; margin: 0; }
+  h1, h2, h3, p, li { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  td { vertical-align:top;}
+  ul, ol { margin: 0; padding: 0;}
+  .title, .date {
+    text-shadow: #8aa3c6 0px 1px 0px;
+  }
+  .textshadow {
+    text-shadow: #ffffff 0px 1px 0px;
+  }
+  .trxtshadow-2 {
+    text-shadow: #768296 0px -1px 0px;
+  }
+%div{:style => "margin: 0px; background-color: #eee; background-image: url(''); background-repeat: repeat;"}
+  %table{:border => "0", :cellpadding => "0", :cellspacing => "0", :width => "100%"}
+    %tbody
+      %tr{:valign => "top"}
+        %td{:valign => "top"}
+          %table{:align => "center", :border => "0", :cellpadding => "0", :cellspacing => "0", :width => "626"}
+            %tbody
+              %tr
+                %td{:bgcolor => "#546781", :height => "97", :style => "vertical-align: middle;", :valign => "middle"}
+                  %table{:align => "center", :border => "0", :cellpadding => "0", :cellspacing => "0", :height => "97", :width => "555"}
+                    %tbody
+                      %tr
+                        %td{:style => "vertical-align:middle; text-align: left;", :valign => "middle", :width => "36"}
+                          %img{:alt => "", :height => "", :src => "http://www.tmoves.com/assets/finfore-logo.png", :style => "margin:0; margin-top: 4px; display: block;", :width => ""}
+                        %td{:style => "vertical-align:middle; text-align: center;", :valign => "middle", :width => "55"}
+                          %h1.date{:style => "margin:0; padding:0; font-size:13px; font-weight: normal; color: #192c45; text-transform: uppercase; font-weight: bold; line-height:1;"}
+                            = @start_at.strftime('%B %Y')
+                      %tr
+                        %td{:valign => "top", :colspan => "2"}
+                          %table{:align => "center", :bgcolor => "#ffffff", :border => "0", :cellpadding => "0", :cellspacing => "0", :style => "border-width: 3px; border-color: #ffffff; border-style: solid;", :width => "100%"}
+                            %tbody
+                              %tr
+                                %td{:bgcolor => "#eef0f3", :style => "border-bottom-width: 3px; border-bottom-color: #ffffff; border-bottom-style: solid;", :valign => "top", :width => "100%"}
+                                  %table{:align => "center", :border => "0", :cellpadding => "0", :cellspacing => "0", :width => "100%"}
+                                    %tbody
+                                      %tr
+                                        %td{:valign => "top"}
+                                          %table{:align => "center", :border => "0", :cellpadding => "0", :cellspacing => "0", :width => "100%"}
+                                            %tbody
+                                              %tr
+                                                %td{:bgcolor => "#edeff2", :style => "padding-top: 20px; padding-bottom: 15px; padding-left: 21px; padding-right: 21px; border-left-width: 1px; border-left-color: #bac2cc; border-left-style: solid; border-right-width: 1px; border-right-color: #bac2cc; border-right-style: solid; border-bottom-width: 3px; border-bottom-color: #ffffff; border-bottom-style: solid; border-top-width: 1px; border-top-color: #ffffff; border-top-style: solid;", :valign => "top"}
+                                                  %p{:style => "font-size: 12px; line-height: 20px; font-weight: normal; color: #56667d; margin: 0; margin-bottom: 10px;"}
+                                                    Dear #{@user.email}:
+                                                  %p{:style => "font-size: 12px; line-height: 20px; font-weight: normal; color: #56667d; margin: 0; margin-bottom: 10px;"}
+                                                    Please find below the summary daily alert from Tmoves for #{@start_at.strftime('%d %b %Y')}.
+                                              - @reports.each do |report|
+                                                = render :partial => "report", :locals => {:report => report}
+                                              %tr
+                                                %td{:bgcolor => "#e7eaee", :height => "50", :style => "vertical-align:middle; border-width: 1px; border-style: solid; border-color: #b6bec9; text-align: center;", :valign => "middle"}
+                                                  %p{:style => "margin:0; font-size: 10px; font-weight: bold; color: #96a2b3; font-family: Arial; line-height: 18px;"}
+                                                    TMoves is registered trademarks of
+                                                    %br/
+                                                    Finfore Limited, 4th Floor, 24/326 Regent Street, London W1B 3HH, United Kingdom. Ph +44 20 3286 0905
+                                                  %p{:style => "margin:0; font-size: 10px; font-weight: bold; color: #96a2b3; font-family: Arial; line-height: 18px;"}
+                                                    Don't want to receive these emails anymore? You can
+                                                    %a{:href => "http://www.tmoves.com/members/unsubscribe?email=#{@user.email}", :style => "color: #455670; text-decoration: underline;"}
+                                                      unsubscribe

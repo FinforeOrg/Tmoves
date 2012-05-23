@@ -33,7 +33,7 @@ class HomeController < ApplicationController
   end
 
   def toc
-    respond_to do |format|
+   respond_to do |format|
       format.html {render :layout => false}
     end
   end
@@ -72,7 +72,8 @@ class HomeController < ApplicationController
         @total_result = DailyTweet.where({:created_at => {"$gte" => start_at, "$lt" => end_at}}).sum(:total).to_i
       end
     else
-      @total_result = DailyTweet.sum(:total).to_i
+      $redis.set "total_db", DailyTweet.sum(:total).to_i if $redis.get("total_db").to_i < 1
+      @total_result = $redis.get("total_db").to_i
     end
     respond_to do |format|
       format.html { render :text => @total_result }

@@ -33,24 +33,32 @@
             = render :partial => 'admin/shared/notice', :locals => {:message => notice}
           = yield
     %a.popUpMsg{:href => "/toc", :style => "display:none;"}  
-    :javascript
-      $(document).ready(function(){
-        $("img.close").live("click",function(){
-          $(this).parent().fadeOut();
-        });
-        $.defaultPopUp = {
-           'titleShow'     : false,
-           'transitionIn'      : 'elastic',
-           'transitionOut'     : 'elastic',
-           'easingIn'      : 'easeOutBack',
-           'easingOut'     : 'easeInBack'};
-        $("a.twtName, a.subscribes").fancybox($.defaultPopUp);
-        $.defaultPopUp['showCloseButton'] = false;
-        $("a.popUpMsg").fancybox($.defaultPopUp);
-        if ($.cookie('o8214SSoSSS3') != '1') {
-          if($.cookie('o8214SSoSSS3') == '2'){
-            $("a.popUpMsg").attr("href","/toc?reject=true");
-          }
-          $("a.popUpMsg").click();
-         }
-      });
+jvascript:
+  $(document).ready(function(){
+    $("img.close").live("click",function(){
+      $(this).parent().fadeOut();
+    });
+    $.defaultPopUp = {
+      'titleShow'     : false,
+      'transitionIn'      : 'elastic',
+      'transitionOut'     : 'elastic',
+      'easingIn'      : 'easeOutBack',
+      'easingOut'     : 'easeInBack'
+    });
+    $.defaultPopUp = {
+      'titleShow'     : false,
+      'transitionIn'      : 'elastic',
+      'transitionOut'     : 'elastic',
+      'easingIn'      : 'easeOutBack',
+      'easingOut'     : 'easeInBack'
+    }
+    $("a.twtName, a.subscribes").fancybox($.defaultPopUp);
+    $.defaultPopUp['showCloseButton'] = false;
+    $("a.popUpMsg").fancybox($.defaultPopUp);
+    if ($.cookie('o8214SSoSSS3') != '1') {
+      if($.cookie('o8214SSoSSS3') == '2'){
+        $("a.popUpMsg").attr("href","/toc?reject=true");
+      }
+      $("a.popUpMsg").click();
+    }
+  });

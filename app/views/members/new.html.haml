@@ -35,7 +35,6 @@
 
 			if(!$.emailRegex.test($('#member_email').val())){
 							$.is_error = true; $('#error_email').fadeIn();}
-//{'name' : $('#member_name').val(), 'email' : $('#member_email').val(), 'is_subscriber' : $('#member_is_subscriber').val()},
 						if(!$.is_error){
 				$.post($(this).attr('action'),
 																 $(this).serialize(),
