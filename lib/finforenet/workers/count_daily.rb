@@ -142,7 +142,7 @@ module Finforenet
         write_error_in_logfile(e)
         FailedDailyTask.create({:keyword_id         => keyword_id,
                                 :keyword_traffic_id => keyword_traffic_id,
-                                :start_at           => @started_at,
+                                :start_at           => @start_at,
                                 :end_at             => @end_at,
                                 :error_message      => e.to_s,
                                 :task_function      => task_function
@@ -173,12 +173,13 @@ module Finforenet
 
       def email_daily_report
         @is_emailed = true
-        #Member.all.each do |user|
-          user = Member.first
-          UserMailer.news_letter(user, @started_at, @ended_at).deliver  
+        Member.all.each do |user|
+          begin
+            UserMailer.news_letter(user, @start_at, @end_at).deliver  
           rescue => e
             write_error_in_logfile(e)
-        #end
+          end
+        end
       end
       
         def get_limit_at(datetime)
@@ -238,6 +239,7 @@ module Finforenet
           @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
           @log.debug "Date     : #{Time.now}"
           @log.debug "Error Msg: " + e.to_s
+          @log.debug e.backtrace
           @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
         end
 

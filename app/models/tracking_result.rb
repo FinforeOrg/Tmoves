@@ -24,10 +24,9 @@ class TrackingResult
   accepts_nested_attributes_for :tracking_user
   after_create :after_creation
   
-  index :tweet_id, :unique => true
+  index :tweet_id
   index :created_at
   index([ [:created_at, Mongo::DESCENDING]], :background => true)
-  validates_uniqueness_of :tweet_id
   
   def self.collections_by(options)
     self.where(options)

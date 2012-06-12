@@ -47,6 +47,8 @@ class HomeController < ApplicationController
       @seven_days_percent = @keyword_traffic.tweet_health_seven_days
       @audience_fourteen_percent = @keyword_traffic.audience_health_fourteen_days
       @ticker = @keyword_traffic.keyword.ticker
+      @daily_tweets = DailyTweet.where({:keyword_id => params[:keyword_id], :created_at => {"$gte"=> @active_date.ago(1.year),"$lte" => 
+@active_date}}).desc(:created_at)
     end
 
     respond_to do |format|
@@ -278,7 +280,14 @@ class HomeController < ApplicationController
            middle_month = @start_date.since((Time.days_in_month(@start_date.month,@start_date.year)/2).days)
            middle_month = middle_month.end_of_week.ago(2.days) if middle_month.strftime('%a').match(/Sun|Sat/i)
            @keyword = Keyword.find(keyword_id)
-           price = get_tweet_price(@keyword.price, middle_month) if !@google_error
+           if !@google_error
+             price = 0
+             start_price_date = middle_month
+             while price.to_f <= 0
+               price = get_tweet_price(@keyword.price, start_price_date)
+               start_price_date = start_price_date.yesterday if price.to_f <= 0
+             end
+           end
            row[:c].push({:v=>price.to_f}) if price
          #end
          @tweets = @tweets - current_tweets

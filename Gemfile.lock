@@ -59,6 +59,7 @@ GEM
     faraday (0.8.0)
       multipart-post (~> 1.1)
     fastercsv (1.5.4)
+    gibberish (1.2.0)
     haml (3.1.5)
     hashie (1.2.0)
     hike (1.2.1)
@@ -169,7 +170,7 @@ GEM
       railties (~> 3.2.0)
       sass (>= 3.1.10)
       tilt (~> 1.3)
-    sidekiq (1.2.0)
+    sidekiq (1.2.1)
       celluloid (~> 0.10.0)
       connection_pool (~> 0.9.0)
       multi_json (~> 1)
@@ -226,6 +227,7 @@ DEPENDENCIES
   devise
   exception_notification
   fastercsv
+  gibberish
   haml
   htmlentities
   jquery-rails

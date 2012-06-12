@@ -24,7 +24,7 @@ class KeywordTraffic
   index([ [:created_on, Mongo::DESCENDING]], :background => true)
 
   belongs_to :keyword
-  after_create :after_creation
+  #after_create :after_creation
   
   def self.lastest_info
     #self.where({:tweet_one_month => {"$ne" => nil}, :tweet_six_months => {"$ne" => nil}}).desc(:created_at).first
@@ -156,7 +156,7 @@ class KeywordTraffic
       Member.all.each do |user|
         begin
           UserMailer.news_letter(user, self.created_at, self.created_at.tomorrow).deliver
-        rescue
+        rescue => e
           @log = Logger.new("#{Rails.root}/log/daily_tweet.log")
           @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
           @log.debug "Keyword Traffic Model Line 163"

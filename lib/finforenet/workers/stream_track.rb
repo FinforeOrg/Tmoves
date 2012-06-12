@@ -71,7 +71,7 @@ module Finforenet
           client.stop
           log_tweet_error(message)
         end.on_delete do |status_id, user_id|
-          DeleteStream.perform_async(status_id, user_id)
+          #DeleteStream.perform_async(status_id, user_id)
         end.track(*@keywords) do |status,client|
           save_by_worker(status,client)
         end.on_reconnect do |timeout, retries|
