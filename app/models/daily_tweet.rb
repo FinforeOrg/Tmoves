@@ -5,7 +5,7 @@ class DailyTweet
   field :total,      :type => Integer
   field :created_at, :type => Time
   field :follower,   :type => Integer
-
+  field :price,      :type => Float
   index :created_at
   index [[:created_at, Mongo::DESCENDING]]
   index :keyword_id
@@ -24,10 +24,20 @@ class DailyTweet
       daily_tweet.inc(:total, _total)
       daily_tweet.inc(:follower, total_follower)
     else
-      DailyTweet.create({:keyword_id => _keyword_id, 
+      daily_tweet = DailyTweet.create({:keyword_id => _keyword_id, 
                          :total      => 1, 
                          :follower   => total_follower, 
                          :created_at => midnight})
+    end
+    daily_tweet.update_price
+    daily_tweet
+  end
+
+  def update_price
+    _keyword = self.keyword
+    if _keyword.present? && _keyword.ticker.present? && self.price.blank?
+      self.price = Finforenet::Utils::Price.check_price(_keyword.ticker, self.created_at)
+      self.save
     end
   end
   

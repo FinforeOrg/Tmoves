@@ -50,34 +50,31 @@ class HomeController < ApplicationController
       @daily_tweets = DailyTweet.where({:keyword_id => params[:keyword_id], :created_at => {"$gte"=> @active_date.ago(1.year),"$lte" => 
 @active_date}}).desc(:created_at)
       if @ticker.present?
-        #prices = get_tweet_prices(@ticker,@active_date.ago(1.year),@active_date)
-        #dts =[]
         @daily_tweets.each do |dt|
-          dt.update_price
-          #price = nil
-          #d_day = dt.created_at.to_date
-          #d_day = dt.created_at.yesterday.to_date if dt.created_at.saturday?
-          #d_day = dt.created_at.ago(2.days) if dt.created_at.sunday?
+          price = nil
+          d_day = dt.created_at.to_date
+          d_day = dt.created_at.yesterday.to_date if dt.created_at.saturday?
+          d_day = dt.created_at.ago(2.days) if dt.created_at.sunday?
 
-          #prices.each do |pr|
-            #if str_to_date(pr[0]) == d_day
-            #  price = pr[4].to_f
-            #  prices = prices - pr
-            #  break
-            #end
-          #end  
+          prices.each do |pr|
+            if str_to_date(pr[0]) == d_day
+              price = pr[4].to_f
+              prices = prices - pr
+              break
+            end
+          end  
 
-          #if price.blank?
-           # start_price_date = dt.created_at.yesterday
-           # while price.to_f <= 0
-           #   price = get_tweet_price(@ticker, start_price_date)
-           #   start_price_date = start_price_date.yesterday if price.to_f <= 0
-           # end            
-          #end
-          #dt.price = price
-          #dts << dt
-        end #if prices.present?
-        #@daily_tweets = dts if dts.present?
+          if price.blank?
+            start_price_date = dt.created_at.yesterday
+            while price.to_f <= 0
+              price = get_tweet_price(@ticker, start_price_date)
+              start_price_date = start_price_date.yesterday if price.to_f <= 0
+            end            
+          end
+          dt.price = price
+          dts << dt
+        end if prices.present?
+        @daily_tweets = dts if dts.present?
       end
     end
 

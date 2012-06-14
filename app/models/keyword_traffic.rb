@@ -15,7 +15,8 @@ class KeywordTraffic
   field :tweet_ten_weeks,     :type => Integer
   field :tweet_seven_days,    :type => Integer
   field :tweet_fourteen_days, :type => Integer
-  
+
+  field :price,          :type => Float  
   field :tweet_total,    :type => Integer
   field :audience_total, :type => Integer
   field :created_at,     :type => Time

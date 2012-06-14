@@ -114,11 +114,15 @@
                       %td Date
                       %td Tweets
                       %td Audiences
+                      -if @ticker.present?
+                        %td Price
                     - @daily_tweets.each do |daily_tweet|
                       %tr.single_row
                         %td= daily_tweet.created_at.strftime('%d %b %Y')
                         %td= number_with_delimiter(daily_tweet.total.to_i)
                         %td= number_with_delimiter(daily_tweet.follower.to_i)
+                        - if @ticker.present?
+                          %td= number_with_delimiter(daily_tweet.price.to_f)
     %script{:src => "http://www.google.com/jsapi", :type => "text/javascript"}
     - if @ticker
       :javascript

@@ -169,7 +169,7 @@ class ApplicationController < ActionController::Base
       rescue
        @cols.pop if !@google_error && @cols
        @google_error = true
-       return false
+       return nil
       else
         data = CSV.parse(file).pop
         return data[4]

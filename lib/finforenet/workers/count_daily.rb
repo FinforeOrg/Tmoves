@@ -166,7 +166,7 @@ module Finforenet
           email_daily_report unless @is_emailed
         end
       end
-
+      
       def random_timer
         return rand(10) + 5
       end  

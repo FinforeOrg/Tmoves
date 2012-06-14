@@ -30,7 +30,18 @@ module Finforenet
             @start_date = @start_date.tomorrow
           end #end_of_keywords
         end #end_of_while
+        rescue => e
+          write_error_in_logfile(e)
       end #end_of_start_summarize
+ 
+      def write_error_in_logfile(e)
+          @log = Logger.new("#{Rails.root}/log/resummarize.log")
+          @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+          @log.debug "Date     : #{Time.now}"
+          @log.debug "Error Msg: " + e.to_s
+          @log.debug e.backtrace
+          @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+      end
 
     end
   end
