@@ -26,7 +26,8 @@ end
 #end
 
 #group :libraries do
-  gem 'tweetstream'
+  gem 'multi_json'
+  gem 'tweetstream', ">= 2.0"
   gem 'json'
   gem 'whatlanguage'
   gem 'language_detector'

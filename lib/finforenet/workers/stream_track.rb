@@ -25,7 +25,8 @@ module Finforenet
         else
           @stream_account = @stream_task.scanner_account
           @keywords       = @stream_task.keywords
-          @dictionary     = @stream_task.keywords_regex
+          @dictionary     = $redis.get("keyword_regex")
+          #@dictionary     = @stream_task.keywords_regex
         end
         @log.debug "#{_return} Task ID  : #{@task_id}"
         return _return

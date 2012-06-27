@@ -11,7 +11,7 @@ class DailyTweet
   index :keyword_id
 
   belongs_to :keyword
-
+  before_create :before_creation
   #cache
   
   def self.save_total_and_follower(_created_at, total_follower, _keyword_id)
@@ -33,12 +33,16 @@ class DailyTweet
     daily_tweet
   end
 
+  def before_creation
+    self.update_price if self.valid?
+  end
+
   def update_price
     _keyword = self.keyword
     if _keyword.present? && _keyword.ticker.present? && self.price.blank?
       self.price = Finforenet::Utils::Price.check_price(_keyword.ticker, self.created_at)
       self.save
-    end
+    end if _keyword.title !~ /EURUSD|GBPUSD|(oil price)|(debt)/i
   end
   
   def self.find_keyword_periode(_keyword_id, start_at, end_at)

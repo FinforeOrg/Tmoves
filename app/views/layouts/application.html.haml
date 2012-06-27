@@ -8,7 +8,7 @@
       = stylesheet_link_tag 'workspace'
       = javascript_include_tag 'workspace'
       = javascript_include_tag 'tickbox'
-      %script{:src => "https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js", :type => "text/javascript"}
+      = javascript_include_tag 'jquery.cookie'
       :javascript
         jQuery.noConflict();
         $ = jQuery.noConflict();

@@ -23,6 +23,8 @@ class Secondary::TweetResult
   index [[:created_at, Mongo::DESCENDING]]
   shard_key :keywords, :created_at
 
+  belongs_to :tweet_user
+
   #cache
 
   def to_indexed_json

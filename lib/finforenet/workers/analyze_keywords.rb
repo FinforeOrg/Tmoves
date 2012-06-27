@@ -10,12 +10,13 @@ module Finforenet
 			
 			def update_daily_tweet(keywords, created_at, audience)
 				created_at = get_limit_at(created_at)
+                                start_from = "25/06/2012".to_time
 				keywords.split(",").each do |keyword|
-					sanitized_keyword = keyword.gsub(/(^\s+)|(\s+$)/i,"")
+					sanitized_keyword = keyword.gsub(/(^[^$|\w]+)|(\W+$)/i,"")
 					regex_keyword = Finforenet::Utils::String.keyword_regex(sanitized_keyword)
-					saved_keyword = Keyword.where({:title => regex_keyword}).first
+					saved_keyword = Keyword.where({:title => /#{regex_keyword}/i}).first
 					DailyTweet.save_total_and_follower(created_at, audience, saved_keyword.id) if saved_keyword
-				end
+				end if created_at >= start_from
 			end
 			
 			def get_limit_at(datetime)

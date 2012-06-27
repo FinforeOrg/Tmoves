@@ -5,6 +5,7 @@ module Finforenet
       attr_accessor :limit_at, :start_at, :end_at, :conter
 
       def initialize(datetime = nil)
+         $redis.set "daily_keyword_timestamp", datetime
          @failed_tasks = []
          @counter = 0
          @is_emailed = false

@@ -1,5 +1,5 @@
 class TrackingUser
-	include Mongoid::Document
+  include Mongoid::Document
 
 	field :description,       :type => String
 	field :followers_count,   :type => Integer

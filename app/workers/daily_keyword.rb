@@ -4,6 +4,6 @@ class DailyKeyword
   sidekiq_options :queue => :daily_keyword
   
   def perform(timestamp=nil)
-    Finforenet::Workers::CountDaily.new(timestamp)
+    Finforenet::Workers::CountDaily.new(timestamp) unless $redis.get("daily_keyword_timestamp") == timestamp
   end
 end

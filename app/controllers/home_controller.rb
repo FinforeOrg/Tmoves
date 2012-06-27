@@ -40,45 +40,14 @@ class HomeController < ApplicationController
 
   def info
     unless params[:keyword_id].blank?
-      lastest      = KeywordTraffic.lastest_info
-      @active_date = lastest.created_at.utc.midnight
-      @keyword_traffic = KeywordTraffic.where({:created_at => @active_date, :keyword_id => params[:keyword_id]}).first
+      @keyword_traffic = KeywordTraffic.where({:keyword_id => params[:keyword_id]}).desc(:created_at).first
+      @active_date = @keyword_traffic.created_at.utc.midnight
       @six_month_percent = @keyword_traffic.tweet_health_six_months
       @seven_days_percent = @keyword_traffic.tweet_health_seven_days
       @audience_fourteen_percent = @keyword_traffic.audience_health_fourteen_days
-      @ticker = @keyword_traffic.keyword.ticker
+      @ticker = @keyword_traffic.keyword_str.to_s !~ /GBPUSD|EURUSD|oil/i ? @keyword_traffic.keyword.ticker : nil
       @daily_tweets = DailyTweet.where({:keyword_id => params[:keyword_id], :created_at => {"$gte"=> @active_date.ago(1.year),"$lte" => 
 @active_date}}).desc(:created_at)
-      if @ticker.present?
-        #prices = get_tweet_prices(@ticker,@active_date.ago(1.year),@active_date)
-        #dts =[]
-        @daily_tweets.each do |dt|
-          dt.update_price
-          #price = nil
-          #d_day = dt.created_at.to_date
-          #d_day = dt.created_at.yesterday.to_date if dt.created_at.saturday?
-          #d_day = dt.created_at.ago(2.days) if dt.created_at.sunday?
-
-          #prices.each do |pr|
-            #if str_to_date(pr[0]) == d_day
-            #  price = pr[4].to_f
-            #  prices = prices - pr
-            #  break
-            #end
-          #end  
-
-          #if price.blank?
-           # start_price_date = dt.created_at.yesterday
-           # while price.to_f <= 0
-           #   price = get_tweet_price(@ticker, start_price_date)
-           #   start_price_date = start_price_date.yesterday if price.to_f <= 0
-           # end            
-          #end
-          #dt.price = price
-          #dts << dt
-        end #if prices.present?
-        #@daily_tweets = dts if dts.present?
-      end
     end
 
     respond_to do |format|
@@ -120,18 +89,10 @@ class HomeController < ApplicationController
     end_date = @active_date
     start_date = end_date.ago(2.weeks)
     @keyword = Keyword.find(params[:keyword_id])
-    prices = get_tweet_prices(@keyword.price,start_date,end_date).reverse
+    dts = DailyTweet.where({:keyword_id => params[:keyword_id], :created_at => {"$gte" => start_date, "$lt" => end_date}}).asc(:created_at)
     @rows = []
-    prices.each do |price|
-      price_date = str_to_date(price[0])
-      price_value = price[4].to_f
-      @rows.push({:c => [{ :v => price_date.strftime('%d %b %Y') },{ :v => price_value }]})
-      if price_date.strftime('%a').match(/Fri/i)
-	      saturday = price_date.tomorrow
-	      [saturday, saturday.tomorrow].each do |wday|
-	        @rows.push({:c => [{ :v => wday.strftime('%d %b %Y') },{ :v => price_value }]})
-	      end
-      end
+    dts.each do |dt|
+      @rows.push({:c => [{ :v => dt.created_at.strftime('%d %b %Y') },{ :v => dt.price.to_f }]})
     end
 
     respond_to do |format|
@@ -310,14 +271,8 @@ class HomeController < ApplicationController
            middle_month = @start_date.since((Time.days_in_month(@start_date.month,@start_date.year)/2).days)
            middle_month = middle_month.end_of_week.ago(2.days) if middle_month.strftime('%a').match(/Sun|Sat/i)
            @keyword = Keyword.find(keyword_id)
-           if !@google_error
-             price = 0
-             start_price_date = middle_month
-             while price.to_f <= 0
-               price = get_tweet_price(@keyword.price, start_price_date)
-               start_price_date = start_price_date.yesterday if price.to_f <= 0
-             end
-           end
+           dt = DailyTweet.where({:keyword_id => @keyword.id, :created_at => {"$gte" => middle_month, "$lt" => middle_month.tomorrow}}).first
+           price = dt.price
            row[:c].push({:v=>price.to_f}) if price
          #end
          @tweets = @tweets - current_tweets
@@ -339,7 +294,9 @@ class HomeController < ApplicationController
 
           #if params[:tickers].blank?
             @keyword = Keyword.find(keyword_id)
-            price = get_tweet_price(@keyword.price, @start_date.since(2.days)) if !@google_error
+            dt = DailyTweet.where({:keyword_id => @keyword.id, :created_at => {"$gte" => @start_date.since(2.days), "$lt" => 
+@start_date.since(2.days).tomorrow}}).first
+            price = dt.price 
             row[:c].push({:v=>price.to_f}) if price
           #end
 
