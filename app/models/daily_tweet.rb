@@ -20,26 +20,36 @@ class DailyTweet
                       :keyword_id => _keyword_id}
     daily_tweet = self.where(search_options).first
     if daily_tweet
-      _total = total_follower.to_i > 0 ? 1 : -1
-      daily_tweet.inc(:total, _total)
-      daily_tweet.inc(:follower, total_follower)
+      daily_tweet.update_total_follower(total_follower)
     else
-      daily_tweet = DailyTweet.create({:keyword_id => _keyword_id, 
+      sleep(rand(20))
+      daily_tweet = self.where(search_options).first
+      if daily_tweet
+       daily_tweet.update_total_follower(total_follower)
+      else
+       daily_tweet = DailyTweet.create({:keyword_id => _keyword_id, 
                          :total      => 1, 
                          :follower   => total_follower, 
                          :created_at => midnight})
+      end
     end
     daily_tweet.update_price
     daily_tweet
+  end
+
+  def update_total_follower(total_follower)
+    _total = total_follower.to_i > 0 ? 1 : -1
+    self.inc(:total, _total)
+    self.inc(:follower, total_follower)
   end
 
   def before_creation
     self.update_price if self.valid?
   end
 
-  def update_price
+  def update_price(reupdate=false)
     _keyword = self.keyword
-    if _keyword.present? && _keyword.ticker.present? && self.price.blank?
+    if (_keyword.present? && _keyword.ticker.present? && self.price.blank?) || reupdate
       self.price = Finforenet::Utils::Price.check_price(_keyword.ticker, self.created_at)
       self.save
     end if _keyword.title !~ /EURUSD|GBPUSD|(oil price)|(debt)/i

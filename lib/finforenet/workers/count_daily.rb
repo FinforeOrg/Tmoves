@@ -5,12 +5,15 @@ module Finforenet
       attr_accessor :limit_at, :start_at, :end_at, :conter
 
       def initialize(datetime = nil)
-         $redis.set "daily_keyword_timestamp", datetime
-         @failed_tasks = []
-         @counter = 0
-         @is_emailed = false
-         @limit_at = get_limit_at(datetime) if datetime.present?
-         start_count_keywords
+         sleep(rand(20))
+         unless $redis.get("daily_keyword_timestamp") == datetime
+           $redis.set "daily_keyword_timestamp", datetime
+           @failed_tasks = []
+           @counter = 0
+           @is_emailed = false
+           @limit_at = get_limit_at(datetime) if datetime.present?
+           start_count_keywords
+        end
       end
       
       def start_count_keywords

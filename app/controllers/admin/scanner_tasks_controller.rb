@@ -39,7 +39,7 @@ class Admin::ScannerTasksController < ApplicationController
   # POST /scanner_tasks
   # POST /scanner_tasks.xml
   def create
-    params[:scanner_task][:keywords] = params[:keywords].join(",")
+    params[:scanner_task][:keywords] = params[:keywords].join(",").gsub(/\&/,"&amp;")
     @scanner_task = ScannerTask.new(params[:scanner_task])
 
     respond_to do |format|
@@ -134,7 +134,7 @@ class Admin::ScannerTasksController < ApplicationController
      @twitters = ScannerAccount.not_in({"_id"=>ids}).order_by(:username).only(:id,:username)
      #@twitters = ScannerAccount.order_by(:username).only(:id,:username).all
      keywords = Keyword.order_by(:title).only(:title).all.map(&:title)
-     exists = ScannerTask.only(:keywords).all.map(&:keywords).join(",").split(",")
+     exists = ScannerTask.only(:keywords).all.map(&:keywords).join(",").gsub(/\&amp\;/i,"&").split(",")
      @lists = keywords - exists
    end
 
