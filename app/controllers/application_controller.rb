@@ -156,7 +156,7 @@ class ApplicationController < ActionController::Base
     end
 
     def generate_code
-      return (1..6).map{ (0..?z).map(&:chr).grep(/[a-z\d]/i)[rand(62)]}.join
+      return SecureRandom.hex(2)
     end
     
     require 'csv'

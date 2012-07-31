@@ -1,0 +1,5 @@
+nohup sidekiq -q default -e production -c 50 &
+nohup sidekiq -q keywords_analyst -c 30 -e production &
+nohup sidekiq -q track_keyword -c 5 -e production &
+nohup sidekiq -q daily_keyword -c 1 -e production &
+rackup sidekiq_web.ru -s thin -E production &

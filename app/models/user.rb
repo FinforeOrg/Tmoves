@@ -42,8 +42,8 @@ class User
   field :noticeable, type: Boolean, default: true
   
   # Indexing fields
-  index({full_name: 1})
-  index({email: 1})
+  index :full_name
+  index :email
 
   has_many :exports, :dependent => :destroy
 

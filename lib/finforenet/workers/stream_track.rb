@@ -25,7 +25,8 @@ module Finforenet
         else
           @stream_account = @stream_task.scanner_account
           @keywords       = @stream_task.keywords
-          @dictionary     = $redis.get("keyword_regex").gsub(/\&/,"&amp;")
+          $redis.set("keywords_regex", ScannerTask.all.map(&:keywords_regex).join("|"))
+          #@dictionary     = $redis.get("keywords_regex").gsub(/\&/,"&amp;")
           #@dictionary     = @stream_task.keywords_regex
         end
         @log.debug "#{_return} Task ID  : #{@task_id}"
@@ -55,16 +56,16 @@ module Finforenet
       end
 
       def start_scan
-        if @stream_account.token.present?
-          oauth_login
-        else
+        #if @stream_account.token.present?
+        #  oauth_login
+        #else
           basic_login
-        end
+        #end
 
             @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
             @log.debug "Date     : #{Time.now}"
             @log.debug "Task ID  : #{@task_id}"
-            @log.debug "Dictionary: #{@dictionary}"
+            @log.debug "Dictionary: #{$redis.get('keywords_regex')}"
             @log.debug "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
 
         client = TweetStream::Client.new
@@ -75,15 +76,13 @@ module Finforenet
           #DeleteStream.perform_async(status_id, user_id)
         end.track(*@keywords) do |status,client|
           save_by_worker(status,client)
-        end.on_reconnect do |timeout, retries|
-          
         end
       end
       
       def save_by_worker(status,client)
         encoded = Yajl::Encoder.encode(status)
         secure_tweet = protect_text(encoded)
-        secure_dictionary = protect_text(@dictionary)
+        secure_dictionary = protect_text($redis.get("keywords_regex"))
         SaveStream.perform_async(secure_tweet,secure_dictionary,@tomorrow.to_i)
         @tomorrow = @tomorrow.tomorrow if status.created_at.to_datetime > @tomorrow
       rescue => e
@@ -107,7 +106,7 @@ module Finforenet
       def restart_worker
          #sleep(random_timer)
          scanner_task = ScannerTask.where({:_id => @task_id}).first
-         TrackKeyword.perform_async(@task_id)
+         #TrackKeyword.perform_async(@task_id)
          if scanner_task
            accounts = ScannerAccount.where({:is_used => false})
            total_account = accounts.count - 1
@@ -124,13 +123,15 @@ module Finforenet
                end
                TrackKeyword.perform_async(@task_id)
              end
+           else
+             TrackKeyword.perform_async(@task_id)
            end
          end
       end
       
       def save_tracking(status)
         begin
-          tracking_result = TrackingResult.create_status(status, @dictionary)
+          tracking_result = TrackingResult.create_status(status, $redis.get("keywords_regex"))
         rescue => e
           log_tweet_error(e.to_s)
         else
@@ -141,8 +142,8 @@ module Finforenet
             else
             end
             if tracking_result.created_at.to_time.utc > @tomorrow
-              DailyKeyword.perform_async(@tomorrow.yesterday.to_i)
-			        @tomorrow = @tomorrow.tomorrow
+            #  DailyKeyword.perform_async(@tomorrow.yesterday.to_i)
+	    		        @tomorrow = @tomorrow.tomorrow
             end
           end
         end

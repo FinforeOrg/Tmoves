@@ -43,8 +43,8 @@ class Member
   field :subdomain, type: String
   
   # Indexing fields
-  index({full_name: 1})
-  index({email: 1})
+  index :full_name
+  index :email
 
   field :is_subscriber, :type => Boolean, :default => true
   

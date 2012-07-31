@@ -176,12 +176,16 @@ module Finforenet
       end  
 
       def email_daily_report
-        @is_emailed = true
-        Member.all.each do |user|
-          begin
-            UserMailer.news_letter(user, @start_at, @end_at).deliver  
-          rescue => e
-            write_error_in_logfile(e)
+        sleep(rand(50))
+        if $redis.get("newsletter_date") != @start_at.to_date
+          $redis.set("newsletter_date", @start_at.to_date)
+          @is_emailed = true
+          Member.all.each do |user|
+            begin
+              UserMailer.news_letter(user, @start_at, @end_at).deliver  
+            rescue => e
+              write_error_in_logfile(e)
+            end
           end
         end
       end
