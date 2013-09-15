@@ -30,9 +30,9 @@ module Finforenet
 				if tracking_result
 					keyword, timestamp = tracking_result.keywords_str, tracking_result.created_at.to_i
 					KeywordsAnalyst.perform_async(keyword, timestamp, @status.user.followers_count)
-					#if tracking_result.created_at.to_time.utc > @tomorrow
-					#	DailyKeyword.perform_async(@tomorrow.yesterday.to_i)
-					#end
+					if tracking_result.created_at.to_time.utc > @tomorrow
+						DailyKeyword.perform_async(@tomorrow.yesterday.to_i)
+					end
 				end
 			end
 			

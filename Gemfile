@@ -30,7 +30,7 @@ gem 'eventmachine' ,'1.0.0.rc.3'
 
 #group :libraries do
   gem 'multi_json'
-  gem 'tweetstream', ">= 2.0"
+  gem 'tweetstream' #, ">= 2.0"
   gem 'json'
   gem 'whatlanguage'
   gem 'language_detector'
@@ -45,6 +45,7 @@ gem 'eventmachine' ,'1.0.0.rc.3'
   gem 'omniauth-linkedin'
   gem 'exception_notification'
   gem 'gibberish'
+  gem 'railroady', :git => "git@github.com:jiren/railroady.git"
 #end
 
 #group :crons do
@@ -53,7 +54,8 @@ gem 'eventmachine' ,'1.0.0.rc.3'
   gem 'sinatra'
   gem 'slim'
   gem 'thin'
-  gem 'sidekiq'
+  gem 'celluloid' #, '0.10.0' #, :path => './engines/celluloid.0.12.0'
+  gem 'sidekiq' #, '1.2.1'
 #end
 
 #group :analyzer do

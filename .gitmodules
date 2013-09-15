@@ -1,0 +1,3 @@
+[submodule "engines/celluloid.0.12.0"]
+	path = engines/celluloid.0.12.0
+	url = git://github.com/celluloid/celluloid.git

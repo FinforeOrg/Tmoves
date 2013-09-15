@@ -136,7 +136,7 @@ class Admin::ScannerAccountsController < ApplicationController
     end
 
     def twitter_screen_name(access_token)
-      person = MultiJson.decode(access_token.get('/1/account/verify_credentials.json').body)
+      person = MultiJson.decode(access_token.get('/1.1/account/verify_credentials.json').body)
       return person['screen_name']
     end
 

@@ -1,7 +1,7 @@
 class Admin::ScannerTasksController < ApplicationController
   layout "admin"
   before_filter :authenticate_admin!, :except => [:restart]
-  before_filter :prepare_keywords, :except => [:index,:destroy]
+  before_filter :prepare_keywords, :except => [:index,:destroy, :restart]
 
   # GET /scanner_tasks
   # GET /scanner_tasks.xml
@@ -140,7 +140,7 @@ class Admin::ScannerTasksController < ApplicationController
 
    def start_queue(queue_name)
      if queue_name == 'DailyKeyword'
-       DailyKeyword.perform_async
+       DailyKeyword.perform_async params[:timestamp]
      elsif queue_name == 'KeywordsAnalyst'
        KeywordsAnalyst.perform_async
      end

@@ -5,7 +5,7 @@ module Finforenet
       attr_accessor :limit_at, :start_at, :end_at, :conter
 
       def initialize(datetime = nil)
-         sleep(rand(20))
+         sleep(rand(60))
          unless $redis.get("daily_keyword_timestamp") == datetime
            $redis.set "daily_keyword_timestamp", datetime
            @failed_tasks = []

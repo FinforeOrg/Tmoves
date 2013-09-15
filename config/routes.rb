@@ -65,6 +65,7 @@ Streaming::Application.routes.draw do
       get 'restart'
      end
      collection do
+      get 'restart'
       get 'more_workers'
       get 'export_track'
       get 'shutdown_worker'

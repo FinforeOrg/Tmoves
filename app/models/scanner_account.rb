@@ -7,6 +7,6 @@ class ScannerAccount
   field :secret, :type => String
 
   has_many :scanner_tasks
-  has_many :twitter_followers
+  #has_many :twitter_followers
   has_one :scanner_task
 end
